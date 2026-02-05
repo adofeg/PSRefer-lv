@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Offering extends Model
 {
-  use HasFactory, HasUuids, SoftDeletes;
+  use HasFactory, SoftDeletes;
 
   protected $guarded = ['id'];
 
@@ -26,7 +25,7 @@ class Offering extends Model
 
   public function owner()
   {
-    return $this->belongsTo(User::class, 'owner_id');
+    return $this->belongsTo(Employee::class, 'owner_employee_id');
   }
 
   public function referrals()
@@ -37,5 +36,41 @@ class Offering extends Model
   public function clicks()
   {
     return $this->hasMany(ReferralClick::class);
+  }
+
+  // Query Scopes
+  public function scopeSearch($query, $term)
+  {
+    if (!$term) return $query;
+    return $query->where(function ($q) use ($term) {
+      $q->where('name', 'like', '%' . $term . '%')
+        ->orWhere('description', 'like', '%' . $term . '%');
+    });
+  }
+
+  public function scopeFilterByType($query, $type)
+  {
+    if (!$type) return $query;
+    return $query->where('type', $type);
+  }
+
+  public function category()
+  {
+    return $this->belongsTo(Category::class);
+  }
+
+  public function scopeFilterByCategory($query, $category)
+  {
+    if (!$category) return $query;
+    return $query->where(function($q) use ($category) {
+        $q->where('category', $category)
+          ->orWhere('category_id', $category);
+    });
+  }
+
+  public function scopeExcludeCategory($query, $category)
+  {
+    if (!$category) return $query;
+    return $query->where('category', '!=', $category);
   }
 }

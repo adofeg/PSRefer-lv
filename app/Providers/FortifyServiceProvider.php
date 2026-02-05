@@ -9,8 +9,10 @@ use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 
@@ -36,18 +38,18 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         Fortify::loginView(function () {
-            return \Inertia\Inertia::render('Auth/Login', [
-                'canResetPassword' => \Illuminate\Support\Facades\Route::has('password.request'),
+            return Inertia::render('Auth/Login', [
+                'canResetPassword' => Route::has('password.request'),
                 'status' => session('status'),
             ]);
         });
 
         Fortify::registerView(function () {
-            return \Inertia\Inertia::render('Auth/Register');
+            return Inertia::render('Auth/Register');
         });
 
-        Fortify::verifyEmailView(function () {
-             return \Inertia\Inertia::render('Auth/VerifyEmail', [
+           Fortify::verifyEmailView(function () {
+               return Inertia::render('Auth/VerifyEmail', [
                  'status' => session('status'),
              ]);
         });

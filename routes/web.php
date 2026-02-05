@@ -1,29 +1,21 @@
 <?php
 
-use Inertia\Inertia;
+use App\Http\Controllers\Private\DashboardRedirectController;
+use App\Http\Controllers\Public\PublicController;
+use Illuminate\Support\Facades\Route;
 
 // Public Welcome Route
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('home');
+Route::get('/', [PublicController::class, 'home'])->name('home');
+
+// Public Offering Application Routes (No Auth Required)
+Route::prefix('public')->name('public.')->group(function () {
+    Route::get('/apply/{offeringId}', [PublicController::class, 'showOfferingApplication'])
+        ->name('apply');
+    Route::post('/apply/{offeringId}', [PublicController::class, 'submitOfferingApplication'])
+        ->name('apply.submit');
+});
 
 // Dashboard Redirect Logic
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-
-        // Check Roles (using Spatie)
-        // Admin, PSAdmin, Associate -> Admin Dashboard
-        if ($user->hasRole(['admin', 'psadmin', 'associate'])) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        // Future: Client Dashboard?
-        // if ($user->hasRole('client')) { return redirect()->route('client.dashboard'); }
-
-        return redirect()->route('home');
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
 });

@@ -19,13 +19,12 @@ class OfferingFactory extends Factory
         return [
             'name' => $this->faker->bs(),
             'description' => $this->faker->paragraph(),
-            'slug' => $this->faker->slug(),
             'base_price' => $this->faker->randomFloat(2, 1000, 50000),
             'commission_rate' => $this->faker->randomFloat(2, 5, 20),
             'is_active' => true,
             'form_schema' => [],
             'commission_config' => [],
-            'owner_id' => \App\Models\User::factory(), // Each offering belongs to a user (Admin/Partner)
+            'owner_employee_id' => \App\Models\Employee::factory(),
         ];
     }
 }

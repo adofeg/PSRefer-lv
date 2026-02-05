@@ -8,22 +8,31 @@ use App\Models\Offering;
 class OfferingData extends Data
 {
     public function __construct(
-        public string $id,
+        public int $id,
         public string $name,
-        public string $slug,
+        public string $type,
+        public ?string $category,
+        public ?int $category_id,
         public ?string $description,
+        public float $commission_rate,
         public bool $is_active,
-        // Add other fields as needed based on the Offering model
+        public ?array $form_schema = [],
+        public ?array $commission_rules = [],
     ) {}
 
     public static function fromModel(Offering $offering): self
     {
         return new self(
-            id: $offering->id,
+            id: (int) $offering->id,
             name: $offering->name,
-            slug: $offering->slug,
+            type: $offering->type,
+            category: $offering->category_id ? $offering->category?->name : $offering->category,
+            category_id: $offering->category_id ? (int) $offering->category_id : null,
             description: $offering->description,
-            is_active: $offering->is_active,
+            commission_rate: (float) $offering->commission_rate,
+            is_active: (bool) $offering->is_active,
+            form_schema: $offering->form_schema ?? [],
+            commission_rules: $offering->commission_rules ?? [],
         );
     }
 }

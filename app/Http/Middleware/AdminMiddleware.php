@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Enums\RoleName;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class AdminMiddleware
    */
   public function handle(Request $request, Closure $next): Response
   {
-    if (Auth::check() && in_array(Auth::user()->role, ['admin', 'psadmin'])) {
+    if (Auth::check() && Auth::user()->hasRole(RoleName::adminRoles())) {
       return $next($request);
     }
 

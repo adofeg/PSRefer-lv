@@ -35,6 +35,8 @@ class UserFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (\App\Models\User $user) {
+            $associate = \App\Models\Associate::factory()->create();
+            $associate->user()->save($user);
             $user->assignRole('associate');
         });
     }

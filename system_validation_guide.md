@@ -44,7 +44,7 @@ These rules are enforced in the Controllers (`ReferralController`, `OfferingCont
     *   **Validation:** Requires `offering_id` (valid UUID), `client_name` (string). notes/metadata optional.
 
 2.  **Visibility Rules:**
-    *   **Associate:** Can ONLY see referrals where `user_id` matches their ID.
+    *   **Associate:** Can ONLY see referrals where `associate_id` matches their profile ID.
     *   **Admin/PSAdmin:** Can see ALL referrals.
 
 3.  **Status Updates:**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Data\Offerings\OfferingUpsertData;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Offering;
 
@@ -25,11 +26,14 @@ class OfferingRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'category' => 'nullable|string|max:1000',
             'description' => 'nullable|string',
             'base_price' => 'nullable|numeric',
             'commission_rate' => 'nullable|numeric',
             'form_schema' => 'nullable|array',
             'commission_config' => 'nullable|array',
+            'commission_rules' => 'nullable|array',
         ];
 
         // Add update-specific rules
@@ -39,5 +43,21 @@ class OfferingRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    public function toData(): OfferingUpsertData
+    {
+        return new OfferingUpsertData(
+            name: $this->validated('name', $this->route('offering')?->name),
+            category_id: $this->validated('category_id'),
+            category: $this->validated('category'),
+            description: $this->validated('description'),
+            base_price: $this->validated('base_price'),
+            commission_rate: $this->validated('commission_rate'),
+            form_schema: $this->validated('form_schema'),
+            commission_config: $this->validated('commission_config'),
+            commission_rules: $this->validated('commission_rules'),
+            is_active: $this->validated('is_active')
+        );
     }
 }

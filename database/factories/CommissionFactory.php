@@ -18,7 +18,7 @@ class CommissionFactory extends Factory
     {
         return [
             'referral_id' => \App\Models\Referral::factory(),
-            'user_id' => \App\Models\User::factory(),
+            'associate_id' => \App\Models\Associate::factory(),
             'amount' => $this->faker->randomFloat(2, 50, 5000),
             'status' => $this->faker->randomElement(['Pending', 'Paid', 'Cancelled']),
             'commission_percentage' => 10.00,

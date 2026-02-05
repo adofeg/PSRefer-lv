@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Commission extends Model
 {
-  use HasFactory, HasUuids;
+  use HasFactory;
 
   protected $guarded = ['id'];
 
@@ -19,9 +18,9 @@ class Commission extends Model
     'recurrence_end_date' => 'datetime',
   ];
 
-  public function user()
+  public function associate()
   {
-    return $this->belongsTo(User::class);
+    return $this->belongsTo(Associate::class);
   }
 
   public function referral()

@@ -3,11 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\ReferralClosed;
+use App\Enums\ReferralStatus;
 use App\Models\Commission;
 use App\Services\CommissionCalculator;
+use App\Enums\CommissionStatus;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Str;
 
 class GenerateCommission
 {
@@ -19,7 +20,7 @@ class GenerateCommission
   {
     $referral = $event->referral;
 
-    if ($referral->status !== 'Cerrado') {
+    if ($referral->status !== ReferralStatus::Closed->value) {
       return;
     }
 
@@ -27,12 +28,11 @@ class GenerateCommission
 
     if ($amount > 0) {
       Commission::create([
-        'id' => Str::uuid(),
         'referral_id' => $referral->id,
-        'user_id' => $referral->user_id,
+        'associate_id' => $referral->associate_id,
         'amount' => $amount,
         'commission_percentage' => $referral->offering->commission_rate,
-        'status' => 'pending',
+        'status' => CommissionStatus::Pending->value,
         'commission_type' => 'direct',
       ]);
     }

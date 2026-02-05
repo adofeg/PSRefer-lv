@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -19,24 +18,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $psadmin = Role::firstOrCreate(['name' => 'psadmin', 'guard_name' => 'web']);
         $associate = Role::firstOrCreate(['name' => 'associate', 'guard_name' => 'web']);
 
-        // Migrate Old Roles to Spatie Roles
-        $users = User::all();
-
-        foreach ($users as $user) {
-            $legacyRole = $user->role; // Accessing the string column
-
-            switch ($legacyRole) {
-                case 'admin':
-                    $user->assignRole($admin);
-                    break;
-                case 'psadmin':
-                    $user->assignRole($psadmin);
-                    break;
-                case 'associate':
-                default:
-                    $user->assignRole($associate);
-                    break;
-            }
-        }
+        // Assignment is handled in UserSeeder / registration flow.
     }
 }

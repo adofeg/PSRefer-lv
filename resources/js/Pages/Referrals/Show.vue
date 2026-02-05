@@ -1,28 +1,23 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
-import { ArrowLeft } from 'lucide-vue-next';
+import StatusChangeModal from '@/Components/StatusChangeModal.vue';
+import AuditTimeline from '@/Components/AuditTimeline.vue';
+import { ArrowLeft, History } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps({
     referral: Object,
     auth: Object
 });
 
-const updateStatusForm = useForm({
-    status: '',
-    notes: '',
-    revenue: null
-});
+const showStatusModal = ref(false);
 
-const updateStatus = (status) => {
-    if (!confirm(`¿Estás seguro de cambiar el estatus a ${status}?`)) return;
-
-    updateStatusForm.status = status;
-    updateStatusForm.patch(route('admin.referrals.update', props.referral.id), {
-        onSuccess: () => updateStatusForm.reset()
-    });
+const handleStatusUpdated = () => {
+    // Inertia will auto-refresh the page data
+    showStatusModal.value = false;
 };
 </script>
 
@@ -39,8 +34,15 @@ const updateStatus = (status) => {
                     <h1 class="text-2xl font-bold text-slate-800">{{ referral.client_name }}</h1>
                     <p class="text-slate-500">Detalles de la referencia</p>
                 </div>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center gap-3">
                     <Badge :status="referral.status" class="text-sm px-3 py-1" />
+                    <button 
+                        v-if="['admin', 'psadmin'].includes($page.props.auth.user.role)"
+                        @click="showStatusModal = true" 
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium text-sm"
+                    >
+                        Cambiar Estado
+                    </button>
                 </div>
             </div>
 
@@ -58,7 +60,7 @@ const updateStatus = (status) => {
                             <dd class="font-medium text-slate-800">{{ referral.client_contact || 'No registrado' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-sm text-slate-500">Notas</dt>
+                            <dt class="text-sm text-slate-500">Notas Iniciales</dt>
                             <dd class="text-slate-600 bg-slate-50 p-3 rounded-lg">{{ referral.notes || 'Sin notas' }}</dd>
                         </div>
                     </dl>
@@ -79,17 +81,52 @@ const updateStatus = (status) => {
                     </div>
                 </Card>
 
-                <!-- Admin Action Area -->
-                <Card v-if="$page.props.auth.user.role === 'psadmin'" class="md:col-span-2 border-indigo-100 bg-indigo-50/30">
-                     <h3 class="font-bold text-lg mb-4 text-indigo-900">Gestión Administrativa</h3>
-                     <div class="flex flex-wrap gap-3">
-                        <button v-if="referral.status !== 'Contactado'" @click="updateStatus('Contactado')" class="px-4 py-2 bg-white border border-indigo-200 text-indigo-700 rounded hover:bg-indigo-50">Marcar Contactado</button>
-                        <button v-if="referral.status !== 'En Proceso'" @click="updateStatus('En Proceso')" class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200">En Proceso</button>
-                        <button v-if="referral.status !== 'Cerrado'" @click="updateStatus('Cerrado')" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold shadow-sm">Cerrar Venta (Ganada)</button>
-                        <button v-if="referral.status !== 'Perdido'" @click="updateStatus('Perdido')" class="px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200">Marcar Perdido</button>
-                     </div>
+                <!-- Financial Details -->
+                <Card v-if="referral.status === 'Cerrado' || referral.contract_id" class="md:col-span-2">
+                    <h3 class="font-bold text-lg mb-4 text-slate-800">Detalles Financieros de la Venta</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div>
+                            <dt class="text-xs text-slate-500 uppercase font-bold mb-1">ID Contrato</dt>
+                            <dd class="text-sm font-medium text-slate-800">{{ referral.contract_id || 'N/A' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-slate-500 uppercase font-bold mb-1">Método Pago</dt>
+                            <dd class="text-sm font-medium text-slate-800">{{ referral.payment_method || 'N/A' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-slate-500 uppercase font-bold mb-1">Pago Inicial</dt>
+                            <dd class="text-sm font-medium text-green-600 font-mono">${{ referral.down_payment || '0.00' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-slate-500 uppercase font-bold mb-1">Venta Total</dt>
+                            <dd class="text-sm font-bold text-slate-900 font-mono">${{ referral.revenue_generated || '0.00' }}</dd>
+                        </div>
+                        <div v-if="referral.agency_fee">
+                            <dt class="text-xs text-slate-500 uppercase font-bold mb-1">Agency Fee</dt>
+                            <dd class="text-sm font-medium text-amber-600 font-mono">${{ referral.agency_fee }}</dd>
+                        </div>
+                    </div>
+                </Card>
+
+                <!-- Audit History Timeline -->
+                <Card class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <History :size="20" class="text-slate-600" />
+                        <h3 class="font-bold text-lg text-slate-800">Bitácora de Seguimiento</h3>
+                        <span class="text-xs text-slate-500 ml-2">({{ referral.history?.length || 0 }} cambios)</span>
+                    </div>
+                    <AuditTimeline :history="referral.history || []" />
                 </Card>
             </div>
         </div>
+
+        <!-- Status Change Modal -->
+        <StatusChangeModal 
+            :show="showStatusModal"
+            :referral-id="referral.id"
+            :current-status="referral.status"
+            @close="showStatusModal = false"
+            @updated="handleStatusUpdated"
+        />
     </AuthenticatedLayout>
 </template>

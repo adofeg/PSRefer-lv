@@ -10,7 +10,9 @@ class GetReferralsAction
 {
     public function execute(): LengthAwarePaginator
     {
-        return Referral::where('user_id', Auth::id())
+        $associate = Auth::user()?->associateProfile();
+
+        return Referral::where('associate_id', $associate?->id)
             ->with('offering:id,name')
             ->latest()
             ->paginate(10);

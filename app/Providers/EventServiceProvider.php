@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\ReferralClosed;
 use App\Listeners\GenerateCommission;
+use App\Listeners\SecurityEventSubscriber;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -23,6 +24,10 @@ class EventServiceProvider extends ServiceProvider
     ReferralClosed::class => [
       GenerateCommission::class,
     ],
+  ];
+
+  protected $subscribe = [
+    SecurityEventSubscriber::class,
   ];
 
   /**

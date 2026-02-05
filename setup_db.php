@@ -21,10 +21,10 @@ try {
             [
                 'name' => 'Admin User',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'psadmin',
                 'is_active' => true
             ]
         );
+        $user->assignRole('psadmin');
         echo "Usuario admin creado: admin@example.com\n";
     }
     

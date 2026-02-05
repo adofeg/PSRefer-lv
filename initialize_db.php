@@ -5,6 +5,8 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Offering;
 use App\Models\Referral;
+use App\Models\Employee;
+use App\Models\Associate;
 
 // Iniciar la aplicación Laravel
 require_once __DIR__.'/vendor/autoload.php';
@@ -15,28 +17,42 @@ $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 // Crear usuario administrador
 echo "Creando usuario administrador...\n";
 
-$user = User::create([
+$employee = Employee::create([
+    'department' => 'Executive',
+    'job_title' => 'System Owner',
+    'internal_code' => 'EMP-INIT',
+]);
+
+$user = $employee->user()->create([
     'name' => 'Admin User',
     'email' => 'admin@psrefer.local',
     'password' => Hash::make('password'),
-    'role' => 'psadmin',
     'is_active' => true,
-    'balance' => 0,
+    'phone' => '555-0001',
+    'logo_url' => 'https://ui-avatars.com/api/?name=Admin+User&background=random',
 ]);
+
+$user->assignRole('psadmin');
 
 echo "Usuario admin creado: admin@psrefer.local / password\n";
 
 // Crear un usuario asociado
 echo "Creando usuario asociado...\n";
 
-$associate = User::create([
+$associateProfile = Associate::create([
+    'balance' => 0,
+]);
+
+$associate = $associateProfile->user()->create([
     'name' => 'Associate User',
     'email' => 'associate@psrefer.local',
     'password' => Hash::make('password'),
-    'role' => 'associate',
     'is_active' => true,
-    'balance' => 0,
+    'phone' => '555-0100',
+    'logo_url' => 'https://ui-avatars.com/api/?name=Associate+User&background=random',
 ]);
+
+$associate->assignRole('associate');
 
 echo "Usuario asociado creado: associate@psrefer.local / password\n";
 
@@ -49,7 +65,7 @@ $offering = Offering::create([
     'base_price' => 1000.00,
     'commission_rate' => 10.00,
     'is_active' => true,
-    'owner_id' => $user->id,
+    'owner_employee_id' => $employee->id,
 ]);
 
 echo "Oferta creada: {$offering->name}\n";
@@ -58,7 +74,7 @@ echo "Oferta creada: {$offering->name}\n";
 echo "Creando referencia de ejemplo...\n";
 
 $referral = Referral::create([
-    'user_id' => $associate->id,
+    'associate_id' => $associateProfile->id,
     'offering_id' => $offering->id,
     'client_name' => 'Cliente de Prueba',
     'client_contact' => 'cliente@ejemplo.com',

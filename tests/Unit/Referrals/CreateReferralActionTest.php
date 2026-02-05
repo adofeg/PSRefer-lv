@@ -7,6 +7,7 @@ use App\Actions\Referrals\CreateReferralAction;
 use App\Data\Referrals\ReferralData;
 use App\Models\Referral;
 use App\Models\User;
+use App\Models\Associate;
 use App\Models\Offering;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -25,7 +26,14 @@ class CreateReferralActionTest extends TestCase
     // However, User and Offering factories might not exist yet. Let's check or create minimal.
     // For now, let's try assuming they exist or create manual.
 
-    $user = User::factory()->create();
+    $associate = Associate::factory()->create();
+    $user = $associate->user()->create([
+      'name' => 'Test Associate',
+      'email' => 'associate@test.local',
+      'password' => bcrypt('password'),
+      'is_active' => true,
+    ]);
+    $user->assignRole('associate');
     // Offering factory? If not, create manual.
     // Let's rely on standard factories being available or create generic.
     // If Offering model exists, it might not have factory.
@@ -34,7 +42,6 @@ class CreateReferralActionTest extends TestCase
     // Proceeding with assumption we can create Offering manually if needed.
 
     $offering = Offering::create([
-      'id' => \Illuminate\Support\Str::uuid(),
       'name' => 'Offer 1',
       'type' => 'service',
       'base_price' => 100,
@@ -42,7 +49,7 @@ class CreateReferralActionTest extends TestCase
     ]);
 
     $data = new ReferralData(
-      user_id: $user->id,
+      associate_id: $associate->id,
       offering_id: $offering->id,
       client_name: 'John Doe',
       client_contact: 'john@example.com',
@@ -62,6 +69,6 @@ class CreateReferralActionTest extends TestCase
       'client_name' => 'John Doe',
       'status' => 'pending',
     ]);
-    $this->assertEquals($user->id, $referral->user_id);
+    $this->assertEquals($associate->id, $referral->associate_id);
   }
 }

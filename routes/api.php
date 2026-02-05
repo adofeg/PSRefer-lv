@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\CommissionOverrideController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Analytics
+    Route::get('/analytics/clicks', [AnalyticsController::class, 'clicks'])->name('api.analytics.clicks');
     Route::get('/analytics/revenue', [AnalyticsController::class, 'revenue'])->name('api.analytics.revenue');
+
+    // Commission Overrides
+    Route::get('/commissions/overrides', [CommissionOverrideController::class, 'index'])->name('api.commissions.overrides.index');
+    Route::post('/commissions/overrides', [CommissionOverrideController::class, 'store'])->name('api.commissions.overrides.store');
+    Route::delete('/commissions/overrides/{override}', [CommissionOverrideController::class, 'destroy'])->name('api.commissions.overrides.destroy');
 });
 
 // If using session auth instead of sanctum for internal use, change middleware to 'web', 'auth' or similar.

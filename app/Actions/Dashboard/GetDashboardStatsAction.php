@@ -2,10 +2,10 @@
 
 namespace App\Actions\Dashboard;
 
+use App\Enums\ReferralStatus;
+use App\Enums\RoleName;
 use App\Models\Referral;
 use App\Models\User;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class GetDashboardStatsAction
@@ -13,15 +13,16 @@ class GetDashboardStatsAction
     public function execute(User $user): array
     {
         // 1. Context: Admin vs Associate
-        if ($user->hasRole(['admin', 'psadmin'])) {
+        if ($user->hasRole(RoleName::adminRoles())) {
             $referralsQuery = Referral::query();
-            $closedReferralsQuery = Referral::where('status', 'Cerrado');
+            $closedReferralsQuery = Referral::where('status', ReferralStatus::Closed->value);
             
             // Total Platform Revenue
-            $totalRevenue = Referral::where('status', 'Cerrado')->sum('revenue_generated') ?? 0;
+            $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('revenue_generated') ?? 0;
         } else {
-            $referralsQuery = Referral::where('user_id', $user->id);
-            $closedReferralsQuery = Referral::where('user_id', $user->id)->where('status', 'Cerrado');
+            $associate = $user->associateProfile();
+            $referralsQuery = Referral::where('associate_id', $associate?->id);
+            $closedReferralsQuery = Referral::where('associate_id', $associate?->id)->where('status', ReferralStatus::Closed->value);
             
             // Personal Revenue Contribution
             $totalRevenue = $closedReferralsQuery->sum('revenue_generated') ?? 0;
@@ -59,12 +60,17 @@ class GetDashboardStatsAction
 
         return [
             'stats' => [
-                'current_balance' => $totalEarnings,
-                'total_revenue' => $totalRevenue,
-                // 'pending_payouts' => ... 
+                'current_balance' => (float) $totalEarnings,
+                'total_revenue' => (float) $totalRevenue,
             ],
             'recentReferrals' => $recentReferrals,
-            'monthlyRevenue' => $revenueSeries
+            'monthlyRevenue' => $revenueSeries,
+            'accountManager' => $user->associateProfile()?->referrer?->user ? [
+                'name' => $user->associateProfile()->referrer->user->name,
+                'email' => $user->associateProfile()->referrer->user->email,
+                'phone' => $user->associateProfile()->referrer->user->phone,
+                'logo_url' => $user->associateProfile()->referrer->user->logo_url,
+            ] : null
         ];
     }
 }

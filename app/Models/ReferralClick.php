@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ReferralClick extends Model
 {
-  use HasFactory, HasUuids;
+  use HasFactory;
 
   protected $guarded = ['id'];
   public $timestamps = false; // Using custom `clicked_at`
@@ -17,7 +16,7 @@ class ReferralClick extends Model
 
   public function referrer()
   {
-    return $this->belongsTo(User::class, 'referrer_id');
+    return $this->belongsTo(Associate::class, 'referrer_associate_id');
   }
 
   public function offering()

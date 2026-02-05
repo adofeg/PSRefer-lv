@@ -19,7 +19,7 @@ class ReferralFactory extends Factory
         return [
             'client_name' => $this->faker->name(),
             'client_contact' => $this->faker->phoneNumber(),
-            'user_id' => \App\Models\User::factory(),
+            'associate_id' => \App\Models\Associate::factory(),
             'offering_id' => \App\Models\Offering::factory(),
             'status' => $this->faker->randomElement(['Pendiente', 'Contactado', 'Cierre', 'Cerrado', 'Perdido']),
             'metadata' => ['source' => 'factory'],

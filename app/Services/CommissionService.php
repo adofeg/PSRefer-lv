@@ -3,18 +3,33 @@
 namespace App\Services;
 
 use App\Models\Commission;
+use App\Models\CommissionOverride;
 use App\Models\Offering;
 use App\Models\Referral;
-use App\Models\User;
+use App\Enums\CommissionStatus;
 use Illuminate\Support\Facades\DB;
 
 class CommissionService
 {
+  protected $ruleEngine;
+  
+  public function __construct(CommissionRuleEngine $ruleEngine)
+  {
+    $this->ruleEngine = $ruleEngine;
+  }
+  
   /**
-   * Calculate commissions based on offering config and override
+   * Calculate commissions based on offering config, rules, and override
    */
   public function calculateCommissions(Referral $referral, Offering $offering, $override = null)
   {
+    if (!$override) {
+        $override = CommissionOverride::where('associate_id', $referral->associate_id)
+            ->where('offering_id', $offering->id)
+            ->where('is_active', true)
+            ->first();
+    }
+
     $commissions = [];
     $dealValue = $referral->deal_value ?? $referral->revenue_generated ?? 0;
 
@@ -45,7 +60,7 @@ class CommissionService
       ];
     }
 
-    // 3. Percentage
+    // 3. Percentage with Rule Engine (NEW)
     if (isset($config['percentage']) && $config['percentage'] > 0 && $dealValue > 0) {
       $amount = ($dealValue * $config['percentage']) / 100;
       $commissions[] = [
@@ -54,14 +69,17 @@ class CommissionService
         'percentage' => $config['percentage'],
         'recurrence_type' => 'one_time',
       ];
-    } elseif (!isset($config['percentage']) && $offering->commission_rate > 0 && $dealValue > 0) {
-      // Legacy Fallback
-      $amount = ($dealValue * $offering->commission_rate) / 100;
+    } elseif (!isset($config['percentage']) && $dealValue > 0) {
+      // Use Rule Engine to calculate commission
+      $amount = $this->ruleEngine->calculateCommission($referral);
+      $preview = $this->ruleEngine->previewCommissionRate($offering, $dealValue);
+      
       $commissions[] = [
         'type' => 'percentage',
-        'amount' => round($amount, 2),
-        'percentage' => $offering->commission_rate,
+        'amount' => $amount,
+        'percentage' => $preview['rate'],
         'recurrence_type' => 'one_time',
+        'rule_label' => $preview['label'] ?? null,
       ];
     }
 
@@ -85,20 +103,24 @@ class CommissionService
 
   public function createAllCommissions(Referral $referral, Offering $offering, $override = null)
   {
+    if (!$referral->associate_id) {
+      return [];
+    }
+
     $configs = $this->calculateCommissions($referral, $offering, $override);
     $created = [];
 
     foreach ($configs as $config) {
       $commission = Commission::create([
         'referral_id' => $referral->id,
-        'user_id' => $referral->user_id,
+        'associate_id' => $referral->associate_id,
         'amount' => $config['amount'],
         'commission_percentage' => $config['percentage'],
         'commission_type' => $config['type'],
         'recurrence_type' => $config['recurrence_type'],
         'recurrence_interval' => $config['recurrence_interval'] ?? null,
         'recurrence_end_date' => $config['recurrence_end_date'] ?? null,
-        'status' => 'pending',
+        'status' => CommissionStatus::Pending->value,
       ]);
       $created[] = $commission;
     }

@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\ReferralStatus;
 use App\Models\Referral;
-use App\Models\User;
+use App\Models\Associate;
 use App\Models\Offering;
 use Illuminate\Support\Facades\DB;
 
@@ -18,15 +19,15 @@ class ReferralService
     $this->commissionService = $commissionService;
   }
 
-  public function create(array $data, User $user)
+  public function create(array $data, Associate $associate)
   {
     $referral = Referral::create([
-      'user_id' => $user->id,
+      'associate_id' => $associate->id,
       'offering_id' => $data['offering_id'],
       'client_name' => $data['client_name'],
       'client_contact' => $data['client_contact'] ?? null,
       'notes' => $data['notes'] ?? null,
-      'status' => 'Prospecto',
+      'status' => ReferralStatus::Prospect->value,
     ]);
 
     // TODO: Notification logic (Event/Listener)
@@ -34,7 +35,7 @@ class ReferralService
     return $referral;
   }
 
-  public function updateStatus(Referral $referral, string $status, User $actor, array $data = [])
+  public function updateStatus(Referral $referral, string $status, $actor, array $data = [])
   {
     $oldStatus = $referral->status;
 
@@ -51,14 +52,14 @@ class ReferralService
 
       $this->auditService->logReferralStatusChange(
         $referral->id,
-        $actor->id,
+        $actor,
         $oldStatus,
         $status,
         $data['notes'] ?? ''
       );
 
       // Handle Commission Trigger
-      if ($status === 'Cerrado') {
+      if ($status === ReferralStatus::Closed->value) {
         $this->handleClosedReferral($referral);
       }
     });
@@ -74,8 +75,8 @@ class ReferralService
     if (!$offering) return;
 
     // Check for User Override
-    $override = DB::table('user_offering_commissions')
-      ->where('user_id', $referral->user_id)
+    $override = DB::table('associate_offering_commissions')
+      ->where('associate_id', $referral->associate_id)
       ->where('offering_id', $referral->offering_id)
       ->first();
 

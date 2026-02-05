@@ -3,13 +3,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
-import { DollarSign, ShoppingBag, BarChart3, FileText, ArrowRight } from 'lucide-vue-next';
+import { DollarSign, ShoppingBag, BarChart3, FileText, ArrowRight, Phone, Send } from 'lucide-vue-next';
 import RevenueChart from '@/Components/RevenueChart.vue';
+import ClickStatsWidget from '@/Components/ClickStatsWidget.vue';
+import QuickLinks from '@/Components/QuickLinks.vue';
 
 const props = defineProps({
     stats: Object,
     recentReferrals: Array,
-    monthlyRevenue: Object,
+    monthlyRevenue: Array,
+    accountManager: Object,
     auth: Object
 });
 
@@ -68,8 +71,13 @@ const formatCurrency = (amount) => {
                 </Link>
             </div>
 
+            <!-- Quick Referral Links (Migration Parity) -->
+            <div class="grid grid-cols-1 gap-6">
+                <QuickLinks :user="auth.user" />
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Chart placeholder -->
+                <!-- Revenue Chart -->
                 <Card class="lg:col-span-2">
                     <div class="flex justify-between items-center mb-2">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2">
@@ -83,6 +91,34 @@ const formatCurrency = (amount) => {
                     </div>
                 </Card>
 
+                <!-- Click Tracking Stats -->
+                <ClickStatsWidget class="lg:col-span-1" />
+
+                <!-- Account Manager Widget -->
+                <Card v-if="accountManager" class="lg:col-span-1 bg-gradient-to-br from-slate-800 to-slate-900 text-white border-none shadow-xl">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/20 bg-white/10 p-0.5">
+                            <img v-if="accountManager.logo_url" :src="accountManager.logo_url" class="w-full h-full object-cover rounded-[14px]" />
+                            <div v-else class="w-full h-full flex items-center justify-center bg-indigo-500 text-white font-black text-xl">
+                                {{ accountManager.name.charAt(0) }}
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-indigo-300 uppercase font-black tracking-widest mb-0.5">Tu Account Manager</p>
+                            <p class="font-bold text-lg leading-tight">{{ accountManager.name }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <a v-if="accountManager.phone" :href="`tel:${accountManager.phone}`" class="w-full bg-white/10 hover:bg-white/20 py-3 rounded-xl flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider transition">
+                            <Phone :size="14" /> {{ accountManager.phone }}
+                        </a>
+                        <a v-if="accountManager.email" :href="`mailto:${accountManager.email}`" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider transition shadow-lg shadow-indigo-900/40">
+                            <Send :size="14" /> ENVIAR EMAIL
+                        </a>
+                    </div>
+                </Card>
+
+                <!-- Recent Referrals -->
                 <Card class="lg:col-span-3">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2">

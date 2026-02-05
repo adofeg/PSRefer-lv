@@ -12,38 +12,33 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            
+            // Core Authentication
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('phone')->nullable();
-            $table->string('role')->default('associate'); // Keep legacy column for reference/seeding
-            $table->text('logo_url')->nullable();
-            $table->decimal('balance', 10, 2)->default(0);
-            $table->string('category')->nullable();
-
-            // Financial & Compliance
-            $table->jsonb('payment_info')->nullable();
-            $table->string('w9_status')->default('pending');
-            $table->text('w9_file_url')->nullable();
-
-            // Security
-            $table->timestamp('password_changed_at')->nullable();
-            $table->integer('failed_login_attempts')->default(0);
-            $table->timestamp('locked_until')->nullable();
-            $table->string('reset_token')->nullable();
-            $table->timestamp('reset_token_expires')->nullable();
-
             $table->boolean('is_active')->default(true);
+
+            // Profile Fields (JS parity + app usage)
+            $table->string('phone')->nullable();
+            $table->text('logo_url')->nullable();
+
+            // Polymorphic Profile (UUID)
+            $table->nullableMorphs('profileable');
+
+            // Two-Factor Authentication (Fortify)
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+
+            // UI Preferences
+            $table->string('theme')->nullable();
+            
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
-        });
-
-        // Self-referencing FK added after table creation
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignUuid('referred_by_id')->nullable()->references('id')->on('users');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -54,7 +49,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignUuid('user_id')->nullable()->index();
+            $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

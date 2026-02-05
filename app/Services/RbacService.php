@@ -2,39 +2,35 @@
 
 namespace App\Services;
 
+use App\Enums\PermissionName;
+use App\Enums\RoleName;
+
 class RbacService
 {
-  // Permissions
-  const PERM_USER_VIEW = 'user:view';
-  const PERM_REFERRAL_UPDATE_STATUS = 'referral:update_status';
-  const PERM_OFFERING_CREATE = 'offering:create';
-
-  // Add other constants as needed
-
   protected $rolePermissions = [
-    'admin' => ['*'], // Logic handled in hasPermission
-    'psadmin' => [
-      'user:view',
-      'offering:view',
-      'offering:create',
-      'offering:edit_own',
-      'referral:view',
-      'referral:update_status',
-      'commission:view',
-      'analytics:view_all'
+    RoleName::Admin->value => ['*'], // Logic handled in hasPermission
+    RoleName::PsAdmin->value => [
+      PermissionName::UserView->value,
+      PermissionName::OfferingView->value,
+      PermissionName::OfferingCreate->value,
+      PermissionName::OfferingEditOwn->value,
+      PermissionName::ReferralView->value,
+      PermissionName::ReferralUpdateStatus->value,
+      PermissionName::CommissionView->value,
+      PermissionName::AnalyticsViewAll->value,
     ],
-    'associate' => [
-      'offering:view',
-      'referral:view_own',
-      'referral:create',
-      'commission:view_own',
-      'analytics:view_own'
+    RoleName::Associate->value => [
+      PermissionName::OfferingView->value,
+      PermissionName::ReferralViewOwn->value,
+      PermissionName::ReferralCreate->value,
+      PermissionName::CommissionViewOwn->value,
+      PermissionName::AnalyticsViewOwn->value,
     ],
   ];
 
   public function hasPermission(string $role, string $permission): bool
   {
-    if ($role === 'admin') {
+    if ($role === RoleName::Admin->value) {
       return true;
     }
 

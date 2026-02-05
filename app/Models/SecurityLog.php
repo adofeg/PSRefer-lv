@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class SecurityLog extends Model
 {
-  use HasUuids;
 
   protected $guarded = ['id'];
   public $timestamps = false; // Using custom `created_at`
@@ -16,8 +14,8 @@ class SecurityLog extends Model
     'metadata' => 'array',
   ];
 
-  public function user()
+  public function actorable()
   {
-    return $this->belongsTo(User::class);
+    return $this->morphTo();
   }
 }

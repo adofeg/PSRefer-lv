@@ -5,10 +5,14 @@ import {
     ShoppingBag,
     Users,
     DollarSign,
-    Network,
+    Network as NetworkIcon,
     Settings,
     LogOut,
-    X
+    X,
+    LayoutGrid,
+    Image as ImageIcon,
+    Tag,
+    Mail
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -26,9 +30,14 @@ const isActive = (routeStr) => {
 const navigation = [
     { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, current: isActive('dashboard') },
     { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index') },
+    { name: 'Categorías', href: route('admin.categories.index'), icon: Tag, current: isActive('admin.categories.index') },
+    { name: 'SMTP Config', href: route('admin.settings.smtp'), icon: Mail, current: isActive('admin.settings.smtp') },
     { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index') },
-   // { name: 'Comisiones', href: route('commissions.index'), icon: DollarSign, current: isActive('commissions.index') },
-   // { name: 'Mi Red', href: route('network.index'), icon: Network, current: isActive('network.index') },
+    { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, current: isActive('admin.referrals.pipeline') },
+    { name: 'Comisiones', href: route('commissions'), icon: DollarSign, current: isActive('commissions') },
+    { name: 'Mi Red', href: route('network'), icon: NetworkIcon, current: isActive('network') },
+    { name: 'Marketing', href: route('admin.marketing'), icon: ImageIcon, current: isActive('admin.marketing') },
+    { name: 'Configuración', href: route('settings'), icon: Settings, current: isActive('settings') },
 ];
 </script>
 

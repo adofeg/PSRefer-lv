@@ -50,7 +50,7 @@ class ReferralFeatureTest extends TestCase
     $payload = [
       'client_name' => 'Jane Doe',
       'client_contact' => 'jane@example.com',
-      'offering_id' => \Illuminate\Support\Str::uuid()->toString(),
+      'offering_id' => 1,
       'notes' => 'Interested',
     ];
 

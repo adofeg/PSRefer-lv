@@ -2,17 +2,25 @@
 
 namespace App\Actions\Offerings;
 
+use App\Data\Offerings\OfferingUpsertData;
 use App\Models\Offering;
-use App\Data\Offerings\OfferingData;
 
 class CreateOfferingAction
 {
-    public function execute(array $data, int $ownerId): Offering
+    public function execute(OfferingUpsertData $data, int $ownerEmployeeId): Offering
     {
         return Offering::create([
-            ...$data,
-            'owner_id' => $ownerId,
-            'is_active' => true
+            'name' => $data->name,
+            'category_id' => $data->category_id,
+            'category' => $data->category,
+            'description' => $data->description,
+            'base_price' => $data->base_price,
+            'commission_rate' => $data->commission_rate,
+            'form_schema' => $data->form_schema,
+            'commission_config' => $data->commission_config,
+            'commission_rules' => $data->commission_rules,
+            'owner_employee_id' => $ownerEmployeeId,
+            'is_active' => true,
         ]);
     }
 }

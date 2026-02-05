@@ -3,8 +3,10 @@
 namespace App\Actions\Auth;
 
 use App\Data\Auth\UserData;
+use App\Enums\RoleName;
 use App\Models\User;
-use App\Models\UserOfferingLink; // Assuming model exists or will be created
+use App\Models\Associate;
+use App\Models\Employee;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -13,24 +15,51 @@ class CreateUserAction
   public function execute(UserData $data): User
   {
     return DB::transaction(function () use ($data) {
-      $user = User::create([
-        'name' => $data->name,
-        'email' => $data->email,
-        'password_hash' => Hash::make($data->password), // Using password_hash column as per legacy schema
-        'phone' => $data->phone,
-        'role' => $data->role,
-        'category' => $data->category,
-        'referred_by_id' => $data->referred_by_id,
-        'is_active' => true,
-      ]);
+      if ($data->role === RoleName::Associate->value) {
+        $associate = Associate::create([
+          'category' => $data->category,
+          'referrer_id' => $data->referrer_id,
+        ]);
+
+        $user = $associate->user()->create([
+          'name' => $data->name,
+          'email' => $data->email,
+          'password' => Hash::make($data->password),
+          'phone' => $data->phone,
+          'is_active' => true,
+          'logo_url' => 'https://ui-avatars.com/api/?name='.urlencode($data->name).'&background=random',
+        ]);
+
+        $user->assignRole(RoleName::Associate->value);
+
+        if ($associate->referrer_id) {
+          $associate->addToNetwork($associate->referrer_id);
+        }
+      } else {
+        $employee = Employee::create([
+          'department' => 'Administration',
+          'job_title' => 'Staff',
+          'internal_code' => null,
+        ]);
+
+        $user = $employee->user()->create([
+          'name' => $data->name,
+          'email' => $data->email,
+          'password' => Hash::make($data->password),
+          'phone' => $data->phone,
+          'is_active' => true,
+          'logo_url' => 'https://ui-avatars.com/api/?name='.urlencode($data->name).'&background=random',
+        ]);
+
+        $user->assignRole($data->role);
+      }
 
       // Logic: Auto-link to offering if provided (from legacy authRoutes.js)
       if ($data->offering_id) {
         // Determine if we need a model for this or just DB insert.
         // Using DB for now to assume table exists from migration.
-        DB::table('user_offering_links')->insert([
-          'id' => \Illuminate\Support\Str::uuid(),
-          'user_id' => $user->id,
+        DB::table('associate_offering_links')->insert([
+          'associate_id' => $user->associateProfile()?->id,
           'offering_id' => $data->offering_id,
           'created_at' => now(),
         ]);
