@@ -1,0 +1,15 @@
+{
+  "language": "es",
+  "url": "/admin",
+  "meta": {
+    "title": "Administración"
+  },
+  "dashboard": {
+    "headingSelector": "h1.text-2xl",
+    "headingText": "Panel de Administración"
+  },
+  "analytics": {
+    "widgetSelector": ".analytics-widget",
+    "expectedCount": 4
+  }
+}

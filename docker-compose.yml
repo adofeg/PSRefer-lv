@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ps-refer-app
+    ports:
+      - "8005:8000"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ps_refer_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - ps-refer-network
+
+  db:
+    image: postgres:15
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: ps_refer_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ps-refer-network
+
+networks:
+  ps-refer-network:
+    driver: bridge
+
+volumes:
+  pgdata:

@@ -1,0 +1,24 @@
+{
+  "language": "en",
+  "url": "/referrals",
+  "meta": {
+    "title": "Referrals"
+  },
+  "listing": {
+    "headingSelector": "h2.text-xl",
+    "headingText": "My Referrals"
+  },
+  "create": {
+    "buttonSelector": "button:has-text('New Referral')",
+    "modalSelector": "div[role='dialog']",
+    "form": {
+      "nameSelector": "input[name='name']",
+      "emailSelector": "input[name='email']",
+      "submitSelector": "button[type='submit']"
+    }
+  },
+  "messages": {
+    "successSelector": ".text-green-600",
+    "successText": "Referral created successfully"
+  }
+}

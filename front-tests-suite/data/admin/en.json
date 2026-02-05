@@ -1,0 +1,15 @@
+{
+  "language": "en",
+  "url": "/admin",
+  "meta": {
+    "title": "Administration"
+  },
+  "dashboard": {
+    "headingSelector": "h1.text-2xl",
+    "headingText": "Admin Dashboard"
+  },
+  "analytics": {
+    "widgetSelector": ".analytics-widget",
+    "expectedCount": 4
+  }
+}

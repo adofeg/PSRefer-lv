@@ -1,0 +1,30 @@
+{
+  "language": "es",
+  "url": "/register",
+  "meta": {
+    "title": "Register"
+  },
+  "name": {
+    "selector": "input#name",
+    "value": "Test User"
+  },
+  "email": {
+    "selector": "input#email",
+    "value": "newuser@example.com"
+  },
+  "password": {
+    "selector": "input#password",
+    "value": "password123"
+  },
+  "passwordConfirmation": {
+    "selector": "input#password_confirmation",
+    "value": "password123"
+  },
+  "submitButton": {
+    "selector": "button[type='submit']",
+    "text": "Register"
+  },
+  "validation": {
+    "successUrl": "/dashboard"
+  }
+}

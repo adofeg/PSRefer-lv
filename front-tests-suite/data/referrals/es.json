@@ -1,0 +1,24 @@
+{
+  "language": "es",
+  "url": "/referrals",
+  "meta": {
+    "title": "Referidos"
+  },
+  "listing": {
+    "headingSelector": "h2.text-xl",
+    "headingText": "Mis Referidos"
+  },
+  "create": {
+    "buttonSelector": "button:has-text('Nuevo Referido')",
+    "modalSelector": "div[role='dialog']",
+    "form": {
+      "nameSelector": "input[name='name']",
+      "emailSelector": "input[name='email']",
+      "submitSelector": "button[type='submit']"
+    }
+  },
+  "messages": {
+    "successSelector": ".text-green-600",
+    "successText": "Referido creado exitosamente"
+  }
+}

@@ -1,0 +1,35 @@
+#!/bin/bash
+# Script de inicio para PS Refer
+
+echo "==========================================="
+echo "    DESPLIEGUE COMPLETADO - PS REFER      "
+echo "==========================================="
+
+echo ""
+echo "Información del Despliegue:"
+echo "- Aplicación: PS Refer (Laravel + Inertia + Vue)"
+echo "- Arquitectura: Referral Management Platform"
+echo "- Puerto: 8000"
+echo "- URL: http://localhost:8000"
+echo ""
+
+echo "Usuarios de Prueba:"
+echo "- Admin: admin@psrefer.local / password"
+echo "- Associate: associate@psrefer.local / password"
+echo ""
+
+echo "Características:"
+echo "- Panel de administración (psadmin)"
+echo "- Gestión de referidos y comisiones"
+echo "- Catálogo de servicios/ofertas"
+echo "- Dashboard con métricas"
+echo "- Sistema de roles y permisos"
+echo ""
+
+echo "Accede a la aplicación en:"
+echo "http://localhost:8000"
+echo ""
+echo "==========================================="
+echo "El servidor está corriendo en segundo plano"
+echo "Para detenerlo, usa: kill 3131848"
+echo "==========================================="

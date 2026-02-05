@@ -1,0 +1,149 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]: Internal Server Error
+    - button "Copy as Markdown" [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e15]: Copy as Markdown
+  - generic [ref=e18]:
+    - generic [ref=e19]:
+      - heading "Illuminate\\Database\\QueryException" [level=1] [ref=e20]
+      - generic [ref=e22]: vendor/laravel/framework/src/Illuminate/Database/Connection.php:838
+      - paragraph [ref=e23]: "could not find driver (Connection: pgsql, Host: 127.0.0.1, Port: 5433, Database: ps_refer_db, SQL: select * from \"sessions\" where \"id\" = oGj2qAJewyGbgO27XdIBFlT5W8fSankCXBDp51tV limit 1)"
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]: LARAVEL
+          - generic [ref=e28]: 12.49.0
+        - generic [ref=e29]:
+          - generic [ref=e30]: PHP
+          - generic [ref=e31]: 8.3.6
+      - generic [ref=e32]:
+        - img [ref=e33]
+        - text: UNHANDLED
+      - generic [ref=e36]: CODE 0
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - img [ref=e40]
+        - text: "500"
+      - generic [ref=e43]:
+        - img [ref=e44]
+        - text: GET
+      - generic [ref=e47]: http://localhost:8002/offerings
+      - button [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+  - generic [ref=e53]:
+    - generic [ref=e54]:
+      - generic [ref=e55]:
+        - img [ref=e57]
+        - heading "Exception trace" [level=3] [ref=e60]
+      - generic [ref=e61]:
+        - generic [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - generic [ref=e68]: 52 vendor frames
+          - button [ref=e69]:
+            - img [ref=e70]
+        - generic [ref=e74]:
+          - generic [ref=e75] [cursor=pointer]:
+            - generic [ref=e78]:
+              - code [ref=e82]:
+                - generic [ref=e83]: public/index.php
+              - generic [ref=e85]: public/index.php:20
+            - button [ref=e87]:
+              - img [ref=e88]
+          - code [ref=e96]:
+            - generic [ref=e97]: "15"
+            - generic [ref=e98]: 16// Bootstrap Laravel and handle the request...
+            - generic [ref=e99]: 17/** @var Application $app */
+            - generic [ref=e100]: 18$app = require_once __DIR__.'/../bootstrap/app.php';
+            - generic [ref=e101]: "19"
+            - generic [ref=e102]: 20$app->handleRequest(Request::capture());
+            - generic [ref=e103]: "21"
+        - generic [ref=e105] [cursor=pointer]:
+          - img [ref=e106]
+          - generic [ref=e110]: 1 vendor frame
+          - button [ref=e111]:
+            - img [ref=e112]
+    - generic [ref=e116]:
+      - generic [ref=e118]:
+        - img [ref=e120]
+        - heading "Queries" [level=3] [ref=e122]
+      - generic [ref=e124]: // No queries executed
+  - generic [ref=e126]:
+    - generic [ref=e127]:
+      - heading "Headers" [level=2] [ref=e128]
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - generic [ref=e131]: host
+          - generic [ref=e133]: localhost:8002
+        - generic [ref=e134]:
+          - generic [ref=e135]: connection
+          - generic [ref=e137]: keep-alive
+        - generic [ref=e138]:
+          - generic [ref=e139]: pragma
+          - generic [ref=e141]: no-cache
+        - generic [ref=e142]:
+          - generic [ref=e143]: cache-control
+          - generic [ref=e145]: no-cache
+        - generic [ref=e146]:
+          - generic [ref=e147]: sec-ch-ua
+          - generic [ref=e149]: "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\""
+        - generic [ref=e150]:
+          - generic [ref=e151]: sec-ch-ua-mobile
+          - generic [ref=e153]: "?0"
+        - generic [ref=e154]:
+          - generic [ref=e155]: sec-ch-ua-platform
+          - generic [ref=e157]: "\"Windows\""
+        - generic [ref=e158]:
+          - generic [ref=e159]: upgrade-insecure-requests
+          - generic [ref=e161]: "1"
+        - generic [ref=e162]:
+          - generic [ref=e163]: user-agent
+          - generic [ref=e165]: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.7632.6 Safari/537.36
+        - generic [ref=e166]:
+          - generic [ref=e167]: accept-language
+          - generic [ref=e169]: en-US
+        - generic [ref=e170]:
+          - generic [ref=e171]: accept
+          - generic [ref=e173]: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        - generic [ref=e174]:
+          - generic [ref=e175]: sec-fetch-site
+          - generic [ref=e177]: none
+        - generic [ref=e178]:
+          - generic [ref=e179]: sec-fetch-mode
+          - generic [ref=e181]: navigate
+        - generic [ref=e182]:
+          - generic [ref=e183]: sec-fetch-user
+          - generic [ref=e185]: "?1"
+        - generic [ref=e186]:
+          - generic [ref=e187]: sec-fetch-dest
+          - generic [ref=e189]: document
+        - generic [ref=e190]:
+          - generic [ref=e191]: accept-encoding
+          - generic [ref=e193]: gzip, deflate, br, zstd
+    - generic [ref=e194]:
+      - heading "Body" [level=2] [ref=e195]
+      - generic [ref=e196]: // No request body
+    - generic [ref=e197]:
+      - heading "Routing" [level=2] [ref=e198]
+      - generic [ref=e199]:
+        - generic [ref=e200]:
+          - generic [ref=e201]: controller
+          - generic [ref=e203]: App\Http\Controllers\OfferingController@index
+        - generic [ref=e204]:
+          - generic [ref=e205]: route name
+          - generic [ref=e207]: offerings.index
+        - generic [ref=e208]:
+          - generic [ref=e209]: middleware
+          - generic [ref=e211]: web, auth, verified
+    - generic [ref=e212]:
+      - heading "Routing parameters" [level=2] [ref=e213]
+      - generic [ref=e214]: // No routing parameters
+  - generic [ref=e217]:
+    - img [ref=e219]
+    - img [ref=e221]
+```

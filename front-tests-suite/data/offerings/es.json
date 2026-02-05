@@ -1,0 +1,24 @@
+{
+  "language": "es",
+  "url": "/offerings",
+  "meta": {
+    "title": "Catalog"
+  },
+  "catalogTitle": {
+    "selector": "h1",
+    "text": "Offering Catalog"
+  },
+  "firstOfferingCard": {
+    "selector": ".grid > div:first-child",
+    "shouldBeVisible": true
+  },
+  "referButton": {
+    "selector": ".grid > div:first-child button",
+    "text": "Refer Now"
+  },
+  "create": {
+    "buttonSelector": "button:has-text('New Offering')",
+    "modalSelector": "div[role='dialog']",
+    "submitSelector": "button[type='submit']"
+  }
+}

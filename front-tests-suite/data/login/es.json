@@ -1,0 +1,26 @@
+{
+  "language": "es",
+  "url": "/login",
+  "meta": {
+    "title": "Laravel"
+  },
+  "email": {
+    "selector": "input[type='email']",
+    "placeholder": "Email"
+  },
+  "password": {
+    "selector": "input[type='password']",
+    "placeholder": "Password"
+  },
+  "submitButton": {
+    "selector": "button[type='submit']",
+    "text": "Log in"
+  },
+  "error": {
+    "selector": "div.text-red-600",
+    "text": "Estas credenciales no coinciden con nuestros registros."
+  },
+  "validation": {
+    "successUrl": "/dashboard"
+  }
+}
