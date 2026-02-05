@@ -36,6 +36,10 @@ return new class extends Migration
             $table->jsonb('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('is_active');
+            $table->index('category_id');
+            $table->index('owner_employee_id');
         });
     }
 

@@ -7,8 +7,10 @@ use App\Actions\Offerings\CreateOfferingAction;
 use App\Actions\Offerings\GetOfferingsAction;
 use App\Actions\Offerings\UpdateOfferingAction;
 use App\Data\Offerings\OfferingData;
+use App\Enums\RoleName;
 use App\Http\Requests\Admin\OfferingRequest;
 use App\Models\Offering;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\LaravelData\PaginatedDataCollection;
 
@@ -19,9 +21,17 @@ class OfferingController extends AdminController
         $this->authorizeResource(Offering::class, 'offering');
     }
 
-    public function index(GetOfferingsAction $action)
+    public function index(Request $request, GetOfferingsAction $action)
     {
-        $offerings = $action->execute();
+        $user = $request->user();
+        $includeInactive = $user?->hasRole(RoleName::adminRoles()) ?? false;
+        $offerings = $action->execute($user, $includeInactive);
+
+        if ($request->boolean('json') || $request->wantsJson()) {
+            return response()->json(
+                OfferingData::collect($offerings, PaginatedDataCollection::class)
+            );
+        }
 
         return Inertia::render('Offerings/Index', [
             'offerings' => OfferingData::collect($offerings, PaginatedDataCollection::class),

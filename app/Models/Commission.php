@@ -4,36 +4,42 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Commission extends Model
 {
-  use HasFactory;
+  use HasFactory, SoftDeletes;
 
   protected $guarded = ['id'];
 
-  protected $casts = [
-    'amount' => 'decimal:2',
-    'commission_percentage' => 'decimal:2',
-    'paid_at' => 'datetime',
-    'recurrence_end_date' => 'datetime',
-  ];
+  protected function casts(): array
+  {
+    return [
+      'amount' => 'decimal:2',
+      'commission_percentage' => 'decimal:2',
+      'paid_at' => 'datetime',
+      'recurrence_end_date' => 'datetime',
+    ];
+  }
 
-  public function associate()
+  public function associate(): BelongsTo
   {
     return $this->belongsTo(Associate::class);
   }
 
-  public function referral()
+  public function referral(): BelongsTo
   {
     return $this->belongsTo(Referral::class);
   }
 
-  public function parent()
+  public function parent(): BelongsTo
   {
     return $this->belongsTo(Commission::class, 'parent_commission_id');
   }
 
-  public function children()
+  public function children(): HasMany
   {
     return $this->hasMany(Commission::class, 'parent_commission_id');
   }

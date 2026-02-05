@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreignId('referrer_id')->nullable()->constrained('associates');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('referrer_id');
         });
     }
 

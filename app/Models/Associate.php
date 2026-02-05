@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Associate extends Model
@@ -19,25 +22,28 @@ class Associate extends Model
         'referrer_id',
     ];
 
-    protected $casts = [
-        'balance' => 'decimal:2',
-        'payment_info' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'balance' => 'decimal:2',
+            'payment_info' => 'array',
+        ];
+    }
 
     // Morph Parent
-    public function user()
+    public function user(): MorphOne
     {
         return $this->morphOne(User::class, 'profileable');
     }
 
     // MLM
-    public function referrer()
+    public function referrer(): BelongsTo
     {
         return $this->belongsTo(Associate::class, 'referrer_id');
     }
 
     // Associate-specific logic that used to be on User
-    public function networkChildren()
+    public function networkChildren(): HasMany
     {
         return $this->hasMany(Network::class, 'parent_associate_id');
     }

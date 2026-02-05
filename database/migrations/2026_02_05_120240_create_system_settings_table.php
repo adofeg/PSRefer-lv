@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('system_settings', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->text('value')->nullable();
-            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
     }
 

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class TrackReferralClickAction
 {
-    public function execute(int $referrerId, int $offeringId, Request $request, string $linkType = 'specific'): void
+    public function execute(int $referrerId, ?int $offeringId, Request $request, string $linkType = 'specific'): void
     {
         DB::table('referral_clicks')->insert([
             'referrer_associate_id' => $referrerId,

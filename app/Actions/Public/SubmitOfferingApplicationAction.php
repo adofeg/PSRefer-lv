@@ -15,8 +15,15 @@ class SubmitOfferingApplicationAction
         protected TrackReferralClickAction $trackReferralClickAction
     ) {}
 
-    public function execute(int $offeringId, OfferingApplicationData $data, $request): void
+    public function execute(
+        int $offeringId,
+        OfferingApplicationData $data,
+        $request,
+        string $source = 'public_landing',
+        string $linkType = 'conversion'
+    ): array
     {
+        $createdReferrals = [];
         $offering = Offering::where('id', $offeringId)
             ->where('is_active', true)
             ->firstOrFail();
@@ -36,13 +43,13 @@ class SubmitOfferingApplicationAction
             $targetOfferings = Offering::whereIn('name', $selectedServices)->get();
 
             foreach ($targetOfferings as $target) {
-                Referral::create([
+                $createdReferrals[] = Referral::create([
                     'associate_id' => $assignedAssociateId,
                     'offering_id' => $target->id,
                     'client_name' => $data->client_name,
                     'client_contact' => $data->client_contact,
                     'metadata' => array_merge(
-                        ['source' => 'public_landing', 'origen' => 'Referencia General'],
+                        ['source' => $source, 'origen' => 'Referencia General'],
                         $formData
                     ),
                     'notes' => "[Ref. General] " . ($data->notes ?? ''),
@@ -51,19 +58,19 @@ class SubmitOfferingApplicationAction
             }
 
             if ($data->referrer_id) {
-                $this->trackReferralClickAction->execute($data->referrer_id, $offeringId, $request, 'conversion');
+                $this->trackReferralClickAction->execute($data->referrer_id, $offeringId, $request, $linkType);
             }
 
-            return;
+            return $this->formatReferralsResponse($createdReferrals);
         }
 
-        Referral::create([
+        $createdReferrals[] = Referral::create([
             'associate_id' => $assignedAssociateId,
             'offering_id' => $offering->id,
             'client_name' => $data->client_name,
             'client_contact' => $data->client_contact,
             'metadata' => array_merge(
-                ['source' => 'public_landing'],
+                ['source' => $source],
                 $formData
             ),
             'notes' => $data->notes,
@@ -71,7 +78,21 @@ class SubmitOfferingApplicationAction
         ]);
 
         if ($data->referrer_id) {
-            $this->trackReferralClickAction->execute($data->referrer_id, $offeringId, $request, 'conversion');
+            $this->trackReferralClickAction->execute($data->referrer_id, $offeringId, $request, $linkType);
         }
+
+        return $this->formatReferralsResponse($createdReferrals);
+    }
+
+    protected function formatReferralsResponse(array $referrals): array
+    {
+        return array_map(function (Referral $referral) {
+            return [
+                'id' => (int) $referral->id,
+                'client_name' => $referral->client_name,
+                'status' => $referral->status,
+                'created_at' => $referral->created_at?->toISOString(),
+            ];
+        }, $referrals);
     }
 }

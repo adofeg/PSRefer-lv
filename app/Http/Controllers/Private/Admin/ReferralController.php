@@ -14,6 +14,7 @@ use App\Enums\ReferralStatus;
 use App\Http\Requests\Admin\ReferralCreateRequest;
 use App\Http\Requests\Admin\ReferralRequest;
 use App\Models\Referral;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ReferralController extends AdminController
@@ -23,10 +24,10 @@ class ReferralController extends AdminController
         $this->authorizeResource(Referral::class, 'referral');
     }
 
-    public function index(GetReferralsAction $action)
+    public function index(Request $request, GetReferralsAction $action)
     {
         return Inertia::render('Referrals/Index', [
-            'referrals' => $action->execute()
+            'referrals' => $action->execute($request->user())
         ]);
     }
 
@@ -45,7 +46,7 @@ class ReferralController extends AdminController
 
         return Inertia::render('Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
-            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute())
+            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false))
         ]);
     }
 

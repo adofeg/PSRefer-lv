@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CommissionOverride extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'associate_id',
@@ -17,6 +18,14 @@ class CommissionOverride extends Model
         'commission_rate',
         'is_active'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'commission_rate' => 'decimal:2',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function associate(): BelongsTo
     {

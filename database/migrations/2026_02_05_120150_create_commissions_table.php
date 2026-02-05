@@ -25,13 +25,23 @@ return new class extends Migration
             $table->timestamp('recurrence_end_date')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('associate_id');
             $table->index('referral_id');
+            $table->index('status');
+            $table->index('commission_type');
+            $table->index('paid_at');
+            $table->index('created_at');
         });
 
         Schema::table('commissions', function (Blueprint $table) {
-            $table->foreignId('parent_commission_id')->nullable()->references('id')->on('commissions');
+            $table->foreignId('parent_commission_id')
+                ->nullable()
+                ->constrained('commissions')
+                ->nullOnDelete();
+
+            $table->index('parent_commission_id');
         });
     }
 

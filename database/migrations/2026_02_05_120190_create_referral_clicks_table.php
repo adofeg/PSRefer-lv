@@ -19,6 +19,9 @@ return new class extends Migration
             $table->timestamp('clicked_at')->useCurrent();
 
             $table->index('referrer_associate_id');
+            $table->index('offering_id');
+            $table->index('clicked_at');
+            $table->index(['referrer_associate_id', 'clicked_at']);
         });
     }
 

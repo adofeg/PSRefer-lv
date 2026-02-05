@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AuditLog;
 
@@ -13,33 +15,36 @@ class Referral extends Model
 
   protected $guarded = ['id'];
 
-  protected $casts = [
-    'deal_value' => 'decimal:2',
-    'revenue_generated' => 'decimal:2',
-    'down_payment' => 'decimal:2',
-    'agency_fee' => 'decimal:2',
-    'total_payment' => 'decimal:2',
-    'metadata' => 'array',
-    'closed_at' => 'datetime',
-    'paid_at' => 'datetime',
-  ];
+  protected function casts(): array
+  {
+    return [
+      'deal_value' => 'decimal:2',
+      'revenue_generated' => 'decimal:2',
+      'down_payment' => 'decimal:2',
+      'agency_fee' => 'decimal:2',
+      'total_payment' => 'decimal:2',
+      'metadata' => 'array',
+      'closed_at' => 'datetime',
+      'paid_at' => 'datetime',
+    ];
+  }
 
-  public function associate()
+  public function associate(): BelongsTo
   {
     return $this->belongsTo(Associate::class);
   }
 
-  public function offering()
+  public function offering(): BelongsTo
   {
     return $this->belongsTo(Offering::class);
   }
 
-  public function commissions()
+  public function commissions(): HasMany
   {
     return $this->hasMany(Commission::class);
   }
 
-  public function history()
+  public function history(): HasMany
   {
     return $this->hasMany(AuditLog::class, 'auditable_id')
       ->where('auditable_type', Referral::class)

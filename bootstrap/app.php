@@ -18,8 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/associate.php'));
             Route::middleware('web')
                 ->group(base_path('routes/settings.php'));
-            Route::middleware('web')
-                ->group(base_path('routes/auth.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Network extends Model
 {
+  use HasFactory;
 
   protected $fillable = [
     'parent_associate_id',
@@ -14,17 +17,20 @@ class Network extends Model
     'total_sales',
   ];
 
-  protected $casts = [
-    'level' => 'integer',
-    'total_sales' => 'decimal:2',
-  ];
+  protected function casts(): array
+  {
+    return [
+      'level' => 'integer',
+      'total_sales' => 'decimal:2',
+    ];
+  }
 
-  public function parent()
+  public function parent(): BelongsTo
   {
     return $this->belongsTo(Associate::class, 'parent_associate_id');
   }
 
-  public function child()
+  public function child(): BelongsTo
   {
     return $this->belongsTo(Associate::class, 'child_associate_id');
   }

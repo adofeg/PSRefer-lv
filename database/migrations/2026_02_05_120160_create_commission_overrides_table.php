@@ -18,8 +18,9 @@ return new class extends Migration
             $table->decimal('commission_rate', 5, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
             
-            $table->unique(['associate_id', 'offering_id']);
+            $table->unique(['associate_id', 'offering_id', 'deleted_at']);
         });
     }
 

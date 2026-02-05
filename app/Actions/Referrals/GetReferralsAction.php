@@ -2,18 +2,23 @@
 
 namespace App\Actions\Referrals;
 
+use App\Enums\RoleName;
 use App\Models\Referral;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 
 class GetReferralsAction
 {
-    public function execute(): LengthAwarePaginator
+    public function execute(User $user): LengthAwarePaginator
     {
-        $associate = Auth::user()?->associateProfile();
+        $query = Referral::query();
 
-        return Referral::where('associate_id', $associate?->id)
-            ->with('offering:id,name')
+        if ($user->hasRole(RoleName::Associate->value)) {
+            $associate = $user->associateProfile();
+            $query->where('associate_id', $associate?->id);
+        }
+
+        return $query->with('offering:id,name')
             ->latest()
             ->paginate(10);
     }
