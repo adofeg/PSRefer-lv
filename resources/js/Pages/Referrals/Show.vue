@@ -20,7 +20,7 @@ const updateStatus = (status) => {
     if (!confirm(`¿Estás seguro de cambiar el estatus a ${status}?`)) return;
 
     updateStatusForm.status = status;
-    updateStatusForm.patch(route('referrals.update', props.referral.id), {
+    updateStatusForm.patch(route('admin.referrals.update', props.referral.id), {
         onSuccess: () => updateStatusForm.reset()
     });
 };
@@ -32,7 +32,7 @@ const updateStatus = (status) => {
     <AuthenticatedLayout>
         <div class="space-y-6">
             <div class="flex items-center gap-4">
-                <Link :href="route('referrals.index')" class="p-2 hover:bg-slate-100 rounded-full transition">
+                <Link :href="route('admin.referrals.index')" class="p-2 hover:bg-slate-100 rounded-full transition">
                     <ArrowLeft :size="24" class="text-slate-500" />
                 </Link>
                 <div>

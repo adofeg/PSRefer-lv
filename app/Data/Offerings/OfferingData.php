@@ -3,19 +3,27 @@
 namespace App\Data\Offerings;
 
 use Spatie\LaravelData\Data;
+use App\Models\Offering;
 
 class OfferingData extends Data
 {
-  public function __construct(
-    public readonly ?string $id,
-    public readonly string $name,
-    public readonly string $type,
-    public readonly ?string $category,
-    public readonly ?string $description,
-    public readonly ?float $base_price,
-    public readonly ?float $commission_rate,
-    public readonly bool $is_active = true,
-    public readonly ?string $owner_id = null,
-    public readonly ?array $form_schema = [],
-  ) {}
+    public function __construct(
+        public string $id,
+        public string $name,
+        public string $slug,
+        public ?string $description,
+        public bool $is_active,
+        // Add other fields as needed based on the Offering model
+    ) {}
+
+    public static function fromModel(Offering $offering): self
+    {
+        return new self(
+            id: $offering->id,
+            name: $offering->name,
+            slug: $offering->slug,
+            description: $offering->description,
+            is_active: $offering->is_active,
+        );
+    }
 }

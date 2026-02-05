@@ -32,6 +32,13 @@ class UserFactory extends Factory
         ];
     }
 
+    public function configure()
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $user->assignRole('associate');
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

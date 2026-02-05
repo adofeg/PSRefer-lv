@@ -52,7 +52,7 @@ const formatCurrency = (amount) => {
 
             <div class="grid grid-cols-1 gap-4">
                 <Link
-                    :href="route('offerings.index')"
+                    :href="route('admin.offerings.index')"
                     class="p-6 bg-white border-2 border-slate-200 text-slate-700 rounded-xl hover:border-indigo-500 hover:text-indigo-600 transition flex items-center justify-between gap-3 group shadow-sm hover:shadow-md"
                 >
                     <div class="flex items-center gap-4">
@@ -89,7 +89,7 @@ const formatCurrency = (amount) => {
                             <FileText :size="20" class="text-slate-400" />
                             Referidos Recientes
                         </h3>
-                        <Link :href="route('referrals.index')" class="text-xs text-indigo-600 hover:underline">Ver Todos</Link>
+                        <Link :href="route('admin.referrals.index')" class="text-xs text-indigo-600 hover:underline">Ver Todos</Link>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -108,7 +108,7 @@ const formatCurrency = (amount) => {
                                     <td class="px-4 py-3 text-slate-500">{{ referral.offering?.name }}</td>
                                     <td class="px-4 py-3"><Badge :status="referral.status" /></td>
                                     <td class="px-4 py-3 text-right">
-                                        <Link :href="route('referrals.show', referral.id)" class="text-xs text-slate-400 hover:text-indigo-600">Ver</Link>
+                                        <Link :href="route('admin.referrals.show', referral.id)" class="text-xs text-slate-400 hover:text-indigo-600">Ver</Link>
                                     </td>
                                 </tr>
                             </tbody>

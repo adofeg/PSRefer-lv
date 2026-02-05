@@ -25,8 +25,8 @@ const isActive = (routeStr) => {
 
 const navigation = [
     { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, current: isActive('dashboard') },
-    { name: 'Catálogo', href: route('offerings.index'), icon: ShoppingBag, current: isActive('offerings.index') },
-    { name: 'Referidos', href: route('referrals.index'), icon: Users, current: isActive('referrals.index') },
+    { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index') },
+    { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index') },
    // { name: 'Comisiones', href: route('commissions.index'), icon: DollarSign, current: isActive('commissions.index') },
    // { name: 'Mi Red', href: route('network.index'), icon: Network, current: isActive('network.index') },
 ];

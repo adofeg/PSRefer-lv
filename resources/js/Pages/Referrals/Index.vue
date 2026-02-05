@@ -21,7 +21,7 @@ const props = defineProps({
                     <h1 class="text-2xl font-bold text-slate-800">Mis Referidos</h1>
                     <p class="text-slate-500">Gestiona y rastrea el estado de tus referidos</p>
                 </div>
-                 <Link :href="route('offerings.index')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
+                 <Link :href="route('admin.offerings.index')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
                     <Plus :size="20" /> Nuevo Referido
                  </Link>
             </div>
@@ -52,7 +52,7 @@ const props = defineProps({
                                     {{ referral.revenue_generated ? `$${referral.revenue_generated}` : '-' }}
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <Link :href="route('referrals.show', referral.id)" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver Detalle</Link>
+                                    <Link :href="route('admin.referrals.show', referral.id)" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver Detalle</Link>
                                 </td>
                             </tr>
                         </tbody>

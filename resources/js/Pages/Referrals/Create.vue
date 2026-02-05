@@ -16,7 +16,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('referrals.store'));
+    form.post(route('admin.referrals.store'));
 };
 </script>
 
@@ -53,7 +53,7 @@ const submit = () => {
                     </div>
 
                     <div class="flex justify-end gap-3 pt-4">
-                        <button type="button" @click="$inertia.visit(route('offerings.index'))" class="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
+                        <button type="button" @click="$inertia.visit(route('admin.offerings.index'))" class="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
                         <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-medium" :disabled="form.processing">
                             Registrar Referido
                         </button>

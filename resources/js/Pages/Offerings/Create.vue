@@ -18,9 +18,9 @@ const form = useForm({
 
 const submit = () => {
     if (props.offering) {
-        form.put(route('offerings.update', props.offering.id));
+        form.put(route('admin.offerings.update', props.offering.id));
     } else {
-        form.post(route('offerings.store'));
+        form.post(route('admin.offerings.store'));
     }
 };
 </script>
@@ -63,7 +63,7 @@ const submit = () => {
                     </div>
 
                     <div class="flex justify-end gap-3 pt-4">
-                        <button type="button" @click="$inertia.visit(route('offerings.index'))" class="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
+                        <button type="button" @click="$inertia.visit(route('admin.offerings.index'))" class="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
                         <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-medium" :disabled="form.processing">
                             {{ offering ? 'Guardar Cambios' : 'Crear Oferta' }}
                         </button>
