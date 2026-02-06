@@ -5,12 +5,17 @@ namespace App\Http\Requests\Admin;
 use App\Data\Commissions\CommissionOverrideQueryData;
 use App\Data\Commissions\CommissionOverrideUpsertData;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\CommissionOverride;
 
 class CommissionOverrideRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        if ($this->isMethod('POST')) {
+            return $this->user()?->can('create', CommissionOverride::class) ?? false;
+        }
+
+        return $this->user()?->can('viewAny', CommissionOverride::class) ?? false;
     }
 
     public function rules(): array

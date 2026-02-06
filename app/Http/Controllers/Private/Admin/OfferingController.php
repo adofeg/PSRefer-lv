@@ -33,14 +33,14 @@ class OfferingController extends AdminController
             );
         }
 
-        return Inertia::render('Offerings/Index', [
+        return Inertia::render('Private/Admin/Offerings/Index', [
             'offerings' => OfferingData::collect($offerings, PaginatedDataCollection::class),
         ]);
     }
 
     public function create(GetActiveCategoriesAction $categoriesAction)
     {
-        return Inertia::render('Offerings/Create', [
+        return Inertia::render('Private/Admin/Offerings/Create', [
             'categories' => $categoriesAction->execute()
         ]);
     }
@@ -58,7 +58,7 @@ class OfferingController extends AdminController
 
     public function edit(Offering $offering, GetActiveCategoriesAction $categoriesAction)
     {
-        return $this->renderEdit($offering, 'Offerings', 'offering', [
+        return $this->renderEdit($offering, 'Private/Admin/Offerings', 'offering', [
             'offering' => OfferingData::fromModel($offering),
             'categories' => $categoriesAction->execute()
         ]);

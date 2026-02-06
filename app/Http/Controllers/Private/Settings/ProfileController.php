@@ -14,7 +14,7 @@ class ProfileController extends SettingsController
 {
     public function edit(GetActiveCategoryNamesAction $categoriesAction): Response
     {
-        return Inertia::render('Settings/Index', [
+        return Inertia::render('Private/Settings/Profile/Index', [
             'user' => request()->user(),
             'categories' => $categoriesAction->execute(),
         ]);

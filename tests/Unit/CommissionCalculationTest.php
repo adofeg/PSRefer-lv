@@ -1,6 +1,8 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Tests\Unit;
+
+use Tests\TestCase;
 use App\Actions\Financial\CalculateCommissionAction;
 use App\Data\Offerings\OfferingData;
 

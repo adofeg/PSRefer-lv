@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Associate;
 use App\Models\Offering;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
+use App\Enums\ReferralStatus;
 
 class CreateReferralActionTest extends TestCase
 {
@@ -32,7 +34,9 @@ class CreateReferralActionTest extends TestCase
       'email' => 'associate@test.local',
       'password' => bcrypt('password'),
       'is_active' => true,
+      'email_verified_at' => now(),
     ]);
+    Role::findOrCreate('associate', 'web');
     $user->assignRole('associate');
     // Offering factory? If not, create manual.
     // Let's rely on standard factories being available or create generic.
@@ -46,6 +50,7 @@ class CreateReferralActionTest extends TestCase
       'type' => 'service',
       'base_price' => 100,
       'commission_rate' => 10,
+      'is_active' => true,
     ]);
 
     $data = new ReferralData(
@@ -53,7 +58,7 @@ class CreateReferralActionTest extends TestCase
       offering_id: $offering->id,
       client_name: 'John Doe',
       client_contact: 'john@example.com',
-      status: 'pending',
+      status: ReferralStatus::Prospect,
       metadata: ['source' => 'web'],
       notes: 'Test note'
     );
@@ -67,7 +72,7 @@ class CreateReferralActionTest extends TestCase
     $this->assertDatabaseHas('referrals', [
       'id' => $referral->id,
       'client_name' => 'John Doe',
-      'status' => 'pending',
+      'status' => ReferralStatus::Prospect->value,
     ]);
     $this->assertEquals($associate->id, $referral->associate_id);
   }

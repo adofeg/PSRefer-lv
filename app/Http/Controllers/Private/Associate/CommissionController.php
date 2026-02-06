@@ -10,6 +10,6 @@ class CommissionController extends AssociateController
 {
     public function index(GetCommissionSummaryAction $action)
     {
-        return Inertia::render('Commissions/Index', $action->execute(Auth::user()));
+        return Inertia::render('Private/Associate/Commissions/Index', $action->execute(Auth::user()));
     }
 }

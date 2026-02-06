@@ -9,6 +9,6 @@ class AppearanceController extends SettingsController
 {
     public function __invoke(): Response
     {
-        return Inertia::render('Settings/Appearance');
+        return Inertia::render('Private/Settings/Appearance/Index');
     }
 }

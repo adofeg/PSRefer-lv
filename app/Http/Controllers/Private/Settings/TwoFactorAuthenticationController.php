@@ -13,7 +13,7 @@ class TwoFactorAuthenticationController extends SettingsController
     {
         $request->ensureStateIsValid();
 
-        return Inertia::render('Settings/TwoFactor', [
+        return Inertia::render('Private/Settings/TwoFactor/Index', [
             'twoFactorEnabled' => $request->user()->hasEnabledTwoFactorAuthentication(),
             'requiresConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
         ]);

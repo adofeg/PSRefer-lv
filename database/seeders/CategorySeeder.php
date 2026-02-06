@@ -13,11 +13,12 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Tecnología', 'description' => 'Servicios y productos tecnológicos'],
             ['name' => 'Salud', 'description' => 'Servicios de salud y bienestar'],
-            ['name' => 'Hogar', 'description' => 'Servicios para el hogar y mantenimiento'],
-            ['name' => 'Finanzas', 'description' => 'Servicios financieros y contables'],
-            ['name' => 'Marketing', 'description' => 'Servicios de marketing y publicidad']
+            ['name' => 'Vida', 'description' => 'Protección financiera y seguros de vida'],
+            ['name' => 'Propiedad y Accidentes', 'description' => 'Coberturas de auto, casa y propiedad'],
+            ['name' => 'Empresarial', 'description' => 'Servicios y coberturas para empresas'],
+            ['name' => 'Personal', 'description' => 'Servicios personales y particulares'],
+            ['name' => 'Administrativo', 'description' => 'Trámites y gestión documental'],
         ];
 
         foreach ($categories as $category) {

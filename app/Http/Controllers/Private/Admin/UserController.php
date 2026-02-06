@@ -11,9 +11,14 @@ use Inertia\Inertia;
 
 class UserController extends AdminController
 {
+    public function __construct()
+    {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     public function index(GetUsersAction $action)
     {
-        return Inertia::render('Admin/Users/Index', [
+        return Inertia::render('Private/Admin/Users/Index', [
             'users' => $action->execute()
         ]);
     }
@@ -27,6 +32,8 @@ class UserController extends AdminController
 
     public function toggleStatus(User $user, ToggleUserStatusAction $action)
     {
+        $this->authorize('update', $user);
+
         $isActive = (bool) request()->boolean('is_active');
         $action->execute($user, $isActive);
 

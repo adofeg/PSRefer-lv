@@ -3,16 +3,18 @@
 namespace Tests\Feature\Referrals;
 
 use Tests\TestCase;
-use App\Models\User;
 use App\Models\Offering;
-use App\Data\Referrals\ReferralData;
-use App\Actions\Referrals\CreateReferralAction;
+use App\Actions\Referrals\SubmitReferralAction;
+use App\Models\Associate;
 use App\Models\Referral;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
+use Spatie\Permission\Models\Role;
 
 class ReferralFeatureTest extends TestCase
 {
-  // NO RefreshDatabase, as we have no DB.
+  use RefreshDatabase;
 
   public function test_referral_creation_screen_can_be_rendered(): void
   {
@@ -37,28 +39,47 @@ class ReferralFeatureTest extends TestCase
   public function test_referral_can_be_created_via_api(): void
   {
     // ARRANGE
-    $user = new User(['id' => 'user-1', 'name' => 'Test User']);
+    Role::findOrCreate('associate', 'web');
+
+    $associate = Associate::factory()->create();
+    $user = $associate->user()->create([
+      'name' => 'Test User',
+      'email' => 'test@example.com',
+      'password' => bcrypt('password'),
+      'is_active' => true,
+      'email_verified_at' => now(),
+    ]);
+    $user->assignRole('associate');
+
+    $offering = Offering::create([
+      'name' => 'Offer 1',
+      'type' => 'service',
+      'base_price' => 100,
+      'commission_rate' => 10,
+      'is_active' => true,
+    ]);
+
     $this->actingAs($user);
 
     // Mock the Action
-    $this->mock(CreateReferralAction::class, function (MockInterface $mock) {
+    $this->mock(SubmitReferralAction::class, function (MockInterface $mock) {
       $mock->shouldReceive('execute')
         ->once()
-        ->andReturn(new Referral(['id' => 'ref-1'])); // Return dummy referral
+        ->andReturn('Referral created successfully.');
     });
 
     $payload = [
       'client_name' => 'Jane Doe',
       'client_contact' => 'jane@example.com',
-      'offering_id' => 1,
+      'offering_id' => $offering->id,
       'notes' => 'Interested',
     ];
 
     // ACT
-    $response = $this->post(route('referrals.store'), $payload);
+    $response = $this->post(route('admin.referrals.store'), $payload);
 
     // ASSERT
-    $response->assertRedirect(route('referrals.index'));
+    $response->assertRedirect(route('admin.referrals.index'));
     $response->assertSessionHas('success');
   }
 }

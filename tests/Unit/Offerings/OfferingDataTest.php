@@ -10,7 +10,7 @@ class OfferingDataTest extends TestCase
   public function test_it_can_be_instantiated_from_array(): void
   {
     $data = [
-      'id' => 'offer-123',
+      'id' => 123,
       'name' => 'Premium Service',
       'type' => 'service',
       'category' => 'consulting',

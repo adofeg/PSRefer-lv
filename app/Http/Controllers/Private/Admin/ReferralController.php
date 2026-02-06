@@ -11,7 +11,6 @@ use App\Actions\Referrals\UpdateReferralStatusAction;
 use App\Data\Offerings\OfferingData;
 use App\Data\Referrals\ReferralPipelineData;
 use App\Enums\ReferralStatus;
-use App\Http\Requests\Admin\ReferralCreateRequest;
 use App\Http\Requests\Admin\ReferralRequest;
 use App\Models\Referral;
 use Illuminate\Http\Request;
@@ -26,25 +25,25 @@ class ReferralController extends AdminController
 
     public function index(Request $request, GetReferralsAction $action)
     {
-        return Inertia::render('Referrals/Index', [
+        return Inertia::render('Private/Admin/Referrals/Index', [
             'referrals' => $action->execute($request->user())
         ]);
     }
 
     public function create(
-        ReferralCreateRequest $request,
+        ReferralRequest $request,
         GetOfferingsAction $offeringsAction,
         GetOfferingByIdAction $offeringByIdAction
     )
     {
-        $offeringId = $request->query('offering_id');
+        $offeringId = $request->validated('offering_id') ?? $request->query('offering_id');
         $offering = null;
 
         if ($offeringId) {
             $offering = $offeringByIdAction->execute((int) $offeringId);
         }
 
-        return Inertia::render('Referrals/Create', [
+        return Inertia::render('Private/Admin/Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
             'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false))
         ]);
@@ -64,12 +63,12 @@ class ReferralController extends AdminController
 
     public function show(Referral $referral)
     {
-        return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate']), 'Referrals', 'referral');
+        return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate']), 'Private/Admin/Referrals', 'referral');
     }
 
     public function pipeline(GetReferralPipelineAction $action)
     {
-        return Inertia::render('Referrals/Pipeline', [
+        return Inertia::render('Private/Admin/Referrals/Pipeline', [
             'referrals' => ReferralPipelineData::collect($action->execute())
         ]);
     }

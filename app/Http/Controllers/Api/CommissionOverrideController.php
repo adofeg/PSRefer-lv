@@ -12,6 +12,8 @@ class CommissionOverrideController extends ApiController
 {
     public function index(CommissionOverrideRequest $request, GetCommissionOverridesAction $action)
     {
+        $this->authorize('viewAny', CommissionOverride::class);
+
         $data = $request->toQueryData();
 
         return response()->json($action->execute($data->associate_id));
@@ -19,6 +21,8 @@ class CommissionOverrideController extends ApiController
 
     public function store(CommissionOverrideRequest $request, UpsertCommissionOverrideAction $action)
     {
+        $this->authorize('create', CommissionOverride::class);
+
         $data = $request->toUpsertData();
 
         return response()->json($action->execute(
@@ -30,6 +34,8 @@ class CommissionOverrideController extends ApiController
 
     public function destroy(CommissionOverride $override, DeleteCommissionOverrideAction $action)
     {
+        $this->authorize('delete', $override);
+
         $action->execute($override);
 
         return response()->json(['message' => 'Override deleted']);

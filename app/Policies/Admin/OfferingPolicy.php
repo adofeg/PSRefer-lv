@@ -20,16 +20,25 @@ class OfferingPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        return $user->hasRole(RoleName::PsAdmin->value);
     }
 
     public function update(User $user, Offering $offering): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        if ($user->hasRole(RoleName::Admin->value)) {
+            return true;
+        }
+
+        if ($user->hasRole(RoleName::PsAdmin->value)) {
+            $employeeId = $user->employeeProfile()?->id;
+            return $employeeId !== null && $offering->owner_employee_id === $employeeId;
+        }
+
+        return false;
     }
 
     public function delete(User $user, Offering $offering): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        return $user->hasRole(RoleName::Admin->value);
     }
 }

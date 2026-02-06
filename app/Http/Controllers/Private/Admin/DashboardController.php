@@ -12,6 +12,6 @@ class DashboardController extends AdminController
     {
         $data = $action->execute(Auth::user());
 
-        return Inertia::render('Dashboard', $data);
+        return Inertia::render('Private/Admin/Dashboard/Index', $data);
     }
 }

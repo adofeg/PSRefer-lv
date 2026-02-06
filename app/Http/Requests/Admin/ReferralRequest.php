@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
+use App\Enums\RoleName;
 use App\Enums\ReferralStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Referral;
@@ -24,6 +25,12 @@ class ReferralRequest extends FormRequest
 
     public function rules(): array
     {
+        if ($this->routeIs('admin.referrals.create') && $this->isMethod('GET')) {
+            return [
+                'offering_id' => 'nullable|integer|exists:offerings,id',
+            ];
+        }
+
         $rules = [
             'client_name' => 'required|string|max:255',
             'client_contact' => 'required|string|max:255',
@@ -52,6 +59,17 @@ class ReferralRequest extends FormRequest
                 // But specifically for Referral Status Updates, often fields change.
                 // Let's keep it comprehensive.
             ];
+
+            $user = $this->user();
+            if ($user && $user->hasRole(RoleName::Associate->value)) {
+                $rules['status'] = ['prohibited'];
+                $rules['deal_value'] = ['prohibited'];
+                $rules['revenue_generated'] = ['prohibited'];
+                $rules['contract_id'] = ['prohibited'];
+                $rules['payment_method'] = ['prohibited'];
+                $rules['down_payment'] = ['prohibited'];
+                $rules['agency_fee'] = ['prohibited'];
+            }
         }
 
         return $rules;

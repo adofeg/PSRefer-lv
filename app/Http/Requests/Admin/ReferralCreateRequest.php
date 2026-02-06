@@ -4,17 +4,16 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+// Deprecated: use ReferralRequest (consolidated request) instead.
 class ReferralCreateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     public function rules(): array
     {
-        return [
-            'offering_id' => 'nullable|integer|exists:offerings,id',
-        ];
+        return [];
     }
 }

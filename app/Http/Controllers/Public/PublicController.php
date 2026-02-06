@@ -15,7 +15,7 @@ class PublicController extends Controller
 {
     public function home(GetHomePageDataAction $action)
     {
-        return Inertia::render('Welcome', $action->execute());
+        return Inertia::render('Public/Welcome', $action->execute());
     }
 
     /**

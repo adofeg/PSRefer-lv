@@ -14,7 +14,7 @@ class NetworkController extends AssociateController
         $user = Auth::user();
         $data = $action->execute($user);
 
-        return Inertia::render('Network/Index', [
+        return Inertia::render('Private/Associate/Network/Index', [
             'isAdmin' => $user->hasRole(RoleName::adminRoles()),
             ...$data,
         ]);

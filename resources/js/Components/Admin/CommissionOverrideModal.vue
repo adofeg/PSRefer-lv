@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { X, Save, Trash2, Plus, DollarSign, Loader2 } from 'lucide-vue-next';
-import Modal from '@/Components/Modal.vue';
+import Modal from '@/Components/UI/Modal.vue';
 import axios from 'axios';
 
 const props = defineProps({

@@ -1,8 +1,9 @@
 <script setup>
 import { useForm, Head } from '@inertiajs/vue3';
-import DynamicForm from '@/Components/DynamicForm.vue';
+import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 import { User, Phone, Mail, DollarSign, Building2, CheckCircle2, ArrowLeft } from 'lucide-vue-next';
 import { computed } from 'vue';
+import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const props = defineProps({
     offering: Object,
@@ -43,21 +44,22 @@ const formatPrice = (price) => {
         <meta name="description" :content="offering.description">
     </Head>
 
-    <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <!-- Header with Back Link -->
-        <div class="bg-white border-b border-slate-200 shadow-sm">
-            <div class="max-w-4xl mx-auto px-4 py-4">
-                <a 
-                    :href="route('home')"
-                    class="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600 transition"
-                >
-                    <ArrowLeft :size="16" />
-                    Volver al inicio
-                </a>
+    <PublicLayout>
+        <div class="bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+            <!-- Header with Back Link -->
+            <div class="bg-white border-b border-slate-200 shadow-sm">
+                <div class="max-w-4xl mx-auto px-4 py-4">
+                    <a 
+                        :href="route('home')"
+                        class="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600 transition"
+                    >
+                        <ArrowLeft :size="16" />
+                        Volver al inicio
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+            <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
             <!-- Success Message -->
             <div 
                 v-if="success"
@@ -254,16 +256,8 @@ const formatPrice = (price) => {
                 </a>
             </div>
         </div>
-
-        <!-- Footer -->
-        <div class="bg-slate-900 text-white py-8 mt-16">
-            <div class="max-w-4xl mx-auto px-4 text-center">
-                <p class="text-slate-400 text-sm">
-                    © {{ new Date().getFullYear() }} PSRefer. Todos los derechos reservados.
-                </p>
-            </div>
-        </div>
     </div>
+    </PublicLayout>
 </template>
 
 <style scoped>

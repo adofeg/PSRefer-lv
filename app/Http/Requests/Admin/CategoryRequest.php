@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Categories\CategoryUpsertData;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Category;
 
 class CategoryRequest extends FormRequest
 {
@@ -12,7 +13,13 @@ class CategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $category = $this->route('category');
+
+        if ($category) {
+            return $this->user()?->can('update', $category) ?? false;
+        }
+
+        return $this->user()?->can('create', Category::class) ?? false;
     }
 
     public function rules(): array

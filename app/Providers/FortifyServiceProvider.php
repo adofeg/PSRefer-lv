@@ -38,18 +38,31 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         Fortify::loginView(function () {
-            return Inertia::render('Auth/Login', [
+            return Inertia::render('Public/Auth/Login', [
                 'canResetPassword' => Route::has('password.request'),
                 'status' => session('status'),
             ]);
         });
 
         Fortify::registerView(function () {
-            return Inertia::render('Auth/Register');
+            return Inertia::render('Public/Auth/Register');
         });
 
-           Fortify::verifyEmailView(function () {
-               return Inertia::render('Auth/VerifyEmail', [
+        Fortify::requestPasswordResetLinkView(function () {
+            return Inertia::render('Public/Auth/ForgotPassword', [
+                'status' => session('status'),
+            ]);
+        });
+
+        Fortify::resetPasswordView(function (Request $request) {
+            return Inertia::render('Public/Auth/ResetPassword', [
+                'email' => $request->email,
+                'token' => $request->route('token'),
+            ]);
+        });
+
+                     Fortify::verifyEmailView(function () {
+               return Inertia::render('Public/Auth/VerifyEmail', [
                  'status' => session('status'),
              ]);
         });

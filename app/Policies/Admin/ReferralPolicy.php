@@ -24,16 +24,24 @@ class ReferralPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(RoleName::adminOrAssociate());
+        return $user->hasRole(RoleName::Associate->value);
     }
 
     public function update(User $user, Referral $referral): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        if ($user->hasRole(RoleName::PsAdmin->value)) {
+            return true;
+        }
+
+        if ($user->hasRole(RoleName::Associate->value)) {
+            return $user->associateProfile()?->id === $referral->associate_id;
+        }
+
+        return false;
     }
 
     public function delete(User $user, Referral $referral): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        return $user->hasRole(RoleName::Admin->value);
     }
 }

@@ -9,6 +9,6 @@ class MarketingController extends AdminController
 {
     public function index(GetAdminMarketingDataAction $action)
     {
-        return Inertia::render('Marketing/Index', $action->execute(auth()->user()));
+        return Inertia::render('Private/Admin/Marketing/Index', $action->execute(auth()->user()));
     }
 }

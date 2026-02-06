@@ -16,62 +16,204 @@ class CatalogSeeder extends Seeder
         $ownerEmployeeId = $psadmin?->employeeProfile()?->id;
         if (!$psadmin || !$ownerEmployeeId) return;
 
-        // Categories
-        $marketing = Category::firstOrCreate(['name' => 'Marketing']);
-        $medical = Category::firstOrCreate(['name' => 'Medical']);
-        $commercial = Category::firstOrCreate(['name' => 'Comercial']);
+        // Categories (align with seed data)
+        $health = Category::firstOrCreate(['name' => 'Salud']);
+        $life = Category::firstOrCreate(['name' => 'Vida']);
+        $property = Category::firstOrCreate(['name' => 'Propiedad y Accidentes']);
+        $business = Category::firstOrCreate(['name' => 'Empresarial']);
+        $personal = Category::firstOrCreate(['name' => 'Personal']);
+        $administrative = Category::firstOrCreate(['name' => 'Administrativo']);
 
-        // 1. Referencia General
-        Offering::firstOrCreate(
-            ['name' => 'Referencia General'],
+        // 1. Seguros de Salud
+        Offering::updateOrCreate(
+            ['name' => 'Seguros de Salud'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $commercial->id,
+                'category_id' => $health->id,
                 'type' => 'service',
-                'description' => 'Enlace general para referir cualquier servicio. El equipo de PSRefer se encargará de clasificarlo.',
+                'description' => 'Cobertura médica integral para individuos y familias.',
+                'commission_rate' => 30.00,
+                'is_active' => true,
+                'commission_config' => [
+                    'monthly' => [
+                        'percentage' => 30,
+                        'amount' => null,
+                        'duration_months' => null,
+                    ],
+                ],
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'commission_rate' => 30,
+                        'label' => 'Salud mensual',
+                        'roles' => ['associate'],
+                    ],
+                ],
+            ]
+        );
+
+        // 2. Seguros de Vida
+        Offering::updateOrCreate(
+            ['name' => 'Seguros de Vida'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $life->id,
+                'type' => 'service',
+                'description' => 'Protección financiera y tranquilidad para seres queridos.',
+                'commission_rate' => null,
+                'base_commission' => 25.00,
+                'is_active' => true,
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'fixed' => 25,
+                        'label' => 'Vida pago único',
+                        'roles' => ['associate'],
+                    ],
+                ],
+            ]
+        );
+
+        // 3. Seguros de Carro y Casa
+        Offering::updateOrCreate(
+            ['name' => 'Seguros de Carro y Casa'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $property->id,
+                'type' => 'service',
+                'description' => 'Protección para hogar y vehículo contra imprevistos.',
+                'commission_rate' => null,
+                'base_commission' => 25.00,
+                'is_active' => true,
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'fixed' => 25,
+                        'label' => 'Auto y casa',
+                        'roles' => ['associate'],
+                    ],
+                ],
+            ]
+        );
+
+        // 4. Group Insurance (5+ empleados)
+        Offering::updateOrCreate(
+            ['name' => 'Group Insurance (5+ empleados)'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $business->id,
+                'type' => 'service',
+                'description' => 'Seguros colectivos para empresas y PyMEs.',
+                'commission_rate' => null,
+                'base_commission' => 50.00,
+                'is_active' => true,
+                'form_schema' => [
+                    ['label' => 'Nombre de la empresa', 'type' => 'text', 'required' => true],
+                    ['label' => 'Número de empleados', 'type' => 'number', 'required' => true],
+                ],
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'fixed' => 50,
+                        'label' => 'Group Insurance',
+                        'roles' => ['associate'],
+                    ],
+                ],
+            ]
+        );
+
+        // 5. Business Liability / Workers Comp
+        Offering::updateOrCreate(
+            ['name' => 'Business Liability / Workers Comp'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $business->id,
+                'type' => 'service',
+                'description' => 'Responsabilidad civil y compensación laboral para negocios.',
                 'commission_rate' => 10.00,
                 'is_active' => true,
-                'form_schema' => [
+                'commission_rules' => [
                     [
-                        'label' => 'Servicios de Interés',
-                        'type' => 'checkbox_group',
-                        'required' => true,
-                        'options' => ['Marketing Digital', 'Consultoría Médica', 'Software a Medida', 'Otros']
-                    ]
-                ]
+                        'condition' => 'default',
+                        'commission_rate' => 10,
+                        'label' => 'Liability',
+                        'roles' => ['associate'],
+                    ],
+                ],
             ]
         );
 
-        // 2. Marketing Digital
-        Offering::firstOrCreate(
-            ['name' => 'Marketing Digital'],
+        // 6. Taxes Personales
+        Offering::updateOrCreate(
+            ['name' => 'Taxes Personales'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $marketing->id,
+                'category_id' => $personal->id,
                 'type' => 'service',
-                'description' => 'Servicios integrales de SEO, SEM y Redes Sociales.',
-                'commission_rate' => 15.00,
+                'description' => 'Preparación y presentación de impuestos personales.',
+                'commission_rate' => null,
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'form_schema' => [
-                    ['label' => 'Presupuesto Mensual', 'type' => 'number', 'required' => true],
-                    ['label' => 'Sitio Web Actual', 'type' => 'url', 'required' => false]
-                ]
+                    ['label' => 'Año fiscal', 'type' => 'number', 'required' => true],
+                    ['label' => 'Estado civil', 'type' => 'select', 'required' => true, 'options' => 'Soltero, Casado, Cabeza de hogar'],
+                ],
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'fixed' => 25,
+                        'label' => 'Taxes personales',
+                        'roles' => ['associate'],
+                    ],
+                ],
             ]
         );
 
-        // 3. Consultoría Médica
-        Offering::firstOrCreate(
-            ['name' => 'Consultoría Médica'],
+        // 7. Taxes Corporativos
+        Offering::updateOrCreate(
+            ['name' => 'Taxes Corporativos'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $medical->id,
+                'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Especialistas en habilitación de IPS y gestión de calidad en salud.',
-                'commission_rate' => 12.50,
+                'description' => 'Servicios fiscales para corporaciones y negocios.',
+                'commission_rate' => null,
+                'base_commission' => 50.00,
                 'is_active' => true,
                 'form_schema' => [
-                    ['label' => 'Tipo de Entidad', 'type' => 'select', 'required' => true, 'options' => 'Consultorio,Clínica,Hospital']
-                ]
+                    ['label' => 'Nombre corporación', 'type' => 'text', 'required' => true],
+                    ['label' => 'EIN', 'type' => 'text', 'required' => true],
+                    ['label' => 'Tipo de entidad', 'type' => 'select', 'required' => true, 'options' => 'LLC, S-Corp, C-Corp, Partnership'],
+                ],
+                'commission_rules' => [
+                    [
+                        'condition' => 'default',
+                        'fixed' => 50,
+                        'label' => 'Taxes corporativos',
+                        'roles' => ['associate'],
+                    ],
+                ],
+            ]
+        );
+
+        // 8. Solicitud de Certificado (CDI)
+        Offering::updateOrCreate(
+            ['name' => 'Solicitud de Certificado (CDI)'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $administrative->id,
+                'type' => 'service',
+                'description' => 'Gestión de documentos y certificados oficiales (Liability, Workers Comp, etc.).',
+                'commission_rate' => null,
+                'base_commission' => 0.00,
+                'is_active' => true,
+                'form_schema' => [
+                    ['label' => 'Titular', 'type' => 'text', 'required' => true],
+                    ['label' => 'Asegurado', 'type' => 'text', 'required' => true],
+                    ['label' => 'Tipo de certificado', 'type' => 'select', 'required' => true, 'options' => 'Liability, Workers Comp, Otros'],
+                    ['label' => 'Fecha requerida', 'type' => 'date', 'required' => true],
+                    ['label' => 'Dirección de envío', 'type' => 'text', 'required' => true],
+                ],
             ]
         );
     }

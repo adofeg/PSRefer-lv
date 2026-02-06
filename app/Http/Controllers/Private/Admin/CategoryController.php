@@ -13,9 +13,14 @@ use Inertia\Inertia;
 
 class CategoryController extends AdminController
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Category::class, 'category');
+    }
+
     public function index(GetCategoriesAction $action)
     {
-        return Inertia::render('Admin/Categories/Index', [
+        return Inertia::render('Private/Admin/Categories/Index', [
             'categories' => $action->execute()
         ]);
     }
