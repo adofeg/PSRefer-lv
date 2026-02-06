@@ -33,7 +33,7 @@ const formatCurrency = (amount) => {
                         <Search :size="20" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input type="text" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none w-full md:w-64" />
                      </div>
-                         <Link v-if="['psadmin'].includes($page.props.auth.user.role)" :href="route('admin.offerings.index')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
+                         <Link v-if="['psadmin', 'admin'].includes($page.props.auth.user.role)" :href="route('admin.offerings.create')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
                         <Plus :size="20" /> Nuevo
                      </Link>
                 </div>
@@ -56,15 +56,23 @@ const formatCurrency = (amount) => {
                                    {{ offering.commission_rate ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
                                </span>
                            </div>
-                            <div class="flex justify-between text-sm">
+                            <div v-if="offering.base_price !== null && offering.base_price !== undefined" class="flex justify-between text-sm">
                                <span class="text-slate-500">Precio Base:</span>
-                               <span class="font-medium text-slate-800">{{ offering.base_price ? formatCurrency(offering.base_price) : 'Variable' }}</span>
+                               <span class="font-medium text-slate-800">{{ formatCurrency(offering.base_price) }}</span>
                            </div>
                        </div>
                    </div>
 
-                   <div class="mt-4 pt-4 border-t border-slate-100">
-                       <Link :href="route('admin.referrals.create', { offering_id: offering.id })" class="block w-full text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                   <div class="mt-4 pt-4 border-t border-slate-100 flex gap-2">
+                       <template v-if="['admin', 'psadmin'].includes($page.props.auth.user.role)">
+                           <Link :href="route('admin.offerings.edit', offering.id)" class="flex-1 text-center bg-white border border-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-50 transition font-medium">
+                               Editar
+                           </Link>
+                            <Link v-if="$page.props.auth.user.role === 'admin'" method="delete" as="button" :href="route('admin.offerings.destroy', offering.id)" class="flex-1 text-center bg-red-50 text-red-600 py-2 rounded-lg hover:bg-red-100 transition font-medium">
+                               Eliminar
+                           </Link>
+                       </template>
+                       <Link v-else :href="route('admin.referrals.create', { offering_id: offering.id })" class="block w-full text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
                            Referir Ahora
                        </Link>
                    </div>

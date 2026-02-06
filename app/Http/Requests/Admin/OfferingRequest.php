@@ -26,6 +26,7 @@ class OfferingRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
+            'type' => 'required|string|in:service,product,professional',
             'category_id' => 'nullable|integer|exists:categories,id',
             'category' => 'nullable|string|max:1000',
             'description' => 'nullable|string',
@@ -51,6 +52,7 @@ class OfferingRequest extends FormRequest
             name: $this->validated('name', $this->route('offering')?->name),
             category_id: $this->validated('category_id'),
             category: $this->validated('category'),
+            type: $this->validated('type'),
             description: $this->validated('description'),
             base_price: $this->validated('base_price'),
             commission_rate: $this->validated('commission_rate'),

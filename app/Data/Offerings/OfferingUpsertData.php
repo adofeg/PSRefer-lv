@@ -10,6 +10,7 @@ class OfferingUpsertData extends Data
         public string $name,
         public ?int $category_id,
         public ?string $category,
+        public ?string $type,
         public ?string $description,
         public ?float $base_price,
         public ?float $commission_rate,

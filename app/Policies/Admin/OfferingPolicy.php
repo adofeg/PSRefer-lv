@@ -20,7 +20,7 @@ class OfferingPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(RoleName::PsAdmin->value);
+        return $user->hasRole(RoleName::adminRoles());
     }
 
     public function update(User $user, Offering $offering): bool

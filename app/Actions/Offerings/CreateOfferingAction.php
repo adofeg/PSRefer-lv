@@ -13,6 +13,7 @@ class CreateOfferingAction
             'name' => $data->name,
             'category_id' => $data->category_id,
             'category' => $data->category,
+            'type' => $data->type ?? 'service',
             'description' => $data->description,
             'base_price' => $data->base_price,
             'commission_rate' => $data->commission_rate,

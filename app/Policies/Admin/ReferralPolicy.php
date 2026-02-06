@@ -29,7 +29,7 @@ class ReferralPolicy
 
     public function update(User $user, Referral $referral): bool
     {
-        if ($user->hasRole(RoleName::PsAdmin->value)) {
+        if ($user->hasRole(RoleName::adminRoles())) {
             return true;
         }
 

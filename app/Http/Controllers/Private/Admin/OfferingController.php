@@ -58,7 +58,7 @@ class OfferingController extends AdminController
 
     public function edit(Offering $offering, GetActiveCategoriesAction $categoriesAction)
     {
-        return $this->renderEdit($offering, 'Private/Admin/Offerings', 'offering', [
+        return Inertia::render('Private/Admin/Offerings/Edit', [
             'offering' => OfferingData::fromModel($offering),
             'categories' => $categoriesAction->execute()
         ]);
@@ -69,5 +69,11 @@ class OfferingController extends AdminController
         $action->execute($offering, $request->toData());
 
         return $this->redirectAfterUpdate('admin.offerings', 'Offering updated.');
+    }
+
+    public function destroy(Offering $offering)
+    {
+        $offering->delete();
+        return redirect()->back()->with('success', 'Oferta eliminada correctamente.');
     }
 }

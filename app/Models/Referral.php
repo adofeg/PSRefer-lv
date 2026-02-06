@@ -52,4 +52,28 @@ class Referral extends Model
       ->with('actorable')
       ->orderBy('created_at', 'desc');
   }
+
+  protected $appends = ['estimated_commission'];
+
+  public function getEstimatedCommissionAttribute()
+  {
+      if ($this->revenue_generated > 0) {
+          return '$' . number_format($this->revenue_generated, 2);
+      }
+
+      $offering = $this->offering; // Ensure eager loading in Controller!
+      if (!$offering) return '-';
+
+      // Fixed Commission
+      if ($offering->base_commission > 0) {
+          return '$' . number_format($offering->base_commission, 2);
+      }
+
+      // Percentage Commission
+      if ($offering->commission_rate > 0) {
+          return $offering->commission_rate . '% del valor';
+      }
+
+      return '-';
+  }
 }

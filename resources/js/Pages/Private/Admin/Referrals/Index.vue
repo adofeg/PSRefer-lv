@@ -17,9 +17,15 @@ const props = defineProps({
     <AppLayout>
         <div class="space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Mis Referidos</h1>
-                    <p class="text-slate-500">Gestiona y rastrea el estado de tus referidos</p>
+                  <div>
+                    <h1 class="text-2xl font-bold text-slate-800">
+                        {{ ['admin', 'psadmin'].includes($page.props.auth.user.role) ? 'Gestión de Referidos' : 'Mis Referidos' }}
+                    </h1>
+                    <p class="text-slate-500">
+                        {{ ['admin', 'psadmin'].includes($page.props.auth.user.role) 
+                            ? 'Administra y monitorea todos los referidos del sistema' 
+                            : 'Gestiona y rastrea el estado de tus referidos' }}
+                    </p>
                 </div>
                       <Link
                           v-if="$page.props.auth.user.role === 'associate'"
@@ -53,16 +59,32 @@ const props = defineProps({
                                 <td class="px-6 py-4 text-slate-500">{{ new Date(referral.created_at).toLocaleDateString() }}</td>
                                 <td class="px-6 py-4"><Badge :status="referral.status" /></td>
                                 <td class="px-6 py-4 text-slate-600">
-                                    {{ referral.revenue_generated ? `$${referral.revenue_generated}` : '-' }}
+                                    {{ referral.estimated_commission }}
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <Link :href="route('admin.referrals.show', referral.id)" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver Detalle</Link>
+                                    <div class="flex items-center justify-end gap-3">
+                                        <Link 
+                                            :href="route('admin.referrals.show', referral.id)" 
+                                            class="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1"
+                                        >
+                                            Ver
+                                        </Link>
+                                        <Link 
+                                            v-if="$page.props.auth.user.role === 'admin'"
+                                            :href="route('admin.referrals.destroy', referral.id)" 
+                                            method="delete" 
+                                            as="button"
+                                            class="text-red-500 hover:text-red-700 font-medium text-sm flex items-center gap-1"
+                                        >
+                                            Eliminar
+                                        </Link>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                     <div v-if="referrals.data.length === 0" class="p-8 text-center text-slate-400">
-                        No has registrado referidos aún.
+                    <div v-if="referrals.data.length === 0" class="p-8 text-center text-slate-400">
+                        {{ ['admin', 'psadmin'].includes($page.props.auth.user.role) ? 'No hay referidos en el sistema.' : 'No has registrado referidos aún.' }}
                     </div>
                 </div>
                  <!-- Pagination -->
