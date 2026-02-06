@@ -39,14 +39,16 @@ class AuditService
     return AuditLog::create([
       'auditable_type' => Referral::class,
       'auditable_id' => $referralId,
+      'action' => 'UPDATE', // Required field
       'event_type' => 'status_change',
       'actorable_type' => $actor ? get_class($actor) : null,
       'actorable_id' => $actor?->id,
-      'old_value' => $previousStatus,
-      'new_value' => $newStatus,
+      'previous_data' => ['status' => $previousStatus], // Map to correct JSON column
+      'new_data' => ['status' => $newStatus],         // Map to correct JSON column
+      'description' => "Status changed from {$previousStatus} to {$newStatus}",
       'metadata' => [
         'notes' => $notes,
-        'note' => $notes, // Compatibility with frontend
+        'note' => $notes,
       ],
       'created_at' => now(),
     ]);
