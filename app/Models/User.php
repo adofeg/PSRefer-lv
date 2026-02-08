@@ -34,6 +34,10 @@ class User extends Authenticatable
 
     protected $appends = [
         'role',
+        'category',
+        'phone',
+        'logo_url',
+        'balance',
     ];
 
     /**

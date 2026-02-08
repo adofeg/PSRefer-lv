@@ -31,9 +31,9 @@ Route::middleware(['auth', 'verified', 'role:' . implode('|', RoleName::adminOrA
     Route::post('/settings/smtp/test', [SmtpSettingsController::class, 'testSmtp'])->name('settings.smtp.test');
 
     // Users
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('users.status');
+    // Users
+    Route::resource('users', UserController::class);
+    Route::post('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
     // Commission Overrides
     Route::get('/commissions/overrides', [CommissionOverrideController::class, 'index'])->name('commissions.overrides.index');
@@ -45,5 +45,6 @@ Route::middleware(['auth', 'verified', 'role:' . implode('|', RoleName::adminOrA
     
     // Resources
     Route::resource('offerings', OfferingController::class);
+    Route::post('/offerings/{offering}/status', [OfferingController::class, 'toggleStatus'])->name('offerings.toggle-status');
     Route::resource('referrals', ReferralController::class);
 });

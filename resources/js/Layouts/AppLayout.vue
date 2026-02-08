@@ -4,6 +4,7 @@ import { usePage } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Layout/AppLayout/Sidebar.vue';
 import Header from '@/Components/Layout/AppLayout/Header.vue';
 import AppFooter from '@/Components/Layout/AppLayout/Footer.vue';
+import ToastNotification from '@/Components/UI/ToastNotification.vue';
 
 const props = defineProps({
     user: Object,
@@ -16,6 +17,9 @@ const pageKey = computed(() => page.component || page.url);
 
 <template>
     <div class="min-h-screen bg-slate-50 text-slate-900">
+        <!-- Global Toast Notification -->
+        <ToastNotification />
+        
         <div class="flex min-h-screen">
             <Sidebar
                 :user="$page.props.auth.user"

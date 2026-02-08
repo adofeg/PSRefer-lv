@@ -73,14 +73,14 @@ class UserSeeder extends Seeder
         // 4. Generate Random Associates with Data
         // Ideally we update UserFactory, but for agility lets just do loop here
         for ($i = 0; $i < 5; $i++) {
-             $prof = Associate::create(['balance' => rand(0, 1000)]);
+             $prof = Associate::create(['balance' => 0.00]);
              $u = $prof->user()->create([
                  'name' => "Associate $i",
-                 'email' => "associate$i@example.com",
+                 'email' => "associate{$i}@example.com",
                  'password' => Hash::make('password'),
                  'phone' => '555-1' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
                  'is_active' => true,
-                 'logo_url' => 'https://ui-avatars.com/api/?name=Associate+' . $i . '&background=random',
+                 'logo_url' => "https://ui-avatars.com/api/?name=Associate+{$i}&background=random",
              ]);
              $u->assignRole('associate');
         }

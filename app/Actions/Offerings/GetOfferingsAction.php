@@ -9,11 +9,30 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetOfferingsAction
 {
-    public function execute(User $user, bool $includeInactive = false): LengthAwarePaginator
+    public function execute(User $user, bool $includeInactive = false, array $filters = []): LengthAwarePaginator
     {
         $query = Offering::query();
 
-        if (!$includeInactive) {
+        // Apply Search Filter
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        });
+
+        // Apply Category Filter
+        $query->when($filters['category'] ?? null, function ($query, $category) {
+            $query->where('category_id', $category);
+        });
+
+        // Apply Status Filter (Only if user is allowed to see inactive)
+        if ($includeInactive) {
+            $query->when(isset($filters['status']) && $filters['status'] !== 'all', function ($query) use ($filters) {
+                $query->where('is_active', filter_var($filters['status'], FILTER_VALIDATE_BOOLEAN));
+            });
+        } else {
+            // Force active for non-admins regardless of filter
             $query->where('is_active', true);
         }
 
@@ -36,6 +55,6 @@ class GetOfferingsAction
             }
         }
 
-        return $query->latest()->paginate(12);
+        return $query->latest()->paginate(12)->withQueryString();
     }
 }

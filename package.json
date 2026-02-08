@@ -17,6 +17,7 @@
         "ziggy-js": "^2.6.0"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.7.23",
         "@inertiajs/vue3": "^2.3.13",
         "@vitejs/plugin-vue": "^6.0.4",
         "autoprefixer": "^10.4.24",

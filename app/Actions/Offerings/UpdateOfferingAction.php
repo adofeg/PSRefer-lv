@@ -24,4 +24,10 @@ class UpdateOfferingAction
 
         return $offering->refresh();
     }
+
+    public function updateStatus(Offering $offering, bool $isActive): Offering
+    {
+        $offering->update(['is_active' => $isActive]);
+        return $offering->refresh();
+    }
 }

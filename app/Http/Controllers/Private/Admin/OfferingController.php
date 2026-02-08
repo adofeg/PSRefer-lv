@@ -21,11 +21,14 @@ class OfferingController extends AdminController
         $this->authorizeResource(Offering::class, 'offering');
     }
 
-    public function index(Request $request, GetOfferingsAction $action)
+    public function index(Request $request, GetOfferingsAction $action, GetActiveCategoriesAction $categoriesAction)
     {
         $user = $request->user();
         $includeInactive = $user?->hasRole(RoleName::adminRoles()) ?? false;
-        $offerings = $action->execute($user, $includeInactive);
+        
+        $filters = $request->only(['search', 'category', 'status']);
+        
+        $offerings = $action->execute($user, $includeInactive, $filters);
 
         if ($request->boolean('json') || $request->wantsJson()) {
             return response()->json(
@@ -35,6 +38,8 @@ class OfferingController extends AdminController
 
         return Inertia::render('Private/Admin/Offerings/Index', [
             'offerings' => OfferingData::collect($offerings, PaginatedDataCollection::class),
+            'filters' => $filters,
+            'categories' => $categoriesAction->execute()
         ]);
     }
 
@@ -75,5 +80,15 @@ class OfferingController extends AdminController
     {
         $offering->delete();
         return redirect()->back()->with('success', 'Oferta eliminada correctamente.');
+    }
+
+    public function toggleStatus(Offering $offering, UpdateOfferingAction $action)
+    {
+        $this->authorize('update', $offering);
+        
+        $isActive = request()->boolean('is_active');
+        $action->updateStatus($offering, $isActive);
+
+        return back()->with('success', $isActive ? 'Oferta activada correctamente.' : 'Oferta desactivada correctamente.');
     }
 }
