@@ -7,11 +7,13 @@ import { computed, watch } from 'vue';
 
 const props = defineProps({
     offering: Object, // Optional pre-selected offering
-    offerings: Array // List for dropdown if needed
+    offerings: Array, // List for dropdown if needed
+    associates: Array // List of associates for Admin selection
 });
 
 const form = useForm({
     offering_id: props.offering?.id || '',
+    associate_id: '',
     client_name: '',
     client_contact: '',
     form_data: {},
@@ -68,6 +70,26 @@ const submit = () => {
                         </select>
                         <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-1">
                             {{ form.errors.offering_id }}
+                        </div>
+                    </div>
+
+                    <!-- Associate Selector (Admin Only) -->
+                    <div v-if="associates?.length">
+                         <label class="block text-sm font-medium text-slate-700 mb-1">
+                            Asignar a Asociado <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            v-model="form.associate_id" 
+                            required
+                            class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">Seleccionar Asociado...</option>
+                            <option v-for="assoc in associates" :key="assoc.id" :value="assoc.id">
+                                {{ assoc.name }}
+                            </option>
+                        </select>
+                        <div v-if="form.errors.associate_id" class="text-red-500 text-xs mt-1">
+                            {{ form.errors.associate_id }}
                         </div>
                     </div>
 

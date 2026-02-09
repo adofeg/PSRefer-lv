@@ -12,7 +12,9 @@ use Inertia\Inertia;
 
 class UserController extends AdminController
 {
-    public function __construct()
+    public function __construct(
+        protected \App\Services\AuditService $auditService
+    )
     {
         $this->authorizeResource(User::class, 'user');
     }
@@ -57,11 +59,21 @@ class UserController extends AdminController
     {
         $data = $request->validated();
         
+        $oldData = $user->only(['name', 'email', 'is_active']);
+
         $user->update([
             'name' => $data['name'],
             'email' => $data['email'],
             'is_active' => $data['is_active'] ?? $user->is_active,
         ]);
+
+        $this->auditService->logAction(
+            $user, 
+            'UPDATE', 
+            "User '{$user->name}' updated by Admin",
+            $oldData,
+            $user->only(['name', 'email', 'is_active'])
+        );
 
         if (!empty($data['password'])) {
             $user->update(['password' => \Illuminate\Support\Facades\Hash::make($data['password'])]);
@@ -91,6 +103,12 @@ class UserController extends AdminController
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Cannot delete yourself.');
         }
+
+        $this->auditService->logAction(
+            $user,
+            'DELETE',
+            "User '{$user->name}' deleted by Admin"
+        );
 
         $user->delete(); // Soft Delete
 

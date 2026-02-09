@@ -90,7 +90,6 @@ const executeDelete = () => {
                     </p>
                 </div>
                   <Link
-                      v-if="$page.props.auth.user.role === 'associate'"
                       :href="route('admin.referrals.create')"
                       class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition"
                   >

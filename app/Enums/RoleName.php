@@ -17,4 +17,9 @@ enum RoleName: string
     {
         return [self::Admin->value, self::PsAdmin->value, self::Associate->value];
     }
+
+    public static function isAdmin($user): bool
+    {
+        return $user->hasRole(self::adminRoles());
+    }
 }

@@ -66,4 +66,23 @@ class AuditService
       'description' => "Offering \"{$name}\" created",
     ]);
   }
+  /**
+   * Generic log action for any model
+   */
+  public function logAction($model, string $action, string $description, ?array $previous = null, ?array $new = null)
+  {
+    $actor = auth()->user();
+
+    return AuditLog::create([
+        'auditable_type' => get_class($model),
+        'auditable_id' => $model->id,
+        'action' => $action,
+        'actorable_type' => $actor ? get_class($actor) : null,
+        'actorable_id' => $actor?->id,
+        'previous_data' => $previous,
+        'new_data' => $new,
+        'description' => $description,
+        'created_at' => now(),
+    ]);
+  }
 }

@@ -1,5 +1,15 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Mail Configuration
+|--------------------------------------------------------------------------
+|
+| Note: The settings in this file act as DEFAULTS/FALLBACKS.
+| If the system has SMTP settings configured in the database, the
+| MailConfigServiceProvider will OVERRIDE these values at runtime.
+|
+*/
 return [
 
     /*

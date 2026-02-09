@@ -37,7 +37,8 @@ class ReferralController extends AdminController
     public function create(
         ReferralRequest $request,
         GetOfferingsAction $offeringsAction,
-        GetOfferingByIdAction $offeringByIdAction
+        GetOfferingByIdAction $offeringByIdAction,
+        \App\Actions\Associates\GetAssociatesAction $getAssociatesAction
     )
     {
         $offeringId = $request->validated('offering_id') ?? $request->query('offering_id');
@@ -49,18 +50,24 @@ class ReferralController extends AdminController
 
         return Inertia::render('Private/Admin/Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
-            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false))
+            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false)),
+            'associates' => \App\Enums\RoleName::isAdmin($request->user()) ? $getAssociatesAction->execute() : [],
         ]);
     }
 
     public function store(ReferralRequest $request, SubmitReferralAction $action)
     {
-        $associate = $request->user()->associateProfile();
-        if (!$associate) {
-            abort(403, 'Solo los asociados pueden crear referidos.');
+        if (\App\Enums\RoleName::isAdmin($request->user())) {
+            $associateId = $request->validated('associate_id');
+        } else {
+            $associate = $request->user()->associateProfile();
+            if (!$associate) {
+                abort(403, 'Solo los asociados pueden crear referidos.');
+            }
+            $associateId = $associate->id;
         }
 
-        $message = $action->execute($request, $associate->id);
+        $message = $action->execute($request, (int) $associateId);
 
         return $this->redirectAfterStore('admin.referrals', $message);
     }

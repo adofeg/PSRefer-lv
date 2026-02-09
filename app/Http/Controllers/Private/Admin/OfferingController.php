@@ -16,7 +16,9 @@ use Spatie\LaravelData\PaginatedDataCollection;
 
 class OfferingController extends AdminController
 {
-    public function __construct()
+    public function __construct(
+        protected \App\Services\AuditService $auditService
+    )
     {
         $this->authorizeResource(Offering::class, 'offering');
     }
@@ -78,6 +80,12 @@ class OfferingController extends AdminController
 
     public function destroy(Offering $offering)
     {
+        $this->auditService->logAction(
+            $offering,
+            'DELETE',
+            "Offering '{$offering->name}' deleted by Admin"
+        );
+
         $offering->delete();
         return redirect()->back()->with('success', 'Oferta eliminada correctamente.');
     }

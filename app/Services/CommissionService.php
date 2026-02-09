@@ -25,8 +25,12 @@ class CommissionService
   {
     if (!$override) {
         $override = CommissionOverride::where('associate_id', $referral->associate_id)
-            ->where('offering_id', $offering->id)
+            ->where(function($query) use ($offering) {
+                $query->where('offering_id', $offering->id)
+                      ->orWhereNull('offering_id');
+            })
             ->where('is_active', true)
+            ->orderByRaw('offering_id DESC') // Specific (ID) first, then Global (NULL)
             ->first();
     }
 

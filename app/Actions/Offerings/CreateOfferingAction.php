@@ -7,9 +7,13 @@ use App\Models\Offering;
 
 class CreateOfferingAction
 {
+    public function __construct(
+        protected \App\Services\AuditService $auditService
+    ) {}
+
     public function execute(OfferingUpsertData $data, int $ownerEmployeeId): Offering
     {
-        return Offering::create([
+        $offering = Offering::create([
             'name' => $data->name,
             'category_id' => $data->category_id,
             'category' => $data->category,
@@ -23,5 +27,15 @@ class CreateOfferingAction
             'owner_employee_id' => $ownerEmployeeId,
             'is_active' => true,
         ]);
+
+        $this->auditService->logAction(
+            $offering,
+            'CREATE',
+            "Offering '{$offering->name}' created",
+            null,
+            ['name' => $offering->name, 'type' => $offering->type]
+        );
+
+        return $offering;
     }
 }

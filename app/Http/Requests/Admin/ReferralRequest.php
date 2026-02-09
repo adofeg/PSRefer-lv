@@ -37,6 +37,11 @@ class ReferralRequest extends FormRequest
             'offering_id' => 'required|integer|exists:offerings,id',
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
+            'associate_id' => [
+                \App\Enums\RoleName::isAdmin($this->user()) ? 'required' : 'nullable',
+                'integer',
+                'exists:associates,id'
+            ],
         ];
 
         // Update context

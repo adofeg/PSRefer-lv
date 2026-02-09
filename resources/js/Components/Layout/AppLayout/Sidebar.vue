@@ -12,7 +12,11 @@ import {
     Image as ImageIcon,
     Tag,
     Mail,
-    UserCog
+    UserCog,
+    ArrowRightLeft,
+    BarChart3,
+    Settings,
+    ClipboardList
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -49,9 +53,18 @@ const navigationSections = [
         ]
     },
     {
-        label: 'Associates',
+        label: 'Gestión de Comisiones',
         items: [
-            { name: 'Comisiones', href: route('commissions'), icon: DollarSign, current: isActive('commissions'), roles: adminRoles },
+             { name: 'Operaciones', href: route('admin.commissions.index'), icon: ArrowRightLeft, current: isActive('admin.commissions.index'), roles: adminRoles },
+             { name: 'Reportes Financieros', href: route('admin.commissions.report'), icon: BarChart3, current: isActive('admin.commissions.report'), roles: adminRoles },
+             { name: 'Reglas y Excepciones', href: route('admin.commissions.overrides.index'), icon: Settings, current: isActive('admin.commissions.overrides.index'), roles: adminRoles },
+        ]
+    },
+    {
+        label: 'Associates Only',
+        items: [
+             // Associate specific links can go here if distinct from dynamic role Filtering
+             { name: 'Mis Comisiones', href: route('admin.commissions.index'), icon: DollarSign, current: isActive('admin.commissions.index'), roles: associateRoles },
         ]
     },
     {
@@ -61,6 +74,7 @@ const navigationSections = [
             { name: 'Categorías', href: route('admin.categories.index'), icon: Tag, current: isActive('admin.categories.index'), roles: ['admin'] },
             { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, current: isActive('admin.referrals.pipeline'), roles: ['admin', 'psadmin'] },
             { name: 'SMTP Config', href: route('admin.settings.smtp'), icon: Mail, current: isActive('admin.settings.smtp'), roles: ['admin'] },
+            { name: 'Bitácora', href: route('admin.audit-logs.index'), icon: ClipboardList, current: isActive('admin.audit-logs.index'), roles: ['admin'] },
             { name: 'Marketing', href: route('admin.marketing'), icon: ImageIcon, current: isActive('admin.marketing'), roles: ['admin'] },
         ]
     },

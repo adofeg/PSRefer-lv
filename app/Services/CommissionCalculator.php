@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\Offering;
 use App\Models\Referral;
 
+/**
+ * @deprecated Use App\Services\CommissionService instead.
+ */
 class CommissionCalculator
 {
   /**

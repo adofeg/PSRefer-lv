@@ -23,20 +23,20 @@ class CommissionOverrideRequest extends FormRequest
         if ($this->isMethod('POST')) {
             return [
                 'associate_id' => 'required|integer|exists:associates,id',
-                'offering_id' => 'required|integer|exists:offerings,id',
+                'offering_id' => 'nullable|integer|exists:offerings,id',
                 'commission_rate' => 'required|numeric|min:0|max:100',
             ];
         }
 
         return [
-            'associate_id' => 'required|integer',
+            'associate_id' => 'nullable|integer',
         ];
     }
 
     public function toQueryData(): CommissionOverrideQueryData
     {
         return new CommissionOverrideQueryData(
-            associate_id: (int) $this->validated('associate_id')
+            associate_id: $this->validated('associate_id') ? (int) $this->validated('associate_id') : 0
         );
     }
 
@@ -44,7 +44,7 @@ class CommissionOverrideRequest extends FormRequest
     {
         return new CommissionOverrideUpsertData(
             associate_id: (int) $this->validated('associate_id'),
-            offering_id: (int) $this->validated('offering_id'),
+            offering_id: $this->validated('offering_id') ? (int) $this->validated('offering_id') : null,
             commission_rate: (float) $this->validated('commission_rate')
         );
     }

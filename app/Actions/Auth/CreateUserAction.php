@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class CreateUserAction
 {
+  public function __construct(
+    protected \App\Services\AuditService $auditService
+  ) {}
+
   public function execute(UserData $data): User
   {
     return DB::transaction(function () use ($data) {
@@ -56,7 +60,6 @@ class CreateUserAction
 
       // Logic: Auto-link to offering if provided (from legacy authRoutes.js)
       if ($data->offering_id) {
-        // Determine if we need a model for this or just DB insert.
         // Using DB for now to assume table exists from migration.
         DB::table('associate_offering_links')->insert([
           'associate_id' => $user->associateProfile()?->id,
@@ -64,6 +67,14 @@ class CreateUserAction
           'created_at' => now(),
         ]);
       }
+
+      $this->auditService->logAction(
+          $user,
+          'CREATE',
+          "User '{$user->name}' created with role '{$data->role}'",
+          null,
+          ['email' => $user->email, 'role' => $data->role]
+      );
 
       return $user;
     });
