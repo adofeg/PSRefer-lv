@@ -5,7 +5,7 @@ import { X } from 'lucide-vue-next';
 
 const props = defineProps({
     show: Boolean,
-    referralId: String,
+    referralId: [String, Number],
     currentStatus: String
 });
 

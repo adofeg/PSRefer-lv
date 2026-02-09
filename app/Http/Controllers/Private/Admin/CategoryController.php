@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class CategoryController extends AdminController
 {
@@ -18,32 +19,49 @@ class CategoryController extends AdminController
         $this->authorizeResource(Category::class, 'category');
     }
 
-    public function index(GetCategoriesAction $action)
+    public function index(Request $request, GetCategoriesAction $action)
     {
+        $filters = $request->only(['search', 'status']);
+        $categories = $action->execute($filters);
+
         return Inertia::render('Private/Admin/Categories/Index', [
-            'categories' => $action->execute()
+            'categories' => $categories,
+            'filters' => $filters
         ]);
     }
 
     public function store(CategoryRequest $request, CreateCategoryAction $action)
     {
         $action->execute($request->toData());
-        return back()->with('success', 'Category created successfully.');
+        return back()->with('success', 'Categoría creada correctamente.');
     }
 
     public function update(CategoryRequest $request, Category $category, UpdateCategoryAction $action)
     {
         $action->execute($category, $request->toData());
-        return back()->with('success', 'Category updated successfully.');
+        return back()->with('success', 'Categoría actualizada correctamente.');
     }
 
     public function destroy(Category $category, DeleteCategoryAction $action)
     {
         try {
             $action->execute($category);
-            return back()->with('success', 'Category deleted successfully.');
+            return back()->with('success', 'Categoría eliminada correctamente.');
         } catch (ValidationException $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function toggleStatus(Category $category, UpdateCategoryAction $action)
+    {
+        $this->authorize('update', $category);
+        
+        $isActive = request()->boolean('is_active');
+        
+        // Manual update locally since UpdateCategoryAction expects full DTO
+        // Ideally we should add updateStatus to Action like in Offering
+        $category->update(['is_active' => $isActive]);
+
+        return back()->with('success', $isActive ? 'Categoría activada correctamente.' : 'Categoría desactivada correctamente.');
     }
 }

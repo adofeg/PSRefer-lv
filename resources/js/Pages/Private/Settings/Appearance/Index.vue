@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Palette } from 'lucide-vue-next';
-import { useAppearance } from '@/composables/useAppearance';
+import { useAppearance } from '@/Composables/useAppearance';
 
 const { appearance, setAppearance, options } = useAppearance();
 </script>

@@ -25,8 +25,12 @@ class ReferralController extends AdminController
 
     public function index(Request $request, GetReferralsAction $action)
     {
+        $filters = $request->only(['search', 'status']);
+        
         return Inertia::render('Private/Admin/Referrals/Index', [
-            'referrals' => $action->execute($request->user())
+            'referrals' => $action->execute($request->user(), $filters),
+            'filters' => $filters,
+            'statuses' => ReferralStatus::cases()
         ]);
     }
 
@@ -82,5 +86,11 @@ class ReferralController extends AdminController
         );
 
         return $this->redirectAfterUpdate('admin.referrals', 'Referral updated.');
+    }
+
+    public function destroy(Referral $referral)
+    {
+        $referral->delete();
+        return back()->with('success', 'Referido eliminado correctamente.');
     }
 }
