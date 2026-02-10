@@ -77,10 +77,10 @@ class ReferralController extends AdminController
         return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate']), 'Private/Admin/Referrals', 'referral');
     }
 
-    public function pipeline(GetReferralPipelineAction $action)
+    public function pipeline(Request $request, GetReferralPipelineAction $action)
     {
         return Inertia::render('Private/Admin/Referrals/Pipeline', [
-            'referrals' => ReferralPipelineData::collect($action->execute())
+            'referrals' => ReferralPipelineData::collect($action->execute($request->user()))
         ]);
     }
 

@@ -9,27 +9,27 @@ class GetUserClickStatsAction
 {
     public function execute(User $user): array
     {
+        $isAdmin = $user->hasRole(\App\Enums\RoleName::adminRoles());
         $associateId = $user->associateProfile()?->id;
 
-        $totalClicks = DB::table('referral_clicks')
-            ->where('referrer_associate_id', $associateId)
-            ->count();
+        $query = DB::table('referral_clicks');
 
-        $conversions = DB::table('referral_clicks')
-            ->where('referrer_associate_id', $associateId)
-            ->where('link_type', 'conversion')
-            ->count();
+        if (!$isAdmin) {
+            $query->where('referrer_associate_id', $associateId);
+        }
 
-        $clicksByOffering = DB::table('referral_clicks')
+        $totalClicks = (clone $query)->count();
+
+        $conversions = (clone $query)->where('link_type', 'conversion')->count();
+
+        $clicksByOffering = (clone $query)
             ->join('offerings', 'referral_clicks.offering_id', '=', 'offerings.id')
-            ->where('referral_clicks.referrer_associate_id', $associateId)
             ->select('offerings.name', DB::raw('count(*) as count'))
             ->groupBy('offerings.name')
             ->orderBy('count', 'desc')
             ->get();
 
-        $clicksLast7Days = DB::table('referral_clicks')
-            ->where('referrer_associate_id', $associateId)
+        $clicksLast7Days = (clone $query)
             ->where('clicked_at', '>=', now()->subDays(7))
             ->select(DB::raw('DATE(clicked_at) as date'), DB::raw('count(*) as count'))
             ->groupBy('date')

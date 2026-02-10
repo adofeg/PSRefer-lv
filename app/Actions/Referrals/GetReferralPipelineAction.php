@@ -7,13 +7,20 @@ use Illuminate\Support\Collection;
 
 class GetReferralPipelineAction
 {
-    public function execute(): Collection
+    public function execute(\App\Models\User $user): Collection
     {
-        return Referral::with([
-                'offering:id,name',
-                'associate.user:id,name'
-            ])
-            ->latest()
-            ->get();
+        $query = Referral::with([
+            'offering:id,name',
+            'associate.user:id,name'
+        ])->latest();
+
+        if ($user->hasRole(\App\Enums\RoleName::Associate->value)) {
+            $associate = $user->associateProfile;
+            if ($associate) {
+                $query->where('associate_id', $associate->id);
+            }
+        }
+
+        return $query->get();
     }
 }

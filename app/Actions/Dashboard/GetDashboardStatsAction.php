@@ -17,8 +17,11 @@ class GetDashboardStatsAction
             $referralsQuery = Referral::query();
             $closedReferralsQuery = Referral::where('status', ReferralStatus::Closed->value);
             
-            // Total Platform Revenue
+            // Admin Specific Stats
             $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('revenue_generated') ?? 0;
+            $totalCommissionsPaid = \App\Models\Commission::where('status', \App\Enums\CommissionStatus::Paid->value)->sum('amount');
+            $pendingReferralsCount = Referral::where('status', ReferralStatus::Prospect->value)->count();
+            $totalUsers = User::count();
         } else {
             $associate = $user->associateProfile();
             $referralsQuery = Referral::where('associate_id', $associate?->id);
@@ -26,6 +29,9 @@ class GetDashboardStatsAction
             
             // Personal Revenue Contribution
             $totalRevenue = $closedReferralsQuery->sum('revenue_generated') ?? 0;
+            $totalCommissionsPaid = 0; // Not used for associate view in same way
+            $pendingReferralsCount = 0;
+            $totalUsers = 0;
         }
 
         // 2. Earnings (Always Personal Balance)
@@ -39,10 +45,7 @@ class GetDashboardStatsAction
 
         // 4. Chart Data (Monthly Revenue)
         $chartData = $closedReferralsQuery->clone()
-            ->whereYear('updated_at', date('Y')) // Assuming 'updated_at' is used for 'closed_at' logic unless column exists
-            // Verify DB schema for 'closed_at'. Using 'updated_at' as fallback or check migration. 
-            // Migration usually has timestamps. Referral likely doesn't have 'closed_at' unless added.
-            // Let's assume Updated At for now if status changed to Closed consistently.
+            ->whereYear('updated_at', date('Y'))
             ->get(['updated_at', 'revenue_generated']);
 
         $monthlyRevenue = $chartData->groupBy(function ($item) {
@@ -62,6 +65,10 @@ class GetDashboardStatsAction
             'stats' => [
                 'current_balance' => (float) $totalEarnings,
                 'total_revenue' => (float) $totalRevenue,
+                'total_commissions_paid' => (float) $totalCommissionsPaid,
+                'pending_referrals' => $pendingReferralsCount,
+                'total_users' => $totalUsers,
+                'is_admin' => $user->hasRole(RoleName::adminRoles()),
             ],
             'recentReferrals' => $recentReferrals,
             'monthlyRevenue' => $revenueSeries,
