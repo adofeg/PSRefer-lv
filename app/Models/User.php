@@ -30,6 +30,7 @@ class User extends Authenticatable
         'phone',
         'logo_url',
         'theme',
+        'preferred_currency',
     ];
 
     protected $appends = [

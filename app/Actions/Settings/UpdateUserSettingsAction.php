@@ -12,6 +12,8 @@ class UpdateUserSettingsAction
     {
         $user->update([
             'name' => $data->name,
+            'phone' => $data->phone,
+            'preferred_currency' => $data->preferred_currency->value,
         ]);
 
         if ($data->logo_file) {
@@ -24,7 +26,6 @@ class UpdateUserSettingsAction
         if ($profile instanceof Associate) {
             $profileData = [
                 'payment_info' => $data->payment_info ?? [],
-                'phone' => $data->phone,
             ];
 
             // Security: Only Admins/PSAdmins can change the Category or W-9 Status directly
@@ -40,8 +41,8 @@ class UpdateUserSettingsAction
                     $profileData['w9_status'] = 'submitted';
                 }
                 
-                $path = $data->w9_file->store('w9_forms', 'private');
-                $profileData['w9_file_url'] = '/storage/' . $path;
+                $path = $data->w9_file->store('w9_forms', 'local');
+                $profileData['w9_file_url'] = $path;
             }
 
             $profile->update($profileData);

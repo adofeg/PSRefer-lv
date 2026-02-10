@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { User, DollarSign, FileCheck, Globe, Camera, Lock, Save, Landmark } from 'lucide-vue-next';
+import { User, DollarSign, FileCheck, Globe, Camera, Lock, Save, Landmark, FileText } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import Card from '@/Components/UI/Card.vue';
 
@@ -18,6 +18,7 @@ const form = useForm({
     category: props.user.category || '',
     phone: props.user.phone || '',
     logo_file: null,
+    w9_file: null,
     _method: 'PUT'
 });
 
@@ -69,204 +70,225 @@ const currencies = [
 
     <AppLayout>
         <div class="w-full space-y-8 animate-fade-in pb-20">
-            <!-- 1. Compact Premium Header -->
-            <Card class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 border-none shadow-xl relative overflow-hidden p-0 mb-8 border border-white/5">
-                <div class="absolute -top-12 -right-12 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
-                
-                <div class="relative px-6 py-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <!-- Left: Identity -->
-                    <div class="flex flex-col md:flex-row items-center gap-6">
-                        <div class="relative group">
-                            <div class="w-24 h-24 rounded-2xl overflow-hidden bg-slate-800 ring-4 ring-white/5 shadow-2xl transition-transform duration-500 group-hover:scale-105">
+            <!-- 2. Dashboard Hero Hub (Gradient Identity Card) -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/10 group">
+                <!-- Decorative effects -->
+                <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/5 rounded-full blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
+                <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
+
+                <div class="relative flex flex-col md:flex-row items-center md:items-end justify-between gap-8">
+                    <!-- Identity Info -->
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <div class="relative">
+                            <div class="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-white/10 border-4 border-white/20 shadow-2xl overflow-hidden backdrop-blur-md transition-transform duration-500 group-hover:rotate-1">
                                 <img v-if="logoPreview" :src="logoPreview" class="w-full h-full object-cover" />
-                                <div v-else class="w-full h-full flex items-center justify-center text-slate-600 bg-slate-800">
-                                    <User :size="32" />
+                                <div v-else class="w-full h-full flex items-center justify-center text-white/20">
+                                    <User :size="40" />
                                 </div>
                             </div>
-                            <label class="absolute -bottom-1 -right-1 p-2 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-500 transition-all cursor-pointer ring-2 ring-slate-900">
-                                <Camera :size="14" />
+                            <label class="absolute -bottom-2 -right-2 p-3 bg-white text-indigo-900 rounded-2xl shadow-2xl hover:bg-indigo-50 transition-all cursor-pointer border-2 border-white active:scale-95">
+                                <Camera :size="20" />
                                 <input type="file" @change="onLogoChange" class="hidden" accept="image/*" />
                             </label>
                         </div>
-                        <div class="text-center md:text-left">
-                            <div class="flex items-center justify-center md:justify-start gap-3 mb-1">
-                                <h1 class="text-xl font-black text-white tracking-tight">{{ user.name }}</h1>
-                                <span class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-md text-[9px] font-black uppercase tracking-widest border border-indigo-500/30">
-                                    {{ user.role }}
-                                </span>
-                            </div>
-                            <p class="text-slate-400 font-bold text-xs">{{ user.email }} • ID: {{ user.id }}</p>
+                        
+                        <div class="text-center md:text-left space-y-2">
+                            <span class="px-3 py-1 bg-white/10 text-indigo-200 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
+                                {{ user.role }}
+                            </span>
+                            <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">{{ user.name }}</h2>
+                            <p class="text-indigo-100/60 font-medium">{{ user.email }}</p>
                         </div>
                     </div>
 
-                    <!-- Right: Quick Status -->
-                    <div class="flex items-center gap-3">
-                        <div class="flex flex-col items-end gap-1.5">
-                            <div class="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5 backdrop-blur-md">
-                                <Globe :size="12" class="text-indigo-400" />
-                                <span class="text-[10px] font-black text-white/70 uppercase tracking-widest">{{ form.preferred_currency }}</span>
+                    <!-- Quick Status Hub -->
+                    <div v-if="!isAdmin" class="flex flex-wrap justify-center md:justify-end gap-3">
+                        <div class="bg-white/5 border border-white/10 hover:border-white/20 transition-colors rounded-3xl p-5 backdrop-blur-md flex items-center gap-4">
+                            <div class="p-2.5 bg-indigo-500/20 text-indigo-300 rounded-xl">
+                                <Globe :size="18" />
                             </div>
-                            <div v-if="!isAdmin" :class="[
-                                'flex items-center gap-2 px-3 py-1.5 rounded-lg border backdrop-blur-md uppercase text-[9px] font-black tracking-widest',
-                                user.w9_status === 'verified' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-indigo-300/60 leading-none mb-1">Moneda</p>
+                                <p class="text-sm font-black text-white leading-none">{{ form.preferred_currency }}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/5 border border-white/10 hover:border-white/20 transition-colors rounded-3xl p-5 backdrop-blur-md flex items-center gap-4">
+                            <div :class="[
+                                'p-2.5 rounded-xl',
+                                user.w9_status === 'verified' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
                             ]">
-                                <FileCheck :size="12" />
-                                {{ user.w9_status === 'verified' ? 'Verificado' : 'Pendiente' }}
+                                <FileCheck :size="18" />
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-widest leading-none mb-1" :class="user.w9_status === 'verified' ? 'text-emerald-300/60' : 'text-amber-300/60'">W-9 STATUS</p>
+                                <p class="text-sm font-black text-white leading-none capitalize">{{ user.w9_status === 'verified' ? 'Verificado' : 'Pendiente' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </Card>
+            </div>
 
-            <form @submit.prevent="submit" class="space-y-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <!-- MAIN COLUMN (Left - 8/12) -->
-                    <div class="lg:col-span-8 space-y-8">
-                        <!-- Personal Info -->
-                        <Card class="p-8 border-slate-100 shadow-sm transition-all hover:shadow-md">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
-                                    <User :size="18" />
-                                </div>
-                                <div>
-                                    <h3 class="text-base font-black uppercase text-slate-800 tracking-wide">Información Personal</h3>
-                                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Datos de contacto y visualización</p>
-                                </div>
+            <!-- 3. Consolidated Modular Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Personal Data Card (Structural Consistency with Users/Edit) -->
+                <Card class="p-8 border-slate-100/60 shadow-xl shadow-slate-200/50">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                            <User :size="20" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase">Datos Personales</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Información de contacto y categoría</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre Completo o Razón Social</label>
+                            <input v-model="form.name" type="text" class="w-full h-14 bg-slate-50 border-slate-200 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teléfono Móvil</label>
+                                <input v-model="form.phone" type="text" class="w-full h-14 bg-slate-50 border-slate-200 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all" />
                             </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div class="md:col-span-2 space-y-2">
-                                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Nombre Completo o Razón Social</label>
-                                    <input v-model="form.name" type="text" class="w-full border-slate-200 rounded-xl p-3.5 text-sm font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none border" />
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Teléfono de Contacto</label>
-                                    <input v-model="form.phone" type="text" class="w-full border-slate-200 rounded-xl p-3.5 text-sm font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none border" placeholder="+1 (000) 000-0000" />
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Moneda Preferida</label>
-                                    <select v-model="form.preferred_currency" class="w-full border-slate-200 rounded-xl p-3.5 text-sm font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none border appearance-none cursor-pointer">
-                                        <option v-for="c in currencies" :key="c.value" :value="c.value">{{ c.label }}</option>
-                                    </select>
-                                </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Moneda Preferida</label>
+                                <select v-model="form.preferred_currency" class="w-full h-14 bg-slate-50 border-slate-200 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    <option v-for="c in currencies" :key="c.value" :value="c.value">{{ c.label }}</option>
+                                </select>
                             </div>
-                        </Card>
+                        </div>
 
-                        <!-- Payment & Tax -->
-                        <div v-if="!isAdmin">
-                            <Card class="p-8 border-slate-100 shadow-sm transition-all hover:shadow-md">
-                                <div class="flex items-center gap-4 mb-8">
-                                    <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+                        <!-- Professional Category Info -->
+                        <div v-if="!isAdmin" class="pt-4 border-t border-slate-50">
+                            <div class="p-5 bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-2.5 bg-white text-indigo-600 rounded-xl shadow-sm border border-slate-100">
                                         <Landmark :size="18" />
                                     </div>
                                     <div>
-                                        <h3 class="text-base font-black uppercase text-slate-800 tracking-wide">Pagos & Facturación</h3>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Configura cómo recibes tus comisiones</p>
+                                        <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Categoría Profesional</p>
+                                        <p class="text-sm font-black text-slate-700 leading-none capitalize">{{ user.category || 'Sin Categoría' }}</p>
                                     </div>
                                 </div>
-                                
-                                <div class="space-y-6">
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Detalles de Cobro (Zelle, PayPal, SWIFT...)</label>
-                                        <textarea v-model="form.payment_info.details" rows="3" class="w-full border-slate-200 rounded-xl p-4 text-sm font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none resize-none border" placeholder="Especifica tus datos de pago exactos..."></textarea>
-                                    </div>
+                                <span class="px-2 py-0.5 bg-indigo-50 text-indigo-500 text-[8px] font-black uppercase rounded border border-indigo-100">SOPORTE</span>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
 
-                                    <div class="p-5 bg-slate-50 border border-slate-100 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                                        <div>
-                                            <label class="block text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5 ml-0.5">Estado del Modelo W-9</label>
-                                            <div :class="[
-                                                'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm',
-                                                user.w9_status === 'verified' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 
-                                                user.w9_status === 'submitted' ? 'bg-blue-50 border-blue-200 text-blue-700' : 
-                                                'bg-white border-slate-200 text-slate-500'
-                                            ]">
-                                                <div :class="['w-1.5 h-1.5 rounded-full', user.w9_status === 'verified' ? 'bg-emerald-500' : user.w9_status === 'submitted' ? 'bg-blue-500' : 'bg-slate-300']"></div>
-                                                {{ user.w9_status === 'verified' ? 'Documento Verificado' : user.w9_status === 'submitted' ? 'En Revisión' : 'Pendiente de Envío' }}
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="flex flex-col items-center sm:items-end">
-                                            <label for="w9-upload" class="inline-flex items-center gap-2 cursor-pointer bg-white text-slate-700 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition active:scale-95 border border-slate-200 shadow-sm group">
-                                                <FileCheck :size="14" class="text-indigo-600 group-hover:scale-110 transition-transform" />
-                                                {{ user.w9_file_url ? 'Actualizar W-9' : 'Cargar W-9' }}
-                                                <input type="file" id="w9-upload" @change="e => form.w9_file = e.target.files[0]" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.webp" />
-                                            </label>
-                                            <div v-if="form.w9_file" class="mt-2 text-[8px] font-black text-indigo-600 px-1 border-b border-indigo-200 pb-0.5 max-w-[150px] truncate animate-pulse">
-                                                📄 {{ form.w9_file.name }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p v-if="form.errors.w9_file" class="text-[9px] text-red-500 font-bold px-1 text-center sm:text-left">{{ form.errors.w9_file }}</p>
-                                </div>
-                            </Card>
+                <!-- Security Card -->
+                <Card class="p-8 border-slate-100/60 shadow-xl shadow-slate-200/50">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="p-3 bg-red-50 text-red-600 rounded-2xl">
+                            <Lock :size="20" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase">Seguridad</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Control de acceso y contraseña</p>
                         </div>
                     </div>
 
-                    <!-- SIDEBAR COLUMN (Right - 4/12) -->
-                    <div class="lg:col-span-4 space-y-8">
-                        <!-- Category (If Associate) -->
-                        <Card v-if="!isAdmin" class="p-6 border-slate-100 shadow-sm bg-slate-50/30">
-                            <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 ml-1">Estatus Profesional</label>
-                            <div class="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl">
-                                <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg shrink-0">
-                                    <Globe :size="16" />
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-black text-slate-700 truncate capitalize">{{ user.category || 'Sin Categoría' }}</p>
-                                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest leading-tight mt-0.5">Categoría bloqueada</p>
-                                </div>
-                            </div>
-                        </Card>
-
-                        <!-- Security -->
-                        <Card class="p-8 border-slate-100 shadow-sm">
-                            <div class="flex items-center gap-3 mb-8">
-                                <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
-                                    <Lock :size="18" />
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-black uppercase text-slate-800 tracking-widest">Seguridad</h3>
-                                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Protección de cuenta</p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-5">
-                                <div class="space-y-1.5">
-                                    <label class="block text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Contraseña Actual</label>
-                                    <input v-model="passwordForm.current_password" type="password" class="w-full border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none border" placeholder="••••••••" />
-                                    <p v-if="passwordForm.errors.current_password" class="text-[9px] text-red-500 font-bold mt-1">{{ passwordForm.errors.current_password }}</p>
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label class="block text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Nueva Contraseña</label>
-                                    <input v-model="passwordForm.new_password" type="password" class="w-full border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-700 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none border" placeholder="Mínimo 8 caracteres" />
-                                    <p v-if="passwordForm.errors.new_password" class="text-[9px] text-red-500 font-bold mt-1">{{ passwordForm.errors.new_password }}</p>
-                                </div>
-                                <button type="button" @click="updatePassword" class="w-full h-12 bg-white text-indigo-600 border border-indigo-100 rounded-xl font-black text-[10px] uppercase tracking-[0.1em] shadow-sm hover:bg-indigo-50 transition active:scale-[0.98] disabled:opacity-50 mt-2" :disabled="passwordForm.processing">
-                                    {{ passwordForm.processing ? 'ACTUALIZANDO...' : 'CAMBIAR CONTRASEÑA' }}
-                                </button>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                <!-- Sticky Action Bar for Global Save -->
-                <div class="sticky bottom-8 z-10 mt-12">
-                    <div class="bg-indigo-900/10 backdrop-blur-xl p-4 rounded-3xl border border-white/20 shadow-2xl flex justify-between items-center gap-4 ring-1 ring-white/10">
-                        <div class="hidden md:flex items-center gap-3 ml-4">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cambios pendientes de guardar</span>
+                    <form @submit.prevent="updatePassword" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contraseña Actual</label>
+                            <input v-model="passwordForm.current_password" type="password" class="w-full h-14 bg-slate-50 border-slate-200 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-red-500/10 transition-all" placeholder="••••••••" />
+                            <p v-if="passwordForm.errors.current_password" class="text-xs text-red-500 mt-1">{{ passwordForm.errors.current_password }}</p>
                         </div>
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nueva Contraseña</label>
+                            <input v-model="passwordForm.new_password" type="password" class="w-full h-14 bg-slate-50 border-slate-200 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Nueva contraseña" />
+                            <p v-if="passwordForm.errors.new_password" class="text-xs text-red-500 mt-1">{{ passwordForm.errors.new_password }}</p>
+                        </div>
+
                         <button 
                             type="submit" 
-                            class="w-full md:w-auto flex items-center justify-center gap-3 bg-slate-900 text-white px-10 h-14 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transform transition-all hover:bg-slate-800 hover:shadow-xl active:scale-95 disabled:opacity-50"
-                            :disabled="form.processing"
+                            class="w-full h-14 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg active:scale-95 disabled:opacity-50"
+                            :disabled="passwordForm.processing"
                         >
-                            <Save :size="18" />
-                            <span>{{ form.processing ? 'GUARDANDO...' : 'GUARDAR TODO' }}</span>
+                            {{ passwordForm.processing ? 'Sincronizando...' : 'Actualizar Contraseña' }}
                         </button>
+                    </form>
+                </Card>
+
+                <!-- Financial HUB (Full Width at bottom) -->
+                <div v-if="!isAdmin" class="lg:col-span-2">
+                    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8 md:p-12 relative overflow-hidden">
+                        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px]"></div>
+                        
+                        <div class="relative flex items-center gap-4 mb-10 pb-6 border-b border-slate-50">
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                                <DollarSign :size="20" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-black text-slate-800 tracking-tight uppercase">Gestión Financiera Associate</h2>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Configuración de cobros e impuestos</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+                            <!-- Payment Details Section -->
+                            <div class="md:col-span-7 space-y-4">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Método de Pago y Detalles de Transferencia</label>
+                                <textarea v-model="form.payment_info.details" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none" placeholder="Nombre del Banco, Zelle (email/tel), PayPal, o detalles SWIFT..."></textarea>
+                            </div>
+
+                            <!-- W-9 Column -->
+                            <div class="md:col-span-5 flex flex-col justify-end gap-6 pb-2">
+                                <div class="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex items-center gap-6">
+                                    <div :class="[
+                                        'w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm transition-transform hover:rotate-3',
+                                        user.w9_status === 'verified' ? 'bg-emerald-500 text-white' : 'bg-white border border-slate-200 text-slate-400'
+                                    ]">
+                                        <FileCheck :size="24" />
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Status Documentación</p>
+                                        <p class="text-sm font-black text-slate-700 tracking-widest">{{ user.w9_status === 'verified' ? 'W-9 VERIFICADO' : 'PENDIENTE' }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col gap-3">
+                                    <label for="w9-upload-final" class="bg-indigo-600 text-white rounded-2xl h-14 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-700 transition shadow-lg active:scale-95 cursor-pointer">
+                                        <Camera :size="20" />
+                                        {{ user.w9_file_url ? 'Actualizar Modelo W-9' : 'Cargar Modelo W-9' }}
+                                        <input type="file" id="w9-upload-final" @change="e => form.w9_file = e.target.files[0]" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+                                    </label>
+                                    <div v-if="form.w9_file" class="bg-emerald-50 border border-emerald-100 py-2 px-4 rounded-xl text-center">
+                                        <span class="text-[9px] font-black text-emerald-600 uppercase tracking-tight">✓ {{ form.w9_file.name }} listo para envío</span>
+                                    </div>
+
+                                    <a v-if="user.w9_file_url" 
+                                       :href="route('settings.w9')" 
+                                       target="_blank"
+                                       class="bg-slate-900 text-white rounded-2xl h-14 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-800 transition shadow-lg active:scale-95"
+                                    >
+                                        <FileText :size="20" />
+                                        Ver Documento Actual
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </form>
+            </div>
+
+            <!-- Global Action Bar (Consistent with Dashboard Save approach) -->
+            <div class="flex justify-end pt-8">
+                <button 
+                    @click="submit"
+                    class="w-full md:w-auto flex items-center justify-center gap-4 bg-indigo-600 text-white px-12 h-16 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] transform transition-all hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
+                    :disabled="form.processing"
+                >
+                    <Save :size="20" />
+                    <span>{{ form.processing ? 'Sincronizando...' : 'Guardar Cambios de Cuenta' }}</span>
+                </button>
+            </div>
         </div>
     </AppLayout>
 </template>
