@@ -25,7 +25,7 @@ class ProfileRequest extends FormRequest
             'category' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
             'logo_file' => 'nullable|image|max:2048',
-            'w9_file' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
+            'w9_file' => 'nullable|file|mimes:pdf,jpg,png,webp|max:5120',
         ];
     }
 

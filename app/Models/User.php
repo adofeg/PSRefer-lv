@@ -38,6 +38,9 @@ class User extends Authenticatable
         'phone',
         'logo_url',
         'balance',
+        'w9_status',
+        'w9_file_url',
+        'payment_info',
     ];
 
     /**
@@ -120,5 +123,15 @@ class User extends Authenticatable
     public function getPaymentInfoAttribute($value)
     {
         return optional($this->profileable)->payment_info;
+    }
+
+    public function getW9StatusAttribute()
+    {
+        return optional($this->profileable)->w9_status;
+    }
+
+    public function getW9FileUrlAttribute()
+    {
+        return optional($this->profileable)->w9_file_url;
     }
 }

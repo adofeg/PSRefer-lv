@@ -14,22 +14,32 @@ class UpdateUserSettingsAction
             'name' => $data->name,
         ]);
 
+        if ($data->logo_file) {
+            $path = $data->logo_file->store('logos', 'public');
+            $user->update(['logo_url' => '/storage/' . $path]);
+        }
+
         $profile = $user->profileable;
 
         if ($profile instanceof Associate) {
             $profileData = [
-                'w9_status' => $data->w9_status->value,
                 'payment_info' => $data->payment_info ?? [],
-                'category' => $data->category,
                 'phone' => $data->phone,
             ];
 
-            if ($data->logo_file) {
-                $path = $data->logo_file->store('logos', 'public');
-                $profileData['logo_url'] = '/storage/' . $path;
+            // Security: Only Admins/PSAdmins can change the Category or W-9 Status directly
+            if (auth()->user()->hasRole(['admin', 'psadmin'])) {
+                $profileData['w9_status'] = $data->w9_status->value;
+                $profileData['category'] = $data->category;
             }
 
             if ($data->w9_file) {
+                // When an associate uploads a file, we automatically set status to 'submitted'
+                // unless it was already verified.
+                if (!auth()->user()->hasRole(['admin', 'psadmin']) && $profile->w9_status !== 'verified') {
+                    $profileData['w9_status'] = 'submitted';
+                }
+                
                 $path = $data->w9_file->store('w9_forms', 'private');
                 $profileData['w9_file_url'] = '/storage/' . $path;
             }
