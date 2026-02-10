@@ -240,37 +240,59 @@ const currencies = [
 
                             <!-- W-9 Column -->
                             <div class="md:col-span-5 flex flex-col justify-end gap-6 pb-2">
-                                <div class="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex items-center gap-6">
-                                    <div :class="[
-                                        'w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm transition-transform hover:rotate-3',
-                                        user.w9_status === 'verified' ? 'bg-emerald-500 text-white' : 'bg-white border border-slate-200 text-slate-400'
-                                    ]">
-                                        <FileCheck :size="24" />
+                                <div class="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl">
+                                    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-4">
+                                        <FileCheck :size="18" class="text-indigo-600" />
+                                        Cumplimiento Fiscal (W-9)
+                                    </h3>
+                                    
+                                    <!-- IRS Download Link -->
+                                    <div class="mb-6 p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                                        <p class="text-xs text-indigo-800 mb-2 font-medium">Requisito Obligatorio</p>
+                                        <p class="text-[10px] text-indigo-600/80 mb-3 leading-relaxed">
+                                            Para procesar pagos de comisiones, necesitamos que complete el formulario W-9 del IRS.
+                                        </p>
+                                        <a 
+                                            href="https://www.irs.gov/pub/irs-pdf/fw9.pdf" 
+                                            target="_blank" 
+                                            class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-700 hover:text-indigo-900 transition-colors bg-white px-3 py-2 rounded-lg shadow-sm"
+                                        >
+                                            <FileText :size="14" />
+                                            Descargar Formulario Oficial
+                                        </a>
                                     </div>
-                                    <div>
-                                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Status Documentación</p>
-                                        <p class="text-sm font-black text-slate-700 tracking-widest">{{ user.w9_status === 'verified' ? 'W-9 VERIFICADO' : 'PENDIENTE' }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="flex flex-col gap-3">
-                                    <label for="w9-upload-final" class="bg-indigo-600 text-white rounded-2xl h-14 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-700 transition shadow-lg active:scale-95 cursor-pointer">
-                                        <Camera :size="20" />
-                                        {{ user.w9_file_url ? 'Actualizar Modelo W-9' : 'Cargar Modelo W-9' }}
-                                        <input type="file" id="w9-upload-final" @change="e => form.w9_file = e.target.files[0]" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.webp" />
-                                    </label>
-                                    <div v-if="form.w9_file" class="bg-emerald-50 border border-emerald-100 py-2 px-4 rounded-xl text-center">
-                                        <span class="text-[9px] font-black text-emerald-600 uppercase tracking-tight">✓ {{ form.w9_file.name }} listo para envío</span>
-                                    </div>
+                                    <!-- Manual Status Toggle -->
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Estado de su Documentación</label>
+                                        
+                                        <div class="space-y-2">
+                                            <!-- Pending Option -->
+                                            <label class="flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden" 
+                                                :class="form.w9_status === 'pending' ? 'bg-amber-50 border-amber-200 ring-1 ring-amber-500/20' : 'bg-white border-slate-200 hover:bg-slate-50'">
+                                                <input type="radio" v-model="form.w9_status" value="pending" class="mt-1 text-amber-500 focus:ring-amber-500" />
+                                                <div>
+                                                    <span class="block text-xs font-bold text-slate-700">Pendiente</span>
+                                                    <span class="text-[10px] text-slate-400">Aún no he enviado el formulario</span>
+                                                </div>
+                                            </label>
 
-                                    <a v-if="user.w9_file_url" 
-                                       :href="route('settings.w9')" 
-                                       target="_blank"
-                                       class="bg-slate-900 text-white rounded-2xl h-14 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-800 transition shadow-lg active:scale-95"
-                                    >
-                                        <FileText :size="20" />
-                                        Ver Documento Actual
-                                    </a>
+                                            <!-- Submitted Option -->
+                                            <label class="flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer"
+                                                :class="form.w9_status === 'submitted' ? 'bg-emerald-50 border-emerald-200 ring-1 ring-emerald-500/20' : 'bg-white border-slate-200 hover:bg-slate-50'">
+                                                <input type="radio" v-model="form.w9_status" value="submitted" class="mt-1 text-emerald-500 focus:ring-emerald-500" />
+                                                <div>
+                                                    <span class="block text-xs font-bold text-slate-700">Enviado / Notificado</span>
+                                                    <span class="text-[10px] text-slate-400">Ya envié mi W-9 por email</span>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <p v-if="form.w9_status === 'submitted'" class="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2 animate-pulse">
+                                            <FileCheck :size="12" />
+                                            Gracias. Revisaremos su documentación.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

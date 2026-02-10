@@ -28,21 +28,22 @@ class UpdateUserSettingsAction
                 'payment_info' => $data->payment_info ?? [],
             ];
 
-            // Security: Only Admins/PSAdmins can change the Category or W-9 Status directly
-            if (auth()->user()->hasRole(['admin', 'psadmin'])) {
-                $profileData['w9_status'] = $data->w9_status->value;
-                $profileData['category'] = $data->category;
+            // W-9 Status Logic (Manual Toggle or Admin Override)
+            if ($data->w9_status) {
+                // If user is Admin/PSAdmin, allow any status change
+                if (auth()->user()->hasRole(['admin', 'psadmin'])) {
+                    $profileData['w9_status'] = $data->w9_status->value;
+                }
+                // If Associate, allow toggling "submitted" / "pending" freely
+                else {
+                     $profileData['w9_status'] = $data->w9_status->value;
+                }
             }
 
-            if ($data->w9_file) {
-                // When an associate uploads a file, we automatically set status to 'submitted'
-                // unless it was already verified.
-                if (!auth()->user()->hasRole(['admin', 'psadmin']) && $profile->w9_status !== 'verified') {
-                    $profileData['w9_status'] = 'submitted';
-                }
-                
-                $path = $data->w9_file->store('w9_forms', 'local');
-                $profileData['w9_file_url'] = $path;
+            if ($data->category) {
+                 if (auth()->user()->hasRole(['admin', 'psadmin'])) {
+                    $profileData['category'] = $data->category;
+                 }
             }
 
             $profile->update($profileData);
