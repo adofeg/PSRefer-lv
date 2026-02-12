@@ -13,9 +13,19 @@ enum RoleName: string
         return [self::Admin->value, self::PsAdmin->value];
     }
 
+    public static function adminOrPsAdmin(): array
+    {
+        return [self::Admin->value, self::PsAdmin->value];
+    }
+
     public static function adminOrAssociate(): array
     {
         return [self::Admin->value, self::PsAdmin->value, self::Associate->value];
+    }
+    
+    public static function associate(): array
+    {
+        return [self::Associate->value];
     }
 
     public static function isAdmin($user): bool

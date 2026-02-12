@@ -79,12 +79,13 @@ const getStatusColor = (status) => {
                     >
                         <FileText :size="20" /> Reportes
                     </Link>
-                    <Link
-                          :href="route('admin.commissions.create')"
-                          class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition"
-                      >
-                        <Plus :size="20" /> Nueva Comisión
-                     </Link>
+                     <Link
+                            v-if="$page.props.auth.user.role !== 'psadmin'"
+                           :href="route('admin.commissions.create')"
+                           class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition"
+                       >
+                         <Plus :size="20" /> Nueva Comisión
+                      </Link>
                 </div>
             </div>
 
@@ -179,6 +180,7 @@ const getStatusColor = (status) => {
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <Link 
+                                        v-if="$page.props.auth.user.role !== 'psadmin'"
                                         :href="route('admin.commissions.edit', commission.id)"
                                         class="text-indigo-600 hover:text-indigo-900 font-medium text-sm"
                                     >

@@ -11,7 +11,7 @@ use App\Http\Controllers\Private\Admin\UserController;
 use App\Enums\RoleName;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'role:' . implode('|', RoleName::adminOrAssociate())])
+Route::middleware(['auth', 'verified', 'role:' . implode('|', RoleName::adminOrPsAdmin())])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

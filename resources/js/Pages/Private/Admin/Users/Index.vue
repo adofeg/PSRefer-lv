@@ -128,7 +128,11 @@ const getRoleBadgeClass = (role) => {
                     </h1>
                     <p class="text-slate-500 text-sm">Administra asociados, vendedores y administradores</p>
                 </div>
-                <Link :href="route('admin.users.create')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm hover:shadow-md">
+                <Link 
+                    v-if="$page.props.auth.user.role !== 'psadmin'"
+                    :href="route('admin.users.create')" 
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm hover:shadow-md"
+                >
                     <UserPlus :size="20" />
                     Nuevo Usuario
                 </Link>
@@ -248,6 +252,7 @@ const getRoleBadgeClass = (role) => {
                                             <DollarSign :size="18" />
                                         </button>
                                         <Link 
+                                            v-if="$page.props.auth.user.role !== 'psadmin'"
                                             :href="route('admin.users.edit', user.id)"
                                             class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                             title="Editar Usuario"

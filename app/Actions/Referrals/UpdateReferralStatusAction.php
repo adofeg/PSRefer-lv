@@ -38,6 +38,31 @@ class UpdateReferralStatusAction
                 'agency_fee' => $data->agency_fee ?? $referral->agency_fee,
             ]);
 
+            // Loss Prevention Validation
+            if ($status === ReferralStatus::Closed->value) {
+                $ref = $referral->fresh(); // Get updated values
+                $offering = $ref->offering;
+                
+                if ($offering && $ref->associate_id) {
+                     // Check for User Override
+                    $override = DB::table('commission_overrides')
+                        ->where('associate_id', $ref->associate_id)
+                        ->where('offering_id', $ref->offering_id)
+                        ->where('is_active', true)
+                        ->first();
+
+                    $commissions = $this->commissionService->calculateCommissions($ref, $offering, $override);
+                    $totalCommission = collect($commissions)->sum('amount');
+                    $agencyFee = $ref->agency_fee ?? 0;
+
+                    if ($agencyFee < $totalCommission) {
+                         throw \Illuminate\Validation\ValidationException::withMessages([
+                            'agency_fee' => "La tarifa de agencia ($" . number_format($agencyFee, 2) . ") no puede ser menor que la comisión estimada ($" . number_format($totalCommission, 2) . ").",
+                        ]);
+                    }
+                }
+            }
+
             $this->auditService->logReferralStatusChange(
                 $referral->id,
                 $actor,

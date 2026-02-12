@@ -90,6 +90,7 @@ const executeDelete = () => {
                     </p>
                 </div>
                   <Link
+                      v-if="$page.props.auth.user.role !== 'psadmin'"
                       :href="route('admin.referrals.create')"
                       class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition"
                   >
@@ -175,8 +176,11 @@ const executeDelete = () => {
                                     <Badge :status="referral.status" class="shadow-sm" />
                                 </td>
                                 <td class="px-6 py-4 text-right font-mono text-sm">
-                                    <span v-if="referral.estimated_commission || referral.offering?.base_commission" class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">
-                                        {{ referral.estimated_commission ? formatCurrency(referral.estimated_commission) : formatCurrency(referral.offering?.base_commission) }}
+                                    <span v-if="referral.estimated_commission && referral.estimated_commission !== '-'" class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">
+                                        {{ referral.estimated_commission }}
+                                    </span>
+                                    <span v-else-if="referral.offering?.base_commission" class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">
+                                        {{ formatCurrency(referral.offering.base_commission) }}
                                     </span>
                                     <span v-else class="text-slate-400">-</span>
                                 </td>

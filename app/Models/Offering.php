@@ -73,9 +73,12 @@ class Offering extends Model
     });
   }
 
-  public function scopeExcludeCategory($query, $category)
-  {
-    if (!$category) return $query;
-    return $query->where('category', '!=', $category);
-  }
+    public function scopeExcludeCategory($query, $category)
+    {
+        if (!$category) return $query;
+        return $query->where(function ($q) use ($category) {
+            $q->where('category', '!=', $category)
+              ->orWhereNull('category');
+        });
+    }
 }

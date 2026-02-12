@@ -50,7 +50,7 @@ class ReferralController extends AdminController
 
         return Inertia::render('Private/Admin/Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
-            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false)),
+            'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false, [], false)),
             'associates' => \App\Enums\RoleName::isAdmin($request->user()) ? $getAssociatesAction->execute() : [],
         ]);
     }

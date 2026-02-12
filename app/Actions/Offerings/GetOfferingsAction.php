@@ -9,7 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetOfferingsAction
 {
-    public function execute(User $user, bool $includeInactive = false, array $filters = []): LengthAwarePaginator
+    public function execute(User $user, bool $includeInactive = false, array $filters = [], bool $paginate = true): \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
     {
         $query = Offering::query();
 
@@ -55,6 +55,12 @@ class GetOfferingsAction
             }
         }
 
-        return $query->latest()->paginate(12)->withQueryString();
+        $query->latest();
+
+        if ($paginate) {
+            return $query->paginate(12)->withQueryString();
+        }
+
+        return $query->get();
     }
 }

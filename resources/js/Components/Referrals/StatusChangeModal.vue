@@ -22,7 +22,7 @@ const statusOptions = [
 const form = useForm({
     status: '',
     notes: '',
-    revenue_generated: null,
+    deal_value: null,
     contract_id: '',
     payment_method: '',
     down_payment: null,
@@ -138,6 +138,9 @@ const closeModal = () => {
                                             class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                                             placeholder="Ej: CTR-2024-001"
                                         />
+                                        <div v-if="form.errors.contract_id" class="text-red-500 text-xs mt-1">
+                                            {{ form.errors.contract_id }}
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-2">Método de Pago</label>
@@ -150,6 +153,9 @@ const closeModal = () => {
                                             <option value="T. Crédito">Tarj. Crédito</option>
                                             <option value="Efectivo">Efectivo</option>
                                         </select>
+                                        <div v-if="form.errors.payment_method" class="text-red-500 text-xs mt-1">
+                                            {{ form.errors.payment_method }}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -163,16 +169,22 @@ const closeModal = () => {
                                             class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                                             placeholder="0.00"
                                         />
+                                        <div v-if="form.errors.down_payment" class="text-red-500 text-xs mt-1">
+                                            {{ form.errors.down_payment }}
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-2">Valor de la Venta (Deal Value)</label>
                                         <input
-                                            v-model="form.revenue_generated"
+                                            v-model="form.deal_value"
                                             type="number"
                                             step="0.01"
                                             class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                                             placeholder="0.00"
                                         />
+                                        <div v-if="form.errors.deal_value" class="text-red-500 text-xs mt-1">
+                                            {{ form.errors.deal_value }}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -185,6 +197,9 @@ const closeModal = () => {
                                         class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                                         placeholder="0.00"
                                     />
+                                    <div v-if="form.errors.agency_fee" class="text-red-500 text-xs mt-1">
+                                        {{ form.errors.agency_fee }}
+                                    </div>
                                 </div>
                             </div>
                         </div>

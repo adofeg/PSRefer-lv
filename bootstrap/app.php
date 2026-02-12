@@ -34,5 +34,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, \Illuminate\Http\Request $request) {
+            $flashMessage = 'No tienes permiso para realizar esta acción.';
+            
+            if ($request->header('X-Inertia')) {
+                return back()->with('error', $flashMessage);
+            }
+
+            return redirect()->route('dashboard')->with('error', $flashMessage);
+        });
     })->create();

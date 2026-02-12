@@ -51,7 +51,7 @@ const navigationGroups = [
              { name: 'Comisiones', href: route('admin.commissions.index'), icon: ArrowRightLeft, current: isActive('admin.commissions.index'), roles: adminRoles },
              { name: 'Reportes', href: route('admin.commissions.report'), icon: BarChart3, current: isActive('admin.commissions.report'), roles: adminRoles },
              { name: 'Reglas y Ajustes', href: route('admin.commissions.overrides.index'), icon: Settings, current: isActive('admin.commissions.overrides.index'), roles: adminRoles },
-             { name: 'Mis Comisiones', href: route('admin.commissions.index'), icon: DollarSign, current: isActive('admin.commissions.index'), roles: associateRoles },
+             { name: 'Mis Comisiones', href: route('associate.commissions'), icon: DollarSign, current: isActive('associate.commissions'), roles: associateRoles },
         ]
     },
     {
@@ -67,9 +67,26 @@ const navigationGroups = [
 ];
 
 const standaloneItems = [
-    { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: isActiveAny(['admin.dashboard', 'dashboard']), roles: [...adminRoles, ...associateRoles] },
-    { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index'), roles: [...adminRoles, ...associateRoles] },
-    { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index'), roles: [...adminRoles, ...associateRoles] },
+    // Dashboard: Shared label but different routes based on role logic if needed, or better:
+    // Create distinct items per role if the route structure is rigid.
+    // However, route('dashboard') redirects... wait, no.
+    // The previous dashboard route was admin.dashboard.
+    // We added associate.dashboard.
+    // So we need to split this item.
+    { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: isActive('admin.dashboard'), roles: adminRoles },
+    { name: 'Dashboard', href: route('associate.dashboard'), icon: LayoutDashboard, current: isActive('associate.dashboard'), roles: associateRoles },
+    
+    // Catalog
+    { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index'), roles: adminRoles },
+    { name: 'Catálogo', href: route('associate.offerings.index'), icon: ShoppingBag, current: isActive('associate.offerings.index'), roles: associateRoles },
+    
+    { name: 'Mi Red', href: route('associate.network'), icon: Users, current: isActive('associate.network'), roles: associateRoles },
+    { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index'), roles: adminRoles },
+    { name: 'Referidos', href: route('associate.referrals.index'), icon: Users, current: isActive('associate.referrals.index'), roles: associateRoles },
+    
+    // Marketing Center
+    { name: 'Marketing Center', href: route('associate.marketing-center'), icon: ImageIcon, current: isActive('associate.marketing-center'), roles: associateRoles },
+
     { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, current: isActive('admin.referrals.pipeline'), roles: ['admin', 'psadmin'] },
 ];
 

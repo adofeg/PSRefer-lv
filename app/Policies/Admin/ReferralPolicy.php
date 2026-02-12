@@ -24,7 +24,7 @@ class ReferralPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(RoleName::adminOrAssociate());
+        return $user->hasRole([RoleName::Admin->value, RoleName::Associate->value]);
     }
 
     public function update(User $user, Referral $referral): bool

@@ -12,9 +12,15 @@ use Inertia\Response;
 use App\Actions\Commissions\CreateCommissionAction;
 use App\Http\Requests\Admin\CommissionRequest;
 use App\Actions\Associates\GetAssociatesAction;
+use App\Models\Commission;
 
 class CommissionController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Commission::class, 'commission');
+    }
+
     public function index(Request $request, GetAllCommissionsAction $action): Response
     {
         $filters = $request->only(['search', 'status', 'associate_id']);
@@ -66,6 +72,8 @@ class CommissionController extends Controller
 
     public function report(\App\Actions\Commissions\GetCommissionStatsAction $action): Response
     {
+        $this->authorize('viewAny', Commission::class);
+        
         return Inertia::render('Private/Admin/Commissions/Report', [
             'stats' => $action->execute()
         ]);

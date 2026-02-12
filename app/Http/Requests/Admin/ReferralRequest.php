@@ -53,12 +53,12 @@ class ReferralRequest extends FormRequest
             
             $rules = [
                 'status' => ['sometimes', Rule::enum(ReferralStatus::class)],
-                'deal_value' => 'nullable|numeric',
-                'revenue_generated' => 'nullable|numeric',
+                'deal_value' => 'nullable|numeric|min:0',
+                'revenue_generated' => 'nullable|numeric|min:0',
                 'contract_id' => 'nullable|string|max:255',
                 'payment_method' => 'nullable|string|max:255',
-                'down_payment' => 'nullable|numeric',
-                'agency_fee' => 'nullable|numeric',
+                'down_payment' => 'nullable|numeric|min:0|lte:deal_value',
+                'agency_fee' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
                 // Client data usually editable too? If so, merge.
                 // But specifically for Referral Status Updates, often fields change.

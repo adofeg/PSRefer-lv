@@ -18,7 +18,7 @@ class GetDashboardStatsAction
             $closedReferralsQuery = Referral::where('status', ReferralStatus::Closed->value);
             
             // Admin Specific Stats
-            $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('revenue_generated') ?? 0;
+            $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('agency_fee') ?? 0;
             $totalCommissionsPaid = \App\Models\Commission::where('status', \App\Enums\CommissionStatus::Paid->value)->sum('amount');
             $pendingReferralsCount = Referral::where('status', ReferralStatus::Prospect->value)->count();
             $totalUsers = User::count();
@@ -27,8 +27,11 @@ class GetDashboardStatsAction
             $referralsQuery = Referral::where('associate_id', $associate?->id);
             $closedReferralsQuery = Referral::where('associate_id', $associate?->id)->where('status', ReferralStatus::Closed->value);
             
-            // Personal Revenue Contribution
-            $totalRevenue = $closedReferralsQuery->sum('revenue_generated') ?? 0;
+            // Personal Revenue Contribution (For associates, maybe Deal Value or their Commission?)
+            // Keeping revenue_generated for Associate for now as it might mean something different, 
+            // OR switching to agency_fee if that's what tracks their contribution. 
+            // Actually, for associates 'Revenue' usually means the sales they generated. Let's use deal_value for associates.
+            $totalRevenue = $closedReferralsQuery->sum('deal_value') ?? 0;
             $totalCommissionsPaid = 0; // Not used for associate view in same way
             $pendingReferralsCount = 0;
             $totalUsers = 0;
@@ -43,15 +46,17 @@ class GetDashboardStatsAction
             ->take(5)
             ->get();
 
-        // 4. Chart Data (Monthly Revenue)
+        // 4. Chart Data (Monthly Revenue -> Agency Fee for Admin)
+        $chartColumn = $user->hasRole(RoleName::adminRoles()) ? 'agency_fee' : 'deal_value';
+
         $chartData = $closedReferralsQuery->clone()
             ->whereYear('updated_at', date('Y'))
-            ->get(['updated_at', 'revenue_generated']);
+            ->get(['updated_at', $chartColumn]);
 
         $monthlyRevenue = $chartData->groupBy(function ($item) {
             return $item->updated_at ? Carbon::parse($item->updated_at)->format('m') : '00';
-        })->map(function ($group) {
-            return $group->sum('revenue_generated');
+        })->map(function ($group) use ($chartColumn) {
+            return $group->sum($chartColumn);
         });
 
         // Ensure all months are present for chart

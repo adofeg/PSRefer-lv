@@ -11,22 +11,27 @@ use Illuminate\Http\JsonResponse;
 
 class CommissionOverrideController extends AdminController
 {
-    public function index(CommissionOverrideRequest $request, GetCommissionOverridesAction $action, \App\Actions\Associates\GetAssociatesAction $getAssociatesAction): \Inertia\Response
+    public function index(CommissionOverrideRequest $request, GetCommissionOverridesAction $action, \App\Actions\Associates\GetAssociatesAction $getAssociatesAction)
     {
         $this->authorize('viewAny', CommissionOverride::class);
 
-        // We want to list ALL overrides for the Admin UI, mostly.
-        // The original action might be specific to finding overrides for calculation.
-        // Let's grab all with pagination for the UI.
-        
-        $overrides = CommissionOverride::with(['associate.user', 'offering'])
-            ->latest()
-            ->paginate(10);
-            
+        $query = CommissionOverride::with(['associate.user', 'offering'])
+            ->latest();
+
+        if ($request->has('associate_id')) {
+            $query->where('associate_id', $request->associate_id);
+        }
+
+        // Return JSON for the Modal (axios)
+        if ($request->wantsJson()) {
+            return response()->json($query->get());
+        }
+
+        // Return Inertia Page for the Admin View
         return \Inertia\Inertia::render('Private/Admin/Commissions/Overrides', [
-            'overrides' => $overrides,
+            'overrides' => $query->paginate(10),
             'associates' => $getAssociatesAction->execute(),
-            'offerings' => \App\Models\Offering::select('id', 'name')->get() // Simple fetch for dropdown
+            'offerings' => \App\Models\Offering::select('id', 'name')->get()
         ]);
     }
 
