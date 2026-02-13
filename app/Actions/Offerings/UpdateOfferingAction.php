@@ -25,6 +25,7 @@ class UpdateOfferingAction
             'form_schema' => $data->form_schema,
             'commission_config' => $data->commission_config,
             'commission_rules' => $data->commission_rules,
+            'notification_emails' => $data->notification_emails,
             'is_active' => $data->is_active ?? $offering->is_active,
         ]);
 

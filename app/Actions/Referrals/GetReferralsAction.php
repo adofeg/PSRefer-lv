@@ -33,7 +33,7 @@ class GetReferralsAction
             }
         });
 
-        return $query->with('offering:id,name,base_commission,commission_rate')
+        return $query->with(['offering:id,name,base_commission,commission_rate', 'associate.user'])
             ->latest()
             ->paginate(10)
             ->withQueryString();

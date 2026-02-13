@@ -20,6 +20,7 @@ class OfferingData extends Data
         public bool $is_active = true,
         public ?array $form_schema = [],
         public ?array $commission_rules = [],
+        public ?array $notification_emails = [],
     ) {}
 
     public static function fromModel(Offering $offering): self
@@ -37,6 +38,7 @@ class OfferingData extends Data
             is_active: (bool) $offering->is_active,
             form_schema: $offering->form_schema ?? [],
             commission_rules: $offering->commission_rules ?? [],
+            notification_emails: $offering->notification_emails ?? [],
         );
     }
 }

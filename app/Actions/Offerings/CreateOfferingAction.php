@@ -24,6 +24,7 @@ class CreateOfferingAction
             'form_schema' => $data->form_schema,
             'commission_config' => $data->commission_config,
             'commission_rules' => $data->commission_rules,
+            'notification_emails' => $data->notification_emails,
             'owner_employee_id' => $ownerEmployeeId,
             'is_active' => true,
         ]);

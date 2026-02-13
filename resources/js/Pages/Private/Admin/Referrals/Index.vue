@@ -143,6 +143,7 @@ const executeDelete = () => {
                         <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-semibold tracking-wider border-b border-slate-200">
                             <tr>
                                 <th class="px-6 py-4 text-left">Cliente</th>
+                                <th v-if="['admin', 'psadmin'].includes($page.props.auth.user.role)" class="px-6 py-4 text-left">Referido Por</th>
                                 <th class="px-6 py-4 text-left">Servicio / Categoría</th>
                                 <th class="px-6 py-4 text-left">Fecha</th>
                                 <th class="px-6 py-4 text-center">Estatus</th>
@@ -160,6 +161,16 @@ const executeDelete = () => {
                                         <div>
                                             <div class="font-bold text-slate-800">{{ referral.client_name }}</div>
                                             <div class="text-xs text-slate-500">{{ referral.client_contact }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td v-if="['admin', 'psadmin'].includes($page.props.auth.user.role)" class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div v-if="referral.associate?.user?.logo_url" class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+                                            <img :src="referral.associate.user.logo_url" :alt="referral.associate.user.name" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="text-sm font-medium text-slate-700">
+                                            {{ referral.associate?.user?.name || 'Sistema' }}
                                         </div>
                                     </div>
                                 </td>

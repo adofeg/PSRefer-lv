@@ -12,6 +12,7 @@ const form = useForm({
     client_name: '',
     client_email: '',
     client_phone: '',
+    client_state: '',
     offering_id: props.selectedOffering?.id || '',
     notes: '',
 });
@@ -58,6 +59,11 @@ const submit = () => {
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Teléfono <span class="text-red-500">*</span></label>
                                 <input v-model="form.client_phone" type="tel" class="w-full rounded-lg border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required />
                                 <div v-if="form.errors.client_phone" class="text-red-500 text-xs mt-1">{{ form.errors.client_phone }}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Estado de Residencia <span class="text-red-500">*</span></label>
+                                <input v-model="form.client_state" type="text" placeholder="Ej. Florida" class="w-full rounded-lg border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required />
+                                <div v-if="form.errors.client_state" class="text-red-500 text-xs mt-1">{{ form.errors.client_state }}</div>
                             </div>
                         </div>
                     </div>

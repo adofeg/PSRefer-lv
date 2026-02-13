@@ -23,6 +23,7 @@ class Offering extends Model
       'form_schema' => 'array',
       'commission_config' => 'array',
       'commission_rules' => 'array',
+      'notification_emails' => 'array',
       'metadata' => 'array',
       'is_active' => 'boolean',
     ];

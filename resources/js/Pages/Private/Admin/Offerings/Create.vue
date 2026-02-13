@@ -20,8 +20,10 @@ const form = useForm({
     commission_rate: props.offering?.commission_rate || '',
     category_id: props.offering?.category_id || '',
     is_active: props.offering ? props.offering.is_active : true,
+    is_active: props.offering ? props.offering.is_active : true,
     form_schema: props.offering?.form_schema || [],
-    commission_rules: props.offering?.commission_rules || []
+    commission_rules: props.offering?.commission_rules || [],
+    notification_emails: props.offering?.notification_emails || []
 });
 
 const addFormField = () => {
@@ -49,6 +51,14 @@ const addCommissionRule = () => {
 
 const removeCommissionRule = (index) => {
     form.commission_rules.splice(index, 1);
+};
+
+const addEmail = () => {
+    form.notification_emails.push('');
+};
+
+const removeEmail = (index) => {
+    form.notification_emails.splice(index, 1);
 };
 
 const submit = () => {
@@ -90,6 +100,7 @@ const submit = () => {
                 >
                     Reglas de Comisión
                 </button>
+
             </div>
 
             <Card>
@@ -123,6 +134,28 @@ const submit = () => {
                             <div class="col-span-2">
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Descripción</label>
                                 <textarea v-model="form.description" rows="4" class="w-full border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Describe brevemente la oferta..."></textarea>
+                            </div>
+
+                            <div class="col-span-2">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-bold text-slate-700">Notificaciones (Emails)</label>
+                                    <button @click="addEmail" type="button" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                        <Plus :size="14" /> Agregar
+                                    </button>
+                                </div>
+                                
+                                <div v-if="form.notification_emails.length === 0" class="text-xs text-slate-400 italic mb-2">
+                                    Sin correos configurados.
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div v-for="(email, index) in form.notification_emails" :key="index" class="flex gap-2 items-center">
+                                        <input v-model="form.notification_emails[index]" type="email" placeholder="ejemplo@ps.com" class="w-full text-sm border-slate-300 rounded-lg p-2" />
+                                        <button @click="removeEmail(index)" type="button" class="text-red-400 hover:text-red-600">
+                                            <Trash :size="16" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <div>
@@ -234,6 +267,8 @@ const submit = () => {
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Actions -->
                     <div class="flex justify-end gap-3 pt-6 border-t border-slate-100">

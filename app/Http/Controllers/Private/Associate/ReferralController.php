@@ -71,6 +71,7 @@ class ReferralController extends Controller
             'client_name' => 'required|string|max:255',
             'client_email' => 'required|email|max:255',
             'client_phone' => 'required|string|max:20',
+            'client_state' => 'required|string|max:50', // New Field
             'offering_id' => 'required|exists:offerings,id',
             'notes' => 'nullable|string',
         ]);
@@ -94,7 +95,20 @@ class ReferralController extends Controller
             'client_contact' => $validated['client_email'] . ' | ' . $validated['client_phone'],
             'status' => 'Prospecto',
             'notes' => $validated['notes'],
+            'metadata' => ['client_state' => $validated['client_state']], // Store State
         ]);
+
+        // Email Notification Logic
+        $recipients = $offering->notification_emails ?? [];
+
+        if (!empty($recipients)) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($recipients)
+                    ->send(new \App\Mail\NewReferralNotification($referral));
+            } catch (\Exception $e) {
+                 \Illuminate\Support\Facades\Log::error('Failed to send referral notification: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('associate.referrals.index')->with('success', 'Referido creado exitosamente.');
     }

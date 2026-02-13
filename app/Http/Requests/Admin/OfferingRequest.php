@@ -35,6 +35,8 @@ class OfferingRequest extends FormRequest
             'form_schema' => 'nullable|array',
             'commission_config' => 'nullable|array',
             'commission_rules' => 'nullable|array',
+            'notification_emails' => 'nullable|array',
+            'notification_emails.*' => 'email',
         ];
 
         // Add update-specific rules
@@ -59,6 +61,7 @@ class OfferingRequest extends FormRequest
             form_schema: $this->validated('form_schema'),
             commission_config: $this->validated('commission_config'),
             commission_rules: $this->validated('commission_rules'),
+            notification_emails: $this->validated('notification_emails'),
             is_active: $this->validated('is_active')
         );
     }

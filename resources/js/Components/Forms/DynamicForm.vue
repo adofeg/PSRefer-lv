@@ -168,6 +168,18 @@ const getInputClass = (fieldName) => {
                 </label>
             </div>
 
+            <!-- File Input -->
+            <div v-if="field.type === 'file'">
+                <input 
+                    :id="field.name"
+                    type="file"
+                    @change="(e) => updateField(field.name, e.target.files[0])"
+                    :accept="field.accept || '*/*'"
+                    :required="field.required"
+                    class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition"
+                >
+            </div>
+
             <!-- Help Text -->
             <p v-if="field.helpText" class="mt-1 text-xs text-slate-500">
                 {{ field.helpText }}
