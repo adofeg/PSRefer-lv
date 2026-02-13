@@ -1,0 +1,30 @@
+- Name: Nueva Cotización: Seguro Comercial
+  Rate: 10.00%
+  Base: $0.00
+  Desc: Solicita una cotización para General Liability y cancelación Workers Comp. Comisión del 10%.
+
+- Name: Errores y Omisiones (Personal)
+  Rate: 10.00%
+  Base: $0.00
+  Desc: Seguro E&O para individuos (Personal).
+
+- Name: Errores y Omisiones (Empresa)
+  Rate: 10.00%
+  Base: $0.00
+  Desc: Seguro E&O para empresas. Comisión del 10%.
+
+- Name: Seguro de Auto (Personal)
+  Rate: 0%
+  Base: $25.00
+  Desc: Poliza de auto personal. Comisión fija de $25.
+
+- Name: Seguro de Auto (Comercial)
+  Rate: 0%
+  Base: $25.00
+  Desc: Poliza de auto comercial/Trucking. Comisión fija de $25.
+
+- Name: Servicio: Pedir Certificado de Seguro
+  Rate: 0%
+  Base: $0.00
+  Desc: Servicio administrativo para clientes EXISTENTES que necesitan un certificado (Liability, Workers Comp).
+

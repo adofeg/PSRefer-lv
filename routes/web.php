@@ -17,6 +17,12 @@ Route::prefix('public')->name('public.')->group(function () {
 
     Route::get('/apply/{offeringId}', [PublicController::class, 'showOfferingApplication'])
         ->name('apply');
+    
+    // Secure Signed Route for Referrals
+    Route::get('/invite/{offeringId}', [PublicController::class, 'showOfferingApplication'])
+        ->name('invite')
+        ->middleware('signed');
+
     Route::post('/apply/{offeringId}', [PublicController::class, 'submitOfferingApplication'])
         ->name('apply.submit');
 });

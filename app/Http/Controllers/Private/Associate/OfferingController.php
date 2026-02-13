@@ -23,7 +23,22 @@ class OfferingController extends Controller
                 $query->excludeCategory($associate->category);
             })
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($offering) use ($user) {
+                // Determine the correct ID for the referrer (Associate ID)
+                // $user->id is the User ID. The 'ref' parameter expects Associate ID in PublicController (via 'ref' exists:associates,id).
+                // Let's verify if 'ref' should be User ID or Associate ID.
+                // PublicController: $referrerId = $request->query('ref'); ... Associate::find($referrerId);
+                // So it expects ASSOCIATE ID.
+                
+                $associateId = $user->profileable_id; // Assuming user is associate
+                
+                $offering->share_url = \Illuminate\Support\Facades\URL::signedRoute(
+                    'public.invite', 
+                    ['offeringId' => $offering->id, 'ref' => $associateId]
+                );
+                return $offering;
+            });
 
         return Inertia::render('Private/Associate/Offerings/Index', [
             'offerings' => $offerings,

@@ -1,0 +1,435 @@
+<script setup>
+import Modal from '@/Components/UI/Modal.vue';
+import { Link, usePage, useForm } from '@inertiajs/vue3';
+import { CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, MapPin, FileText, AlertCircle, Briefcase } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+
+const props = defineProps({
+    show: Boolean,
+    offering: Object,
+});
+
+const emit = defineEmits(['close']);
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
+
+// --- Tab & Form Logic ---
+const activeTab = ref('details'); // 'details' | 'register'
+
+const form = useForm({
+    client_name: '',
+    client_email: '',
+    client_phone: '',
+    client_state: '',
+    offering_id: '',
+    notes: '',
+});
+
+// Reset when offering changes
+watch(() => props.offering, (newVal) => {
+    if (newVal) {
+        activeTab.value = 'details';
+        form.reset();
+        form.offering_id = newVal.id;
+    }
+});
+
+const submitReferral = () => {
+    form.post(route('associate.referrals.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            // alert("Referido creado exitosamente."); // Optional: Toast preferred if available
+            emit('close');
+            form.reset();
+        },
+        onError: () => {
+            // Keep modal open, errors displayed in form
+        }
+    });
+};
+
+
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(amount);
+};
+
+// --- Marketing Logic (Preserved from Show.vue) ---
+const isGenerating = ref(false);
+const canvasRef = ref(null);
+
+const handleDownload = async () => {
+    if (!props.offering) return;
+    
+    isGenerating.value = true;
+    try {
+        const canvas = canvasRef.value;
+        const ctx = canvas.getContext('2d');
+        
+        // Dimensions
+        canvas.width = 1080;
+        canvas.height = 1080;
+
+        // 1. Background Gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#0f172a'); // slate-900
+        gradient.addColorStop(1, '#1e293b'); // slate-800
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Decorative Circles
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.beginPath();
+        ctx.arc(canvas.width, 0, 400, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(0, canvas.height, 300, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Category Badge
+        const categoryText = (props.offering.category?.name || props.offering.category || 'SERVICIO').toUpperCase();
+        ctx.font = 'bold 30px Inter, sans-serif';
+        const textMetrics = ctx.measureText(categoryText);
+        const badgeWidth = textMetrics.width + 60;
+        const badgeHeight = 60;
+        const badgeX = (canvas.width - badgeWidth) / 2;
+        const badgeY = 150;
+
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.2)'; 
+        ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 15);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#818cf8'; 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(categoryText, canvas.width / 2, badgeY + badgeHeight / 2);
+
+        // 4. Title
+        ctx.fillStyle = 'white';
+        ctx.font = '900 80px Inter, sans-serif';
+        ctx.shadowColor = "rgba(0,0,0,0.3)";
+        ctx.shadowBlur = 20;
+        
+        const words = props.offering.name.split(' ');
+        let line = '';
+        let y = 350;
+        const lineHeight = 90;
+        const maxWidth = 900;
+
+        for(let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctx.measureText(testLine);
+            const testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                ctx.fillText(line, canvas.width / 2, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        ctx.fillText(line, canvas.width / 2, y);
+        ctx.shadowBlur = 0; 
+
+        // 5. Description/Hook (Instead of Commission)
+        y += 100;
+        ctx.fillStyle = '#cbd5e1'; // Slate-300
+        ctx.font = 'normal 40px Inter, sans-serif';
+        // Simple generic hook based on category or default
+        const hook = "¡Pregúntame cómo obtener este servicio hoy!";
+        ctx.fillText(hook, canvas.width / 2, y);
+
+        // 6. Contact Section (Footer) with QR Code
+        const footerY = canvas.height - 300;
+        
+        // Draw White Footer Background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, footerY, canvas.width, 300);
+
+        // QR Code (Left Side)
+        const qrSize = 200;
+        const qrX = 80;
+        const qrY = footerY + (300 - qrSize) / 2;
+        
+        // Load QR Code from API (Simple solution)
+        // Link to public offering page with ref - NOW SECURE SIGNED URL
+        const shareUrl = props.offering.share_url;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+
+        const qrImg = new Image();
+        qrImg.crossOrigin = "anonymous";
+        qrImg.src = qrUrl;
+
+        await new Promise((resolve) => {
+            qrImg.onload = resolve;
+            qrImg.onerror = () => {
+                console.warn("Could not load QR code");
+                resolve(); // Continue without QR
+            };
+        });
+        
+        if (qrImg.complete && qrImg.naturalHeight !== 0) {
+             ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+        }
+
+        // Text Content (Right Side)
+        const textX = qrX + qrSize + 60;
+        const textCenterY = footerY + 150;
+
+        ctx.textAlign = 'left';
+        
+        ctx.fillStyle = '#64748b'; // Slate-500
+        ctx.font = 'bold 30px Inter, sans-serif';
+        ctx.fillText("CONTÁCTAME:", textX, textCenterY - 50);
+
+        ctx.fillStyle = '#0f172a'; // Slate-900
+        ctx.font = 'bold 70px Inter, sans-serif';
+        const name = user.value.name || 'Agente Asociado';
+        ctx.fillText(name, textX, textCenterY + 30);
+        
+        if (user.value.phone) {
+             ctx.fillStyle = '#16a34a'; // Green-600
+             ctx.font = 'bold 50px Inter, sans-serif';
+             ctx.fillText(user.value.phone, textX, textCenterY + 100);
+        }
+
+        // 7. Download
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `Promo-${props.offering.name.replace(/\s+/g, '-')}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (error) {
+        console.error("Canvas error:", error);
+        alert("Error al generar la imagen.");
+    } finally {
+        isGenerating.value = false;
+    }
+};
+
+const copyLink = () => {
+    if (!props.offering || !props.offering.share_url) return;
+    const link = props.offering.share_url;
+    navigator.clipboard.writeText(link);
+    alert("¡Enlace Seguro copiado! Compártelo con total confianza.");
+};
+</script>
+
+<template>
+    <Modal :show="show" maxWidth="4xl" @close="$emit('close')">
+        <div v-if="offering" class="bg-white rounded-2xl overflow-hidden relative flex flex-col h-[90vh] md:h-auto md:max-h-[90vh]">
+            
+            <!-- Close Button -->
+            <button @click="$emit('close')" class="absolute top-4 right-4 z-20 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full p-2 transition">
+                <X class="w-5 h-5" />
+            </button>
+
+            <!-- Header -->
+            <div class="px-8 pt-8 pb-4 border-b border-slate-100 bg-white flex-shrink-0">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-4 pr-10">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                             <span class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide uppercase">
+                                {{ offering.category?.name || offering.category || 'Servicio' }}
+                            </span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-800 leading-tight tracking-tight">{{ offering.name }}</h2>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex items-center gap-6 mt-6 border-b border-white">
+                    <button 
+                        @click="activeTab = 'details'"
+                        class="pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors duration-200"
+                        :class="activeTab === 'details' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'"
+                    >
+                        Detalles
+                    </button>
+                    <button 
+                        @click="activeTab = 'register'"
+                        class="pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors duration-200 flex items-center gap-2"
+                        :class="activeTab === 'register' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'"
+                    >
+                        Registrar Referido
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-8">
+                
+                <!-- TAB 1: DETAILS -->
+                <div v-if="activeTab === 'details'" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Details Columns -->
+                    <div class="md:col-span-2 space-y-8">
+                        <section>
+                            <h3 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide flex items-center gap-2">
+                                <FileText class="w-4 h-4 text-slate-400" />
+                                Descripción
+                            </h3>
+                            <p class="text-base text-slate-600 leading-relaxed">{{ offering.description }}</p>
+                        </section>
+
+                        <section v-if="offering.details">
+                            <h3 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Detalles</h3>
+                            <div class="prose prose-sm prose-slate max-w-none text-slate-600 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                                <p>{{ offering.details }}</p>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h3 class="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wide">¿Cómo funciona?</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <div class="bg-green-100 p-1 rounded-full mr-3 mt-0.5"><CheckCircle class="w-3 h-3 text-green-600 flex-shrink-0" /></div>
+                                    <span class="text-sm text-slate-600">Comparte tu enlace único o crea un referido manual.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="bg-green-100 p-1 rounded-full mr-3 mt-0.5"><CheckCircle class="w-3 h-3 text-green-600 flex-shrink-0" /></div>
+                                    <span class="text-sm text-slate-600">Nuestros expertos contactan al cliente y cierran la venta.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="bg-green-100 p-1 rounded-full mr-3 mt-0.5"><CheckCircle class="w-3 h-3 text-green-600 flex-shrink-0" /></div>
+                                    <span class="text-sm text-slate-600">Recibe tu comisión automáticamente.</span>
+                                </li>
+                            </ul>
+                        </section>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="md:col-span-1 space-y-6">
+                        <!-- Commission Card -->
+                         <div class="bg-white p-5 rounded-xl border border-green-100 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-3 opacity-10">
+                                <CheckCircle class="w-16 h-16 text-green-600" />
+                            </div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Tu Comisión Estimada</p>
+                             <p class="text-2xl font-black text-green-600">
+                                {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                            </p>
+                            <p class="text-xs text-slate-400 mt-1">Por venta cerrada</p>
+                        </div>
+
+                        <!-- Marketing Tools -->
+                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                             <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm">
+                                <ImageIcon :size="16" class="text-slate-400" />
+                                Material de Marketing
+                             </h3>
+                             
+                             <div class="space-y-2">
+                                <button @click="copyLink" class="w-full flex items-center justify-center gap-2 bg-white text-slate-600 py-2.5 rounded-lg border border-slate-200 font-bold text-[10px] uppercase tracking-wide hover:border-indigo-300 hover:text-indigo-600 transition">
+                                    <Share2 :size="14" /> Copiar Link Seguro
+                                </button>
+                                
+                                <button @click="handleDownload" :disabled="isGenerating" class="w-full flex items-center justify-center gap-2 bg-white text-slate-600 py-2.5 rounded-lg border border-slate-200 font-bold text-[10px] uppercase tracking-wide hover:border-indigo-300 hover:text-indigo-600 transition disabled:opacity-50">
+                                    <Loader v-if="isGenerating" :size="14" class="animate-spin" />
+                                    <Download v-else :size="14" />
+                                    Descargar Promo
+                                </button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- TAB 2: REGISTER -->
+                <div v-else-if="activeTab === 'register'" class="h-full">
+                    <form @submit.prevent="submitReferral" class="h-full flex flex-col">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            
+                            <!-- Left Column: Client Data -->
+                            <div class="space-y-8">
+                                <div class="border-b border-slate-100 pb-2">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                                        <User class="w-4 h-4 text-slate-400" />
+                                        Datos del Cliente
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-1">Información de contacto para nuestros expertos.</p>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Nombre Completo <span class="text-red-500">*</span></label>
+                                        <input v-model="form.client_name" type="text" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="Ej. Juan Pérez" />
+                                        <div v-if="form.errors.client_name" class="text-red-500 text-xs mt-1">{{ form.errors.client_name }}</div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Teléfono <span class="text-red-500">*</span></label>
+                                            <input v-model="form.client_phone" type="tel" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="(555) 123-4567" />
+                                            <div v-if="form.errors.client_phone" class="text-red-500 text-xs mt-1">{{ form.errors.client_phone }}</div>
+                                        </div>
+                                         <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Estado <span class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <MapPin class="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                                                <input v-model="form.client_state" type="text" class="w-full pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="Ej. Florida" />
+                                            </div>
+                                            <div v-if="form.errors.client_state" class="text-red-500 text-xs mt-1">{{ form.errors.client_state }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Email <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <Mail class="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                                            <input v-model="form.client_email" type="email" class="w-full pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="corre@ejemplo.com" />
+                                        </div>
+                                        <div v-if="form.errors.client_email" class="text-red-500 text-xs mt-1">{{ form.errors.client_email }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Notes & Confirmation -->
+                            <div class="space-y-8 flex flex-col">
+                                <div class="border-b border-slate-100 pb-2">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                                        <FileText class="w-4 h-4 text-slate-400" />
+                                        Detalles Adicionales
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-1">Ayúdanos a cerrar la venta más rápido.</p>
+                                </div>
+
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Notas / Contexto</label>
+                                    <textarea v-model="form.notes" rows="6" class="w-full h-full min-h-[150px] rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 resize-none p-4" placeholder="El cliente está interesado principalmente en... Mejor horario de contacto..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="pt-8 mt-auto flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100">
+                             <div class="flex items-start gap-2 max-w-sm text-slate-500">
+                                <AlertCircle class="w-4 h-4 mt-0.5 flex-shrink-0 text-indigo-500" />
+                                <p class="text-[10px] leading-tight">
+                                    Al registrar, confirmas que el cliente espera nuestro contacto.
+                                </p>
+                             </div>
+
+                             <button type="submit" :disabled="form.processing" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-3.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-xl shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
+                                <Loader v-if="form.processing" class="animate-spin w-5 h-5" />
+                                <span v-else>Confirmar y Enviar Referido</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Hidden Canvas for Image Generation -->
+            <canvas ref="canvasRef" class="hidden"></canvas>
+        </div>
+    </Modal>
+</template>

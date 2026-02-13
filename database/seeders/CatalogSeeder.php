@@ -16,11 +16,7 @@ class CatalogSeeder extends Seeder
         $ownerEmployeeId = $psadmin?->employeeProfile()?->id;
         if (!$psadmin || !$ownerEmployeeId) return;
 
-        // CLEANUP: Deactivate old/confusing offering names if they exist (to prevent duplicates after renaming)
-        Offering::whereIn('name', [
-            'Business Liability / Workers Comp', 
-            'Solicitud de Certificado (CDI)'
-        ])->update(['is_active' => false]);
+
 
         // Categories
         $health = Category::firstOrCreate(['name' => 'Salud']);
@@ -62,6 +58,7 @@ class CatalogSeeder extends Seeder
                 'type' => 'service',
                 'description' => 'Protección financiera. Comisión fija de $25.',
                 'commission_rate' => 0,
+                'base_commission' => 25.00, // FIXED: Display correct flat fee
                 'is_active' => false, // DEACTIVATED - Not in PDF list
                 'form_schema' => [
                     ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
@@ -86,6 +83,7 @@ class CatalogSeeder extends Seeder
                 'type' => 'service',
                 'description' => 'Preparación de impuestos personales. Comisión fija de $25.',
                 'commission_rate' => 0,
+                'base_commission' => 25.00, // FIXED: Display correct flat fee
                 'is_active' => false, // DEACTIVATED - Not in PDF list
                 'form_schema' => [
                     ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
@@ -109,6 +107,7 @@ class CatalogSeeder extends Seeder
                 'type' => 'service',
                 'description' => 'Servicios fiscales para corporaciones. Comisión fija de $50.',
                 'commission_rate' => 0,
+                'base_commission' => 50.00, // FIXED: Display correct flat fee
                 'is_active' => false, // DEACTIVATED - Not in PDF list
                 'form_schema' => [
                     ['name' => 'company_name', 'label' => 'Nombre de Empresa', 'type' => 'text', 'required' => true],
@@ -132,6 +131,7 @@ class CatalogSeeder extends Seeder
                 'type' => 'service',
                 'description' => 'Seguros colectivos (5+ empleados). Comisión fija de $50.',
                 'commission_rate' => 0,
+                'base_commission' => 50.00, // FIXED: Display correct flat fee
                 'is_active' => false, // DEACTIVATED - Not in PDF list
                 'form_schema' => [
                     ['name' => 'company_name', 'label' => 'Nombre de Empresa', 'type' => 'text', 'required' => true],
@@ -158,6 +158,7 @@ class CatalogSeeder extends Seeder
                 'description' => 'Solicita una cotización para General Liability y cancelación Workers Comp. Comisión del 10%.',
                 'commission_rate' => 10.00,
                 'is_active' => true,
+                'commission_config' => ['percentage' => 10], // BACKEND MATH
                 'form_schema' => [
                     // INFORMACIÓN DEL SOLICITANTE
                     ['name' => 'company_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
@@ -204,6 +205,7 @@ class CatalogSeeder extends Seeder
                 'description' => 'Seguro E&O para individuos (Personal).',
                 'commission_rate' => 10.00,
                 'is_active' => true,
+                'commission_config' => ['percentage' => 10], // BACKEND MATH
                 'form_schema' => [
                     ['name' => 'rep_name', 'label' => 'Nombre del Representante', 'type' => 'text', 'required' => true],
                     ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
@@ -237,6 +239,7 @@ class CatalogSeeder extends Seeder
                 'description' => 'Seguro E&O para empresas. Comisión del 10%.',
                 'commission_rate' => 10.00,
                 'is_active' => true,
+                'commission_config' => ['percentage' => 10], // BACKEND MATH
                 'form_schema' => [
                     ['name' => 'company_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
                     ['name' => 'entity_type', 'label' => 'Tipo de Entidad', 'type' => 'select', 'options' => ['LLC', 'CORP', 'OTRO'], 'required' => true],
@@ -271,7 +274,9 @@ class CatalogSeeder extends Seeder
                 'type' => 'service',
                 'description' => 'Poliza de auto personal. Comisión fija de $25.',
                 'commission_rate' => 0,
+                'base_commission' => 25.00, // FIXED: Display correct flat fee
                 'is_active' => true,
+                'commission_config' => ['fixed_amount' => 25], // BACKEND MATH
                 'form_schema' => [
                     ['name' => 'insured_names_address', 'label' => 'Nombre todos los asegurados y dirección actual', 'type' => 'textarea', 'required' => true],
                     ['name' => 'household_drivers', 'label' => 'Nombre de todos los mayores de 15 que viven en la propiedad', 'type' => 'textarea', 'required' => true],
@@ -301,7 +306,9 @@ class CatalogSeeder extends Seeder
                'type' => 'service',
                'description' => 'Poliza de auto comercial/Trucking. Comisión fija de $25.',
                'commission_rate' => 0,
+               'base_commission' => 25.00, // FIXED: Display correct flat fee
                'is_active' => true,
+               'commission_config' => ['fixed_amount' => 25], // BACKEND MATH
                'form_schema' => [
                    ['name' => 'company_name', 'label' => 'Información de la empresa o Nombre Comercial', 'type' => 'text', 'required' => true],
                    ['name' => 'dot_number', 'label' => 'Número de DOT (Si corresponde)', 'type' => 'text', 'required' => false],
@@ -332,6 +339,7 @@ class CatalogSeeder extends Seeder
                 'commission_rate' => null,
                 'base_commission' => 0.00,
                 'is_active' => true,
+                'commission_config' => ['fixed_amount' => 0], // BACKEND MATH
                 'form_schema' => [
                     ['name' => 'holder', 'label' => 'Titular', 'type' => 'text', 'required' => true],
                     ['name' => 'insured', 'label' => 'Asegurado', 'type' => 'text', 'required' => true],

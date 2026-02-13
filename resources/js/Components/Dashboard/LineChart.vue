@@ -11,7 +11,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { Line } from 'vue-chartjs';
+import { Line as LineChartComponent } from 'vue-chartjs';
 
 ChartJS.register(
   CategoryScale,
@@ -25,28 +25,26 @@ ChartJS.register(
 );
 
 const props = defineProps({
-    data: {
-        type: Object, // { 1: 500, 2: 700 } (month: amount)
-        default: () => ({})
+    labels: {
+        type: Array,
+        default: () => []
+    },
+    values: {
+        type: Array,
+        default: () => []
+    },
+    label: {
+        type: String,
+        default: 'Referidos'
     }
 });
 
 const chartData = computed(() => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    // Map data to array
-    const values = months.map((_, index) => {
-        // Backend key is month number (1-12)
-        const monthNum = index + 1;
-        // Handle both string and number keys just in case
-        return props.data[monthNum] || props.data[String(monthNum)] || 0;
-    });
-
     return {
-        labels: months,
+        labels: props.labels,
         datasets: [
             {
-                label: 'Revenue',
+                label: props.label,
                 backgroundColor: 'rgba(99, 102, 241, 0.1)', // Indigo-500 low opacity
                 borderColor: '#6366f1', // Indigo-500
                 pointBackgroundColor: '#ffffff',
@@ -56,7 +54,7 @@ const chartData = computed(() => {
                 borderWidth: 2,
                 pointRadius: 4,
                 pointHoverRadius: 6,
-                data: values,
+                data: props.values,
                 fill: true,
                 tension: 0.4
             }
@@ -83,7 +81,7 @@ const chartOptions = {
                         label += ': ';
                     }
                     if (context.parsed.y !== null) {
-                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                        label += context.parsed.y;
                     }
                     return label;
                 }
@@ -101,9 +99,10 @@ const chartOptions = {
             ticks: {
                 font: { size: 11 },
                 color: '#64748b', // Slate-500
+                precision: 0, // Force integers
                 callback: function(value) {
-                     if (value >= 1000) return '$' + value/1000 + 'k';
-                     return '$' + value;
+                     if (value >= 1000) return value/1000 + 'k';
+                     return value;
                 }
             }
         },
@@ -123,6 +122,6 @@ const chartOptions = {
 
 <template>
     <div class="w-full h-full min-h-[250px]">
-        <Line :data="chartData" :options="chartOptions" />
+        <LineChartComponent :data="chartData" :options="chartOptions" />
     </div>
 </template>

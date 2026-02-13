@@ -84,8 +84,7 @@ const standaloneItems = [
     { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index'), roles: adminRoles },
     { name: 'Referidos', href: route('associate.referrals.index'), icon: Users, current: isActive('associate.referrals.index'), roles: associateRoles },
     
-    // Marketing Center
-    { name: 'Marketing Center', href: route('associate.marketing-center'), icon: ImageIcon, current: isActive('associate.marketing-center'), roles: associateRoles },
+
 
     { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, current: isActive('admin.referrals.pipeline'), roles: ['admin', 'psadmin'] },
 ];
