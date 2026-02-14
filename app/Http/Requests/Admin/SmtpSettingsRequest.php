@@ -15,14 +15,18 @@ class SmtpSettingsRequest extends FormRequest
 
     public function rules(): array
     {
+        if ($this->routeIs('admin.settings.smtp') || $this->routeIs('admin.settings.smtp.test')) {
+            return [];
+        }
+
         return [
-            'host' => 'required|string',
-            'port' => 'required|string',
-            'username' => 'required|string',
-            'password' => 'required|string',
-            'encryption' => 'required|string',
-            'from_address' => 'required|email',
-            'from_name' => 'required|string',
+            'host' => ['required', 'string'],
+            'port' => ['required', 'string'],
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
+            'encryption' => ['required', 'string'],
+            'from_address' => ['required', 'email'],
+            'from_name' => ['required', 'string'],
         ];
     }
 

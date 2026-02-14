@@ -6,14 +6,18 @@ use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
 use App\Enums\RoleName;
 use App\Enums\ReferralStatus;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Referral;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class ReferralRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        if ($this->routeIs('admin.referrals.index') || $this->routeIs('admin.referrals.pipeline')) {
+            return $this->user() !== null;
+        }
+
         $referral = $this->route('referral');
 
         if ($referral) {
@@ -25,6 +29,13 @@ class ReferralRequest extends FormRequest
 
     public function rules(): array
     {
+        if ($this->routeIs('admin.referrals.index') || $this->routeIs('admin.referrals.pipeline')) {
+            return [
+                'search' => ['nullable', 'string', 'max:120'],
+                'status' => ['nullable', 'string', 'max:50'],
+            ];
+        }
+
         if ($this->routeIs('admin.referrals.create') && $this->isMethod('GET')) {
             return [
                 'offering_id' => 'nullable|integer|exists:offerings,id',
@@ -38,7 +49,7 @@ class ReferralRequest extends FormRequest
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
             'associate_id' => [
-                \App\Enums\RoleName::isAdmin($this->user()) ? 'required' : 'nullable',
+                RoleName::isAdmin($this->user()) ? 'required' : 'nullable',
                 'integer',
                 'exists:associates,id'
             ],

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Private\Associate;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Associate\OfferingRequest;
 use App\Models\Offering;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
+use Inertia\Inertia;
 
-class OfferingController extends Controller
+class OfferingController extends AssociateController
 {
-    public function index(Request $request)
+    public function index(OfferingRequest $request)
     {
         $user = Auth::user();
         $associate = $user->associate; // Accessor
@@ -33,8 +33,8 @@ class OfferingController extends Controller
                 
                 $associateId = $user->profileable_id; // Assuming user is associate
                 
-                $offering->share_url = \Illuminate\Support\Facades\URL::signedRoute(
-                    'public.invite', 
+                $offering->share_url = URL::signedRoute(
+                    'site.invite',
                     ['offeringId' => $offering->id, 'ref' => $associateId]
                 );
                 return $offering;

@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Associate;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-// Deprecated: use ReferralRequest (consolidated request) instead.
-class ReferralCreateRequest extends FormRequest
+class CommissionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return false;
+        return $this->user() !== null;
     }
 
     public function rules(): array

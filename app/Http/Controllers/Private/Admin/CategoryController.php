@@ -10,7 +10,6 @@ use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 
 class CategoryController extends AdminController
 {
@@ -19,7 +18,7 @@ class CategoryController extends AdminController
         $this->authorizeResource(Category::class, 'category');
     }
 
-    public function index(Request $request, GetCategoriesAction $action)
+    public function index(CategoryRequest $request, GetCategoriesAction $action)
     {
         $filters = $request->only(['search', 'status']);
         $categories = $action->execute($filters);
@@ -52,11 +51,11 @@ class CategoryController extends AdminController
         }
     }
 
-    public function toggleStatus(Category $category, UpdateCategoryAction $action)
+    public function toggleStatus(CategoryRequest $request, Category $category, UpdateCategoryAction $action)
     {
         $this->authorize('update', $category);
-        
-        $isActive = request()->boolean('is_active');
+
+        $isActive = (bool) $request->boolean('is_active');
         
         // Manual update locally since UpdateCategoryAction expects full DTO
         // Ideally we should add updateStatus to Action like in Offering

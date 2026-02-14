@@ -12,20 +12,30 @@ class ProfileRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
     public function rules(): array
     {
+        if ($this->routeIs('settings')) {
+            return [];
+        }
+
+        if ($this->routeIs('settings.destroy')) {
+            return [
+                'current_password' => ['required', 'current_password'],
+            ];
+        }
+
         return [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255'],
             'w9_status' => ['required', Rule::enum(W9Status::class)],
-            'payment_info' => 'nullable|array',
+            'payment_info' => ['nullable', 'array'],
             'preferred_currency' => ['required', Rule::enum(CurrencyCode::class)],
-            'category' => 'nullable|string',
-            'phone' => 'nullable|string|max:20',
-            'logo_file' => 'nullable|image|max:2048',
-            'w9_file' => 'nullable|file|mimes:pdf,jpg,png,webp|max:5120',
+            'category' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'logo_file' => ['nullable', 'image', 'max:2048'],
+            'w9_file' => ['nullable', 'file', 'mimes:pdf,jpg,png,webp', 'max:5120'],
         ];
     }
 
@@ -43,10 +53,4 @@ class ProfileRequest extends FormRequest
         );
     }
 
-    public function validateForDelete(): void
-    {
-        $this->validate([
-            'current_password' => 'required|current_password',
-        ]);
-    }
 }

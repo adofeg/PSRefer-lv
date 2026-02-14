@@ -10,8 +10,9 @@ return new class extends Migration
     {
         Schema::create('commissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('referral_id')->nullable()->constrained('referrals');
+            $table->foreignId('referral_id')->nullable()->constrained('referrals')->nullOnDelete();
             $table->foreignId('associate_id')->constrained('associates'); // Beneficiary
+            $table->foreignId('parent_commission_id')->nullable()->constrained('commissions')->nullOnDelete();
 
             $table->decimal('amount', 10, 2);
             $table->decimal('commission_percentage', 5, 2)->nullable();
@@ -29,19 +30,12 @@ return new class extends Migration
 
             $table->index('associate_id');
             $table->index('referral_id');
+            $table->index('parent_commission_id');
             $table->index('status');
+            $table->index(['associate_id', 'status']);
             $table->index('commission_type');
             $table->index('paid_at');
             $table->index('created_at');
-        });
-
-        Schema::table('commissions', function (Blueprint $table) {
-            $table->foreignId('parent_commission_id')
-                ->nullable()
-                ->constrained('commissions')
-                ->nullOnDelete();
-
-            $table->index('parent_commission_id');
         });
     }
 

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Private\Admin;
 
 use App\Actions\Dashboard\GetDashboardStatsAction;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Admin\DashboardRequest;
 use Inertia\Inertia;
 
 class DashboardController extends AdminController
 {
-    public function index(GetDashboardStatsAction $action)
+    public function index(DashboardRequest $request, GetDashboardStatsAction $action)
     {
-        $data = $action->execute(Auth::user());
+        $data = $action->execute($request->user());
 
         return Inertia::render('Private/Admin/Dashboard/Index', $data);
     }

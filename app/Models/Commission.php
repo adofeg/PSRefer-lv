@@ -10,37 +10,49 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Commission extends Model
 {
-  use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-  protected $guarded = ['id'];
-
-  protected function casts(): array
-  {
-    return [
-      'amount' => 'decimal:2',
-      'commission_percentage' => 'decimal:2',
-      'paid_at' => 'datetime',
-      'recurrence_end_date' => 'datetime',
+    protected $fillable = [
+        'referral_id',
+        'associate_id',
+        'parent_commission_id',
+        'amount',
+        'commission_percentage',
+        'commission_type',
+        'status',
+        'paid_at',
+        'recurrence_type',
+        'recurrence_interval',
+        'recurrence_end_date',
     ];
-  }
 
-  public function associate(): BelongsTo
-  {
-    return $this->belongsTo(Associate::class);
-  }
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'commission_percentage' => 'decimal:2',
+            'paid_at' => 'datetime',
+            'recurrence_end_date' => 'datetime',
+        ];
+    }
 
-  public function referral(): BelongsTo
-  {
-    return $this->belongsTo(Referral::class);
-  }
+    public function associate(): BelongsTo
+    {
+        return $this->belongsTo(Associate::class);
+    }
 
-  public function parent(): BelongsTo
-  {
-    return $this->belongsTo(Commission::class, 'parent_commission_id');
-  }
+    public function referral(): BelongsTo
+    {
+        return $this->belongsTo(Referral::class);
+    }
 
-  public function children(): HasMany
-  {
-    return $this->hasMany(Commission::class, 'parent_commission_id');
-  }
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Commission::class, 'parent_commission_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Commission::class, 'parent_commission_id');
+    }
 }

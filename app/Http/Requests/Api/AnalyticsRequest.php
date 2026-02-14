@@ -6,7 +6,7 @@ use App\Data\Analytics\RevenueStatsQueryData;
 use App\Enums\RoleName;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RevenueStatsRequest extends FormRequest
+class AnalyticsRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,28 +15,38 @@ class RevenueStatsRequest extends FormRequest
             return false;
         }
 
-        if ($user->hasRole([RoleName::Admin->value, RoleName::PsAdmin->value])) {
-            return true;
+        $canAccessAnalytics = $user->hasRole([
+            RoleName::Admin->value,
+            RoleName::PsAdmin->value,
+            RoleName::Associate->value,
+        ]);
+
+        if (!$canAccessAnalytics) {
+            return false;
         }
 
-        if ($user->hasRole(RoleName::Associate->value)) {
+        if ($this->routeIs('api.analytics.revenue') && $user->hasRole(RoleName::Associate->value)) {
             $associateId = $user->associateProfile()?->id;
             $requestedId = $this->input('associate_id');
 
             return !$requestedId || (int) $requestedId === (int) $associateId;
         }
 
-        return false;
+        return true;
     }
 
     public function rules(): array
     {
-        return [
-            'associate_id' => 'nullable|integer|exists:associates,id',
-        ];
+        if ($this->routeIs('api.analytics.revenue')) {
+            return [
+                'associate_id' => ['nullable', 'integer', 'exists:associates,id'],
+            ];
+        }
+
+        return [];
     }
 
-    public function toData(): RevenueStatsQueryData
+    public function toRevenueData(): RevenueStatsQueryData
     {
         return new RevenueStatsQueryData(
             associate_id: $this->validated('associate_id')

@@ -34,6 +34,7 @@ return new class extends Migration
 
             $table->boolean('is_active')->default(true);
             $table->jsonb('metadata')->nullable();
+            $table->jsonb('notification_emails')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

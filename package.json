@@ -4,7 +4,10 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "start": "concurrently --kill-others \"php artisan serve --host=127.0.0.1 --port=8000\" \"npm run dev -- --host 127.0.0.1 --port 5173\"",
+        "start:pb": "node start-network-static.js",
+        "start:pv": "node start-network.js"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.1",

@@ -3,31 +3,51 @@
 namespace App\Http\Requests\Admin;
 
 use App\Data\Categories\CategoryUpsertData;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Category;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
+        $user = $this->user();
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->routeIs('admin.categories.index')) {
+            return true;
+        }
+
         $category = $this->route('category');
 
         if ($category) {
-            return $this->user()?->can('update', $category) ?? false;
+            return $user->can('update', $category);
         }
 
-        return $this->user()?->can('create', Category::class) ?? false;
+        return $user->can('create', Category::class);
     }
 
     public function rules(): array
     {
+        if ($this->routeIs('admin.categories.index')) {
+            return [
+                'search' => ['nullable', 'string', 'max:120'],
+                'status' => ['nullable', Rule::in(['true', 'false'])],
+            ];
+        }
+
+        if ($this->routeIs('admin.categories.toggle-status')) {
+            return [
+                'is_active' => ['required', 'boolean'],
+            ];
+        }
+
         return [
-            'name' => 'required|string|max:255|unique:categories,name,' . $this->route('category')?->id,
-            'description' => 'nullable|string|max:1000',
-            'is_active' => 'boolean'
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $this->route('category')?->id],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Private\Admin;
 
-use App\Models\AuditLog;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Gate;
 use App\Enums\RoleName;
+use App\Http\Requests\Admin\AuditRequest;
+use App\Models\AuditLog;
+use App\Models\User;
+use Inertia\Inertia;
 
 class AuditController extends AdminController
 {
-    public function index(Request $request)
+    public function index(AuditRequest $request)
     {
-        $this->authorizeAdminOnly();
+        $this->authorizeAdminOnly($request->user());
 
         $query = AuditLog::with(['actorable', 'auditable'])
             ->latest('created_at');
@@ -32,7 +32,7 @@ class AuditController extends AdminController
 
         if ($request->filled('actor_id')) {
             $query->where('actorable_id', $request->input('actor_id'))
-                  ->where('actorable_type', \App\Models\User::class);
+                  ->where('actorable_type', User::class);
         }
 
         $logs = $query->paginate(15)->withQueryString();
@@ -44,9 +44,8 @@ class AuditController extends AdminController
         ]);
     }
 
-    protected function authorizeAdminOnly(): void
+    protected function authorizeAdminOnly(?User $user): void
     {
-        $user = request()->user();
         if (!$user || !$user->hasRole(RoleName::Admin->value)) {
             abort(403, 'Solo administradores pueden ver los registros de auditoría.');
         }

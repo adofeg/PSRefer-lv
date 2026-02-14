@@ -12,10 +12,10 @@ use Inertia\Response;
 
 class ProfileController extends SettingsController
 {
-    public function edit(GetActiveCategoryNamesAction $categoriesAction): Response
+    public function edit(ProfileRequest $request, GetActiveCategoryNamesAction $categoriesAction): Response
     {
         return Inertia::render('Private/Settings/Profile/Index', [
-            'user' => request()->user()->load('profileable'),
+            'user' => $request->user()->load('profileable'),
             'categories' => $categoriesAction->execute(),
         ]);
     }
@@ -29,7 +29,7 @@ class ProfileController extends SettingsController
 
     public function destroy(ProfileRequest $request, DeleteUserAccountAction $action): RedirectResponse
     {
-        $request->validateForDelete();
+        $request->validated();
 
         $action->execute($request->user(), $request->session());
 

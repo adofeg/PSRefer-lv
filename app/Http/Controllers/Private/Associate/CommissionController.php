@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Private\Associate;
 
 use App\Actions\Commissions\GetCommissionSummaryAction;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Associate\CommissionRequest;
 use Inertia\Inertia;
 
 class CommissionController extends AssociateController
 {
-    public function index(GetCommissionSummaryAction $action)
+    public function index(CommissionRequest $request, GetCommissionSummaryAction $action)
     {
-        return Inertia::render('Private/Associate/Commissions/Index', $action->execute(Auth::user()));
+        return Inertia::render('Private/Associate/Commissions/Index', $action->execute($request->user()));
     }
 }

@@ -20,7 +20,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('public.apply.submit', props.offering.id), {
+    form.post(route('site.apply.submit', props.offering.id), {
         preserveScroll: true,
         onSuccess: () => {
             // Form will be reset on success via success message

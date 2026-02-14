@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowLeft, CheckCircle, Share2, Download, Loader, ImageIcon } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
+import { copyText } from '@/Utils/clipboard';
 
 const props = defineProps({
     offering: Object,
@@ -83,13 +84,19 @@ const handleDownload = async () => {
         ctx.fillText(props.offering.name.toUpperCase(), canvas.width / 2, canvas.height / 2);
         ctx.restore();
 
-        const dataUrl = canvas.toDataURL('image/png');
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) {
+            throw new Error('No se pudo generar la imagen');
+        }
+
+        const downloadUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = `Promo-${props.offering.name.replace(/\s+/g, '-')}.png`;
-        link.href = dataUrl;
+        link.href = downloadUrl;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
 
     } catch (error) {
         console.error("Canvas error:", error);
@@ -99,10 +106,16 @@ const handleDownload = async () => {
     }
 };
 
-const copyLink = () => {
-    const link = `${window.location.origin}/public/apply/${props.offering.id}?ref=${user.value.id}`;
-    navigator.clipboard.writeText(link);
-    alert("Enlace copiado al portapapeles");
+const copyLink = async () => {
+    const link = `${window.location.origin}/apply/${props.offering.id}?ref=${user.value.id}`;
+    const copied = await copyText(link);
+
+    if (copied) {
+        alert("Enlace copiado al portapapeles");
+        return;
+    }
+
+    window.prompt("Copia este enlace manualmente:", link);
 };
 </script>
 

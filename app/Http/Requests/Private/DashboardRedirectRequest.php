@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Public;
+namespace App\Http\Requests\Private;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ReferralLinkRequest extends FormRequest
+class DashboardRedirectRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
     public function rules(): array

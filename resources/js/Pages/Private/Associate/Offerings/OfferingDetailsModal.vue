@@ -3,6 +3,7 @@ import Modal from '@/Components/UI/Modal.vue';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
 import { CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, MapPin, FileText, AlertCircle, Briefcase } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
+import { copyText } from '@/Utils/clipboard';
 
 const props = defineProps({
     show: Boolean,
@@ -201,13 +202,19 @@ const handleDownload = async () => {
         }
 
         // 7. Download
-        const dataUrl = canvas.toDataURL('image/png');
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) {
+            throw new Error('No se pudo generar la imagen');
+        }
+
+        const downloadUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = `Promo-${props.offering.name.replace(/\s+/g, '-')}.png`;
-        link.href = dataUrl;
+        link.href = downloadUrl;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
 
     } catch (error) {
         console.error("Canvas error:", error);
@@ -217,11 +224,17 @@ const handleDownload = async () => {
     }
 };
 
-const copyLink = () => {
+const copyLink = async () => {
     if (!props.offering || !props.offering.share_url) return;
     const link = props.offering.share_url;
-    navigator.clipboard.writeText(link);
-    alert("¡Enlace Seguro copiado! Compártelo con total confianza.");
+    const copied = await copyText(link);
+
+    if (copied) {
+        alert("¡Enlace seguro copiado! Compártelo con total confianza.");
+        return;
+    }
+
+    window.prompt("Copia este enlace manualmente:", link);
 };
 </script>
 

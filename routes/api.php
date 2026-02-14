@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\CommissionOverrideController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

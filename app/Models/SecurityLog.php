@@ -8,20 +8,31 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class SecurityLog extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $guarded = ['id'];
-  public $timestamps = false; // Using custom `created_at`
+    public $timestamps = false; // Using custom `created_at`
 
-  protected function casts(): array
-  {
-    return [
-      'metadata' => 'array',
+    protected $fillable = [
+        'event_type',
+        'actorable_type',
+        'actorable_id',
+        'email',
+        'ip_address',
+        'user_agent',
+        'metadata',
+        'created_at',
     ];
-  }
 
-  public function actorable(): MorphTo
-  {
-    return $this->morphTo();
-  }
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'array',
+            'created_at' => 'datetime',
+        ];
+    }
+
+    public function actorable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Private\Admin;
 
+use App\Actions\Associates\GetAssociatesAction;
 use App\Actions\Offerings\GetOfferingByIdAction;
 use App\Actions\Offerings\GetOfferingsAction;
 use App\Actions\Referrals\GetReferralPipelineAction;
@@ -11,9 +12,9 @@ use App\Actions\Referrals\UpdateReferralStatusAction;
 use App\Data\Offerings\OfferingData;
 use App\Data\Referrals\ReferralPipelineData;
 use App\Enums\ReferralStatus;
+use App\Enums\RoleName;
 use App\Http\Requests\Admin\ReferralRequest;
 use App\Models\Referral;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ReferralController extends AdminController
@@ -23,7 +24,7 @@ class ReferralController extends AdminController
         $this->authorizeResource(Referral::class, 'referral');
     }
 
-    public function index(Request $request, GetReferralsAction $action)
+    public function index(ReferralRequest $request, GetReferralsAction $action)
     {
         $filters = $request->only(['search', 'status']);
         
@@ -38,7 +39,7 @@ class ReferralController extends AdminController
         ReferralRequest $request,
         GetOfferingsAction $offeringsAction,
         GetOfferingByIdAction $offeringByIdAction,
-        \App\Actions\Associates\GetAssociatesAction $getAssociatesAction
+        GetAssociatesAction $getAssociatesAction
     )
     {
         $offeringId = $request->validated('offering_id') ?? $request->query('offering_id');
@@ -51,13 +52,13 @@ class ReferralController extends AdminController
         return Inertia::render('Private/Admin/Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
             'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false, [], false)),
-            'associates' => \App\Enums\RoleName::isAdmin($request->user()) ? $getAssociatesAction->execute() : [],
+            'associates' => RoleName::isAdmin($request->user()) ? $getAssociatesAction->execute() : [],
         ]);
     }
 
     public function store(ReferralRequest $request, SubmitReferralAction $action)
     {
-        if (\App\Enums\RoleName::isAdmin($request->user())) {
+        if (RoleName::isAdmin($request->user())) {
             $associateId = $request->validated('associate_id');
         } else {
             $associate = $request->user()->associateProfile();
@@ -77,7 +78,7 @@ class ReferralController extends AdminController
         return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate']), 'Private/Admin/Referrals', 'referral');
     }
 
-    public function pipeline(Request $request, GetReferralPipelineAction $action)
+    public function pipeline(ReferralRequest $request, GetReferralPipelineAction $action)
     {
         return Inertia::render('Private/Admin/Referrals/Pipeline', [
             'referrals' => ReferralPipelineData::collect($action->execute($request->user()))

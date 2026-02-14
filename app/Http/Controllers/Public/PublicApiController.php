@@ -7,8 +7,7 @@ use App\Actions\Public\GetPublicUserInfoAction;
 use App\Actions\Public\SubmitPublicLeadAction;
 use App\Actions\Public\TrackReferralClickAction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\LeadSubmissionRequest;
-use App\Http\Requests\Public\ReferralClickRequest;
+use App\Http\Requests\Public\PublicApiRequest;
 use Illuminate\Http\JsonResponse;
 
 class PublicApiController extends Controller
@@ -23,20 +22,20 @@ class PublicApiController extends Controller
         return response()->json($action->execute($id));
     }
 
-    public function submitLead(LeadSubmissionRequest $request, SubmitPublicLeadAction $action): JsonResponse
+    public function submitLead(PublicApiRequest $request, SubmitPublicLeadAction $action): JsonResponse
     {
         $result = $action->execute(
             (int) $request->validated('offering_id'),
-            $request->toData(),
+            $request->toLeadData(),
             $request
         );
 
         return response()->json($result, 201);
     }
 
-    public function trackClick(ReferralClickRequest $request, TrackReferralClickAction $action): JsonResponse
+    public function trackClick(PublicApiRequest $request, TrackReferralClickAction $action): JsonResponse
     {
-        $data = $request->toData();
+        $data = $request->toClickData();
 
         $action->execute(
             $data['referrer_id'],

@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Requests\Public;
+namespace App\Http\Requests\Associate;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class OfferingApplicationViewRequest extends FormRequest
+class OfferingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
     public function rules(): array
     {
         return [
-            'ref' => 'nullable|integer|exists:associates,id',
+            'search' => ['nullable', 'string', 'max:120'],
         ];
     }
 }

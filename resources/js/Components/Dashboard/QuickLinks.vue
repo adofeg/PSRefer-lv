@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { Copy, Check, QrCode, Download, X, Briefcase, HeartPulse, Users } from 'lucide-vue-next';
 import axios from 'axios';
+import { copyText } from '@/Utils/clipboard';
 
 const props = defineProps({
     user: Object
@@ -30,7 +31,7 @@ const loadLinks = async () => {
             id: 'commercial',
             title: 'Referencia Comercial',
             description: 'Link para referir servicios comerciales y marketing.',
-            url: `${baseUrl}/public/apply/referencia-general?ref=${props.user.id}`,
+            url: `${baseUrl}/apply/referencia-general?ref=${props.user.id}`,
             icon: Briefcase,
             color: 'bg-blue-600'
         },
@@ -38,7 +39,7 @@ const loadLinks = async () => {
             id: 'medical',
             title: 'Referencia Médica',
             description: 'Link específico para servicios especializados de salud.',
-            url: `${baseUrl}/public/apply/referencia-general?ref=${props.user.id}&cat=medical`,
+            url: `${baseUrl}/apply/referencia-general?ref=${props.user.id}&cat=medical`,
             icon: HeartPulse,
             color: 'bg-rose-600'
         }
@@ -52,7 +53,12 @@ const loadLinks = async () => {
 
 const copyToClipboard = async (link) => {
     try {
-        await navigator.clipboard.writeText(link.url);
+        const copied = await copyText(link.url);
+        if (!copied) {
+            window.prompt('Copia este enlace manualmente:', link.url);
+            return;
+        }
+
         copiedId.value = link.id;
         setTimeout(() => copiedId.value = null, 2000);
         

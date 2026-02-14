@@ -10,20 +10,20 @@ use App\Data\Offerings\OfferingData;
 use App\Enums\RoleName;
 use App\Http\Requests\Admin\OfferingRequest;
 use App\Models\Offering;
-use Illuminate\Http\Request;
+use App\Services\AuditService;
 use Inertia\Inertia;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 class OfferingController extends AdminController
 {
     public function __construct(
-        protected \App\Services\AuditService $auditService
+        protected AuditService $auditService
     )
     {
         $this->authorizeResource(Offering::class, 'offering');
     }
 
-    public function index(Request $request, GetOfferingsAction $action, GetActiveCategoriesAction $categoriesAction)
+    public function index(OfferingRequest $request, GetOfferingsAction $action, GetActiveCategoriesAction $categoriesAction)
     {
         $user = $request->user();
         $includeInactive = $user?->hasRole(RoleName::adminRoles()) ?? false;
@@ -90,11 +90,11 @@ class OfferingController extends AdminController
         return redirect()->back()->with('success', 'Oferta eliminada correctamente.');
     }
 
-    public function toggleStatus(Offering $offering, UpdateOfferingAction $action)
+    public function toggleStatus(OfferingRequest $request, Offering $offering, UpdateOfferingAction $action)
     {
         $this->authorize('update', $offering);
-        
-        $isActive = request()->boolean('is_active');
+
+        $isActive = (bool) $request->boolean('is_active');
         $action->updateStatus($offering, $isActive);
 
         return back()->with('success', $isActive ? 'Oferta activada correctamente.' : 'Oferta desactivada correctamente.');

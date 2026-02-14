@@ -35,6 +35,7 @@ return new class extends Migration
 
             // UI Preferences
             $table->string('theme')->nullable();
+            $table->string('preferred_currency')->default('USD');
             
             $table->rememberToken();
             $table->timestamps();

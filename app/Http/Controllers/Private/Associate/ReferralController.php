@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers\Private\Associate;
 
-use App\Actions\Categories\GetActiveCategoriesAction;
-use App\Actions\Referrals\CreateReferralAction;
-use App\Actions\Referrals\UpdateReferralAction;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ReferralRequest; // Reusing Admin request for validation? 
-// Admin Request might have rules that are too strict or irrelevant? 
-// Let's check ReferralRequest content later. For now, assuming basic validation.
+use App\Http\Requests\Associate\ReferralRequest;
+use App\Mail\NewReferralNotification;
 use App\Models\Offering;
 use App\Models\Referral;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
-class ReferralController extends Controller
+class ReferralController extends AssociateController
 {
-    public function index(Request $request)
+    public function index(ReferralRequest $request)
     {
         $user = Auth::user();
         $associate = $user->associate; // Correct accessor from User.php
@@ -39,9 +35,9 @@ class ReferralController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function create(ReferralRequest $request)
     {
-        $offeringId = $request->query('offering_id');
+        $offeringId = $request->validated('offering_id');
         $selectedOffering = null;
         $user = Auth::user();
         $associate = $user->associate;
@@ -65,16 +61,9 @@ class ReferralController extends Controller
         ]);
     }
 
-    public function store(Request $request) 
+    public function store(ReferralRequest $request)
     {
-        $validated = $request->validate([
-            'client_name' => 'required|string|max:255',
-            'client_email' => 'required|email|max:255',
-            'client_phone' => 'required|string|max:20',
-            'client_state' => 'required|string|max:50', // New Field
-            'offering_id' => 'required|exists:offerings,id',
-            'notes' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $user = Auth::user();
         $associate = $user->associate;
@@ -103,10 +92,9 @@ class ReferralController extends Controller
 
         if (!empty($recipients)) {
             try {
-                \Illuminate\Support\Facades\Mail::to($recipients)
-                    ->send(new \App\Mail\NewReferralNotification($referral));
+                Mail::to($recipients)->send(new NewReferralNotification($referral));
             } catch (\Exception $e) {
-                 \Illuminate\Support\Facades\Log::error('Failed to send referral notification: ' . $e->getMessage());
+                Log::error('Failed to send referral notification: ' . $e->getMessage());
             }
         }
 

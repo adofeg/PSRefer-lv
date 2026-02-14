@@ -3,46 +3,73 @@
 namespace App\Http\Requests\Admin;
 
 use App\Data\Offerings\OfferingUpsertData;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Offering;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class OfferingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Polymorphic Policy Check
-        // If route has 'offering' parameter, it's an update/delete -> check 'update' policy
-        // If not, it's a store -> check 'create' policy
+        $user = $this->user();
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->routeIs('admin.offerings.index')) {
+            return true;
+        }
+
+        if ($this->routeIs('admin.offerings.toggle-status')) {
+            $offering = $this->route('offering');
+
+            return $offering !== null && $user->can('update', $offering);
+        }
+
         $offering = $this->route('offering');
 
         if ($offering) {
-            return $this->user()->can('update', $offering);
+            return $user->can('update', $offering);
         }
 
-        return $this->user()->can('create', Offering::class);
+        return $user->can('create', Offering::class);
     }
 
     public function rules(): array
     {
+        if ($this->routeIs('admin.offerings.index')) {
+            return [
+                'search' => ['nullable', 'string', 'max:120'],
+                'category' => ['nullable', 'integer', 'exists:categories,id'],
+                'status' => ['nullable', Rule::in(['all', 'true', 'false', '1', '0'])],
+                'json' => ['nullable', 'boolean'],
+            ];
+        }
+
+        if ($this->routeIs('admin.offerings.toggle-status')) {
+            return [
+                'is_active' => ['required', 'boolean'],
+            ];
+        }
+
         $rules = [
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|in:service,product,professional',
-            'category_id' => 'nullable|integer|exists:categories,id',
-            'category' => 'nullable|string|max:1000',
-            'description' => 'nullable|string',
-            'base_price' => 'nullable|numeric',
-            'commission_rate' => 'nullable|numeric',
-            'form_schema' => 'nullable|array',
-            'commission_config' => 'nullable|array',
-            'commission_rules' => 'nullable|array',
-            'notification_emails' => 'nullable|array',
-            'notification_emails.*' => 'email',
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', Rule::in(['service', 'product', 'professional'])],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'category' => ['nullable', 'string', 'max:1000'],
+            'description' => ['nullable', 'string'],
+            'base_price' => ['nullable', 'numeric'],
+            'commission_rate' => ['nullable', 'numeric'],
+            'form_schema' => ['nullable', 'array'],
+            'commission_config' => ['nullable', 'array'],
+            'commission_rules' => ['nullable', 'array'],
+            'notification_emails' => ['nullable', 'array'],
+            'notification_emails.*' => ['email'],
         ];
 
-        // Add update-specific rules
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
-            $rules['name'] = 'sometimes|string|max:255'; // sometimes if partial update
-            $rules['is_active'] = 'sometimes|boolean';
+            $rules['name'] = ['sometimes', 'string', 'max:255'];
+            $rules['is_active'] = ['sometimes', 'boolean'];
         }
 
         return $rules;

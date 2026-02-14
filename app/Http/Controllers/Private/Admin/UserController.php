@@ -3,27 +3,31 @@
 namespace App\Http\Controllers\Private\Admin;
 
 use App\Actions\Auth\CreateUserAction;
-use App\Actions\Users\ToggleUserStatusAction;
 use App\Actions\Users\GetUsersAction;
+use App\Actions\Users\ToggleUserStatusAction;
 use App\Enums\RoleName;
-use App\Http\Requests\Admin\UserStoreRequest;
+use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
+use App\Services\AuditService;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class UserController extends AdminController
 {
     public function __construct(
-        protected \App\Services\AuditService $auditService
+        protected AuditService $auditService
     )
     {
         $this->authorizeResource(User::class, 'user');
     }
 
-    public function index(GetUsersAction $action)
+    public function index(UserRequest $request, GetUsersAction $action)
     {
+        $filters = $request->only(['search', 'role', 'status']);
+
         return Inertia::render('Private/Admin/Users/Index', [
-            'users' => $action->execute(request()->only(['search', 'role', 'status'])),
-            'filters' => request()->only(['search', 'role', 'status']),
+            'users' => $action->execute($filters),
+            'filters' => $filters,
             'roles' => RoleName::cases(),
         ]);
     }
@@ -35,7 +39,7 @@ class UserController extends AdminController
         ]);
     }
 
-    public function store(UserStoreRequest $request, CreateUserAction $action)
+    public function store(UserRequest $request, CreateUserAction $action)
     {
         $action->execute($request->toData());
 
@@ -55,7 +59,7 @@ class UserController extends AdminController
         ]);
     }
 
-    public function update(\App\Http\Requests\Admin\UserUpdateRequest $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
         $data = $request->validated();
         
@@ -76,7 +80,7 @@ class UserController extends AdminController
         );
 
         if (!empty($data['password'])) {
-            $user->update(['password' => \Illuminate\Support\Facades\Hash::make($data['password'])]);
+            $user->update(['password' => Hash::make($data['password'])]);
         }
         
         // Sync Roles
@@ -115,11 +119,11 @@ class UserController extends AdminController
         return back()->with('success', 'User deleted successfully.');
     }
 
-    public function toggleStatus(User $user, ToggleUserStatusAction $action)
+    public function toggleStatus(UserRequest $request, User $user, ToggleUserStatusAction $action)
     {
         $this->authorize('update', $user);
 
-        $isActive = (bool) request()->boolean('is_active');
+        $isActive = (bool) $request->boolean('is_active');
         $action->execute($user, $isActive);
 
         return back()->with('success', $isActive ? 'User activated.' : 'User deactivated.');

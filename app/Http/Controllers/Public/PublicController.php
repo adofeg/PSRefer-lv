@@ -6,8 +6,7 @@ use App\Actions\Public\GetOfferingApplicationViewAction;
 use App\Actions\Public\GetHomePageDataAction;
 use App\Actions\Public\SubmitOfferingApplicationAction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\OfferingApplicationRequest;
-use App\Http\Requests\Public\OfferingApplicationViewRequest;
+use App\Http\Requests\Public\PublicRequest;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -25,9 +24,9 @@ class PublicController extends Controller
      * @param Request $request
      * @return \Inertia\Response
      */
-    public function showOfferingApplication(string $offeringId, OfferingApplicationViewRequest $request, GetOfferingApplicationViewAction $action)
+    public function showOfferingApplication(string $offeringId, PublicRequest $request, GetOfferingApplicationViewAction $action)
     {
-        $referrerId = $request->query('ref');
+        $referrerId = $request->validated('ref');
 
         return Inertia::render('Public/OfferingApplication', $action->execute(
             (int) $offeringId,
@@ -46,7 +45,7 @@ class PublicController extends Controller
      */
     public function submitOfferingApplication(
         string $offeringId,
-        OfferingApplicationRequest $request,
+        PublicRequest $request,
         SubmitOfferingApplicationAction $action
     ) {
         try {

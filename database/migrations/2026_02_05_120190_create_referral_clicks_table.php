@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('referral_clicks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('referrer_associate_id')->nullable()->constrained('associates');
-            $table->foreignId('offering_id')->nullable()->constrained('offerings');
+            $table->foreignId('referrer_associate_id')->nullable()->constrained('associates')->nullOnDelete();
+            $table->foreignId('offering_id')->nullable()->constrained('offerings')->nullOnDelete();
             $table->string('link_type')->nullable();
             $table->text('user_agent')->nullable();
             $table->string('ip_address', 45)->nullable();
@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->index('referrer_associate_id');
             $table->index('offering_id');
+            $table->index('link_type');
             $table->index('clicked_at');
             $table->index(['referrer_associate_id', 'clicked_at']);
         });

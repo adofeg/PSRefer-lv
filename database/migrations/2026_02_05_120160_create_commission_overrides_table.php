@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('commission_overrides', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('associate_id')->constrained('associates')->onDelete('cascade');
-            $table->foreignId('offering_id')->constrained('offerings')->onDelete('cascade');
+            $table->foreignId('associate_id')->constrained('associates')->cascadeOnDelete();
+            $table->foreignId('offering_id')->nullable()->constrained('offerings')->cascadeOnDelete();
             $table->decimal('commission_rate', 5, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['associate_id', 'offering_id', 'deleted_at']);
+
+            $table->index(['associate_id', 'offering_id', 'is_active'], 'co_lookup_idx');
+            $table->unique(['associate_id', 'offering_id', 'deleted_at'], 'co_assoc_offer_deleted_uq');
         });
     }
 
