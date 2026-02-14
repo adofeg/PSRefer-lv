@@ -20,6 +20,7 @@ class CreateOfferingAction
             'type' => $data->type ?? 'service',
             'description' => $data->description,
             'base_price' => $data->base_price,
+            'base_commission' => $data->base_commission,
             'commission_rate' => $data->commission_rate,
             'form_schema' => $data->form_schema,
             'commission_config' => $data->commission_config,

@@ -82,16 +82,16 @@ class User extends Authenticatable
         return $this->profileable_type === Associate::class ? $this->profileable : null;
     }
 
+    public function getAssociateAttribute()
+    {
+        return $this->associateProfile();
+    }
+
     public function employeeProfile()
     {
         return $this->profileable_type === Employee::class ? $this->profileable : null;
     }
 
-    // Network Logic - Redirect to Associate Profile if possible
-    public function getAssociateAttribute()
-    {
-        return $this->profileable_type === Associate::class ? $this->profileable : null;
-    }
 
     // Helper to access common profile fields
     public function getLogoUrlAttribute()

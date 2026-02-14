@@ -31,7 +31,7 @@ class UpdateReferralStatusAction
             $referral->update([
                 'status' => $status,
                 'deal_value' => $data->deal_value ?? $referral->deal_value,
-                'revenue_generated' => $data->revenue_generated ?? $referral->revenue_generated,
+                'revenue_generated' => $data->revenue_generated ?? $data->deal_value ?? $referral->revenue_generated,
                 'contract_id' => $data->contract_id ?? $referral->contract_id,
                 'payment_method' => $data->payment_method ?? $referral->payment_method,
                 'down_payment' => $data->down_payment ?? $referral->down_payment,

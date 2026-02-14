@@ -36,9 +36,6 @@ class CreateUserAction
 
         $user->assignRole(RoleName::Associate->value);
 
-        if ($associate->referrer_id) {
-          $associate->addToNetwork($associate->referrer_id);
-        }
       } else {
         $employee = Employee::create([
           'department' => 'Administration',

@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue';
 import { DollarSign, BarChart3, FileText, ArrowRight, Phone, Send } from 'lucide-vue-next';
-import RevenueChart from '@/Components/Dashboard/RevenueChart.vue';
+import LineChart from '@/Components/Dashboard/LineChart.vue';
 
 const props = defineProps({
     stats: Object,
@@ -75,7 +75,7 @@ const formatCurrency = (amount) => {
                             <span class="text-xs text-slate-400">Últimos meses</span>
                         </div>
                         <div class="h-64">
-                            <RevenueChart :data="monthlyRevenue" />
+                            <LineChart :labels="monthlyRevenue.map(r => r.month)" :values="monthlyRevenue.map(r => r.revenue)" label="Ingresos" />
                         </div>
                     </Card>
                 </div>

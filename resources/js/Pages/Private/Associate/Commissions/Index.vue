@@ -27,11 +27,14 @@ const formatDate = (dateString) => {
 
 const getStatusColor = (status) => {
     const colors = {
-        'Cerrado': 'bg-green-100 text-green-700',
-        'Ganado': 'bg-blue-100 text-blue-700',
-        'Pagado': 'bg-purple-100 text-purple-700'
+        'Cerrado': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+        'Ganado': 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+        'Pagado': 'bg-blue-100 text-blue-700 border border-blue-200',
+        'Prospecto': 'bg-amber-100 text-amber-700 border border-amber-200',
+        'Enviado': 'bg-slate-100 text-slate-700 border border-slate-200',
+        'Perdido': 'bg-rose-100 text-rose-700 border border-rose-200'
     };
-    return colors[status] || 'bg-slate-100 text-slate-700';
+    return colors[status] || 'bg-slate-50 text-slate-500 border border-slate-100';
 };
 
 const totalAgencyFees = props.commissions.reduce((sum, c) => sum + parseFloat(c.agency_fee || 0), 0);
@@ -43,105 +46,96 @@ const totalAgencyFees = props.commissions.reduce((sum, c) => sum + parseFloat(c.
     <AppLayout>
         <div class="space-y-6 animate-fade-in">
             <!-- Header with Total Earnings (Gradient Style) -->
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-emerald-900/10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-8 md:p-10 text-white shadow-2xl shadow-emerald-900/10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden border border-emerald-400/20">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-24 -mt-24 blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/10 rounded-full -ml-16 -mb-16 blur-2xl pointer-events-none"></div>
 
-                <div class="flex items-center gap-6 z-10">
-                    <div class="bg-white/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                        <DollarSign :size="40" class="text-white" />
+                <div class="flex items-center gap-8 z-10 w-full md:w-auto">
+                    <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner">
+                        <DollarSign :size="48" class="text-emerald-100" />
                     </div>
                     <div>
-                        <p class="text-emerald-100 font-medium mb-1 uppercase tracking-wide text-xs">Ganancias Totales</p>
-                        <h2 class="text-4xl md:text-5xl font-bold tracking-tight">{{ formatCurrency(totalEarned) }}</h2>
+                        <p class="text-emerald-200 font-bold mb-1 uppercase tracking-[0.2em] text-[10px]">Mis Ganancias Pagadas</p>
+                        <h2 class="text-5xl md:text-6xl font-black tracking-tighter">{{ formatCurrency(paidTotal) }}</h2>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-1 text-right z-10 bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5 min-w-[160px]">
-                    <span class="text-xs text-emerald-200 uppercase font-bold">Cuotas de Agencia</span>
-                    <span class="text-xl font-bold">{{ formatCurrency(totalAgencyFees) }}</span>
+                <div class="flex flex-col gap-2 text-right z-10 bg-black/20 p-6 rounded-2xl backdrop-blur-md border border-white/10 min-w-[200px] shadow-lg">
+                    <span class="text-[10px] text-emerald-300 uppercase font-black tracking-widest">En Proceso / Cierre</span>
+                    <span class="text-3xl font-black text-white px-2">{{ formatCurrency(pendingPayment) }}</span>
                 </div>
             </div>
 
             <!-- Detail Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                        <DollarSign :size="20" class="text-emerald-500" />
-                        Detalle de Ganancias
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
+                <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+                    <h3 class="font-black text-slate-800 flex items-center gap-3 text-lg">
+                        <div class="bg-emerald-500 text-white p-2 rounded-lg shadow-lg shadow-emerald-500/20">
+                            <TrendingUp :size="20" />
+                        </div>
+                        Historial de Comisiones
                     </h3>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
-                        <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider">
+                        <thead class="bg-slate-50 text-slate-400 uppercase font-black text-[10px] tracking-[0.15em]">
                             <tr>
-                                <th class="px-4 py-4"><div class="flex items-center gap-1"><Calendar :size="12" /> Fecha</div></th>
-                                <th class="px-4 py-4"><div class="flex items-center gap-1"><User :size="12" /> Asegurado</div></th>
-                                <th class="px-4 py-4"><div class="flex items-center gap-1"><Building2 :size="12" /> Servicio</div></th>
-                                <th class="px-4 py-4"><div class="flex items-center gap-1"><Hash :size="12" /> Póliza/ID</div></th>
-                                <th class="px-4 py-4"><div class="flex items-center gap-1"><CreditCard :size="12" /> Pago</div></th>
-                                <th class="px-4 py-4 text-right">Eng. Inicial</th>
-                                <th class="px-4 py-4 text-right">Cuota Agencia</th>
-                                <th class="px-4 py-4 text-right">Total</th>
-                                <th class="px-4 py-4 text-right">Real</th>
-                                <th class="px-4 py-4 text-right">Dif.</th>
+                                <th class="px-6 py-5">Fecha</th>
+                                <th class="px-6 py-5">Referencia</th>
+                                <th class="px-6 py-5 text-center">Tipo</th>
+                                <th class="px-6 py-5 text-right">Base / Trato</th>
+                                <th class="px-6 py-5 text-center">Estatus</th>
+                                <th class="px-6 py-5 text-right font-black text-slate-900 bg-slate-100/30">Mi Comisión</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr v-for="commission in commissions" :key="commission.id" class="hover:bg-slate-50/50 transition duration-200">
-                                <td class="px-4 py-4 whitespace-nowrap text-xs font-medium text-slate-500">
-                                    {{ formatDate(commission.closed_at || commission.updated_at) }}
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="font-bold text-slate-800">{{ commission.client_name }}</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">{{ commission.client_contact }}</div>
-                                </td>
-                                <td class="px-4 py-4 text-slate-600 font-medium">
-                                    {{ commission.offering?.name || 'General' }}
-                                </td>
-                                <td class="px-4 py-4 font-mono text-xs text-slate-400">
-                                    {{ commission.contract_id || '-' }}
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex flex-col gap-1">
-                                        <span class="text-[10px] font-bold text-slate-500">{{ commission.payment_method || '-' }}</span>
-                                        <span :class="['px-2 py-0.5 text-[9px] font-black uppercase rounded-full w-fit', getStatusColor(commission.status)]">
-                                            {{ commission.status }}
-                                        </span>
+                        <tbody class="divide-y divide-slate-100 italic-hover">
+                            <tr v-for="commission in commissions" :key="commission.id" class="hover:bg-slate-50/80 transition-all duration-300 group">
+                                <td class="px-6 py-5 whitespace-nowrap">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-black text-slate-800">{{ formatDate(commission.closed_at || commission.updated_at) }}</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ commission.contract_id || '#' + commission.id }}</span>
                                     </div>
                                 </td>
-                                <td class="px-4 py-4 text-right font-medium text-slate-600">
-                                    {{ formatCurrency(commission.down_payment) }}
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-black text-xs group-hover:bg-indigo-50 group-hover:text-indigo-400 transition-colors">
+                                            {{ commission.client_name?.charAt(0) }}
+                                        </div>
+                                        <div>
+                                            <div class="font-black text-slate-800 text-sm tracking-tight">{{ commission.client_name }}</div>
+                                            <div class="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+                                                <Building2 :size="10" /> {{ commission.offering?.name || 'Servicio' }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-4 text-right font-medium text-slate-600">
-                                    {{ formatCurrency(commission.agency_fee) }}
+                                <td class="px-6 py-5 text-center">
+                                    <span v-if="commission.offering?.base_commission > 0" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-wider">FIJA</span>
+                                    <span v-else class="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-wider">% VARIABLE</span>
                                 </td>
-                                <td class="px-4 py-4 text-right font-bold text-slate-900">
-                                    {{ formatCurrency(commission.revenue_generated) }}
+                                <td class="px-6 py-5 text-right font-bold text-slate-600">
+                                    <div class="flex flex-col items-end">
+                                        <span>{{ formatCurrency(commission.deal_value || 0) }}</span>
+                                        <span v-if="commission.offering?.commission_rate > 0" class="text-[9px] text-slate-400 font-black">@ {{ commission.offering.commission_rate }}%</span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-4 text-right font-bold text-emerald-600">
-                                    {{ formatCurrency((commission.revenue_generated || 0) - (commission.agency_fee || 0)) }}
+                                <td class="px-6 py-5 text-center">
+                                    <span :class="['px-3 py-1 text-[10px] font-black uppercase rounded-full shadow-sm', getStatusColor(commission.status)]">
+                                        {{ commission.status }}
+                                    </span>
                                 </td>
-                                <td class="px-4 py-4 text-right font-bold" :class="((commission.revenue_generated || 0) - (commission.agency_fee || 0) - (commission.down_payment || 0)) >= 0 ? 'text-emerald-500' : 'text-rose-500'">
-                                    {{ formatCurrency((commission.revenue_generated || 0) - (commission.agency_fee || 0) - (commission.down_payment || 0)) }}
+                                <td class="px-6 py-5 text-right font-black text-slate-900 bg-slate-50/50 text-lg tracking-tighter group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all">
+                                    {{ formatCurrency(commission.commissions?.reduce((sum, c) => sum + parseFloat(c.amount), 0) || 0) }}
                                 </td>
                             </tr>
                         </tbody>
-                        <tfoot v-if="commissions.length > 0" class="bg-slate-50 font-black text-slate-700">
-                            <tr>
-                                <td colspan="5" class="px-4 py-4 text-right text-xs uppercase">Totales Actuales:</td>
-                                <td class="px-4 py-4 text-right">{{ formatCurrency(commissions.reduce((sum, c) => sum + parseFloat(c.down_payment || 0), 0)) }}</td>
-                                <td class="px-4 py-4 text-right">{{ formatCurrency(totalAgencyFees) }}</td>
-                                <td class="px-4 py-4 text-right">{{ formatCurrency(totalEarned) }}</td>
-                                <td class="px-4 py-4 text-right text-emerald-600">
-                                    {{ formatCurrency(commissions.reduce((sum, c) => sum + (parseFloat(c.revenue_generated || 0) - parseFloat(c.agency_fee || 0)), 0)) }}
-                                </td>
-                                <td class="px-4 py-4 text-right">-</td>
-                            </tr>
-                        </tfoot>
                     </table>
-                    <div v-if="commissions.length === 0" class="p-12 text-center text-slate-400">
-                        No hay comisiones registradas
+                    <div v-if="commissions.length === 0" class="p-20 text-center bg-slate-50/50">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 text-slate-300 mb-4">
+                            <Clock :size="32" />
+                        </div>
+                        <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Aún no hay comisiones registradas</p>
                     </div>
                 </div>
             </div>

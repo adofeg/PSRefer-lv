@@ -153,7 +153,7 @@ const handleStatusUpdated = () => {
                                             <div class="flex justify-between items-center text-sm">
                                                 <span class="text-slate-500">Comisión Est.</span>
                                                 <span class="font-bold text-emerald-600 px-1 py-0.5 bg-emerald-50 rounded">
-                                                    {{ referral.offering.commission_rate ? `${referral.offering.commission_rate}%` : formatCurrency(referral.offering.base_commission) }}
+                                                    {{ parseFloat(referral.offering.commission_rate) > 0 ? `${referral.offering.commission_rate}%` : formatCurrency(referral.offering.base_commission) }}
                                                 </span>
                                             </div>
                                         </div>

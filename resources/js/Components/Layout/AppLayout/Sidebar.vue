@@ -80,7 +80,6 @@ const standaloneItems = [
     { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index'), roles: adminRoles },
     { name: 'Catálogo', href: route('associate.offerings.index'), icon: ShoppingBag, current: isActive('associate.offerings.index'), roles: associateRoles },
     
-    { name: 'Mi Red', href: route('associate.network'), icon: Users, current: isActive('associate.network'), roles: associateRoles },
     { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index'), roles: adminRoles },
     { name: 'Referidos', href: route('associate.referrals.index'), icon: Users, current: isActive('associate.referrals.index'), roles: associateRoles },
     
@@ -105,7 +104,7 @@ const visibleNavigationGroups = computed(() => {
 // Helper to check if a group should be expanded based on current route
 const isGroupActive = (label) => {
     if (label === 'Gestión Financiera') {
-        return route().current('admin.commissions.*');
+        return route().current('admin.commissions.*') || route().current('associate.commissions');
     }
     if (label === 'Ajustes del Sistema') {
         return isActiveAny([

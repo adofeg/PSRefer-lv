@@ -24,6 +24,7 @@ class OfferingFactory extends Factory
             'is_active' => true,
             'form_schema' => [],
             'commission_config' => [],
+            'type' => 'service',
             'owner_employee_id' => \App\Models\Employee::factory(),
         ];
     }

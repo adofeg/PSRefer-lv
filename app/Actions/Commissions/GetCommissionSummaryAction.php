@@ -12,17 +12,22 @@ class GetCommissionSummaryAction
     {
         $associate = $user->associateProfile();
 
-        $commissions = Referral::where('associate_id', $associate?->id)
+        $referrals = Referral::where('associate_id', $associate?->id)
             ->whereIn('status', ReferralStatus::commissionEligible())
-            ->with('offering')
+            ->with(['offering', 'commissions' => function($q) use ($associate) {
+                $q->where('associate_id', $associate?->id);
+            }])
             ->latest()
             ->get();
 
+        // Calculate totals based on actual commission records
+        $calculateEarnings = fn($referral) => (float) $referral->commissions->sum('amount');
+
         return [
-            'commissions' => $commissions,
-            'totalEarned' => $commissions->sum('revenue_generated'),
-            'pendingPayment' => $commissions->where('status', '!=', ReferralStatus::Paid->value)->sum('revenue_generated'),
-            'paidTotal' => $commissions->where('status', ReferralStatus::Paid->value)->sum('revenue_generated'),
+            'commissions' => $referrals,
+            'totalEarned' => $referrals->where('status', ReferralStatus::Paid->value)->sum($calculateEarnings),
+            'pendingPayment' => $referrals->where('status', '!=', ReferralStatus::Paid->value)->sum($calculateEarnings),
+            'paidTotal' => $referrals->where('status', ReferralStatus::Paid->value)->sum($calculateEarnings),
         ];
     }
 }
