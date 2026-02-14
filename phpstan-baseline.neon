@@ -1,0 +1,403 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$base_commission\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Associate/GetDashboardStatsAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Associate/GetDashboardStatsAction.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Referral\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Actions/Associate/GetDashboardStatsAction.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Actions/Associate/GetDashboardStatsAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$profileable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Associates/GetAssociatesAction.php
+
+		-
+			message: '#^Relation ''profileable'' is not found in App\\Models\\User model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Actions/Associates/GetAssociatesAction.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:assignRole\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Actions/Auth/CreateUserAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Commission\:\:\$month\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Commissions/GetCommissionStatsAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Commission\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Commissions/GetCommissionStatsAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Commission\:\:\$total_earned\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Commissions/GetCommissionStatsAction.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Commission\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Actions/Commissions/GetCommissionStatsAction.php
+
+		-
+			message: '#^Parameter \#1 \$string of function str_pad expects string, int\<1, 12\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Dashboard/GetDashboardStatsAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Data\\Offerings\\OfferingUpsertData\:\:\$notification_emails\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Offerings/CreateOfferingAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Data\\Offerings\\OfferingUpsertData\:\:\$notification_emails\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Offerings/UpdateOfferingAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Public/GetOfferingApplicationViewAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$logo_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Public/GetOfferingApplicationViewAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Public/GetOfferingApplicationViewAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Public/GetOfferingApplicationViewAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Public/GetOfferingApplicationViewAction.php
+
+		-
+			message: '#^Cannot access property \$name on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Actions/Public/GetPublicOfferingInfoAction.php
+
+		-
+			message: '#^Parameter \#1 \$schema of method App\\Services\\FormSchemaValidator\:\:validate\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Public/SubmitOfferingApplicationAction.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasRole\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Actions/Referrals/CreateReferralAction.php
+
+		-
+			message: '#^Cannot access property \$name on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Actions/Referrals/CreateReferralAction.php
+
+		-
+			message: '#^Parameter \#2 \$referrer of class App\\Mail\\NewReferralAlertMail constructor expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Referrals/CreateReferralAction.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Actions/Referrals/CreateReferralAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$associateProfile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Referrals/GetReferralPipelineAction.php
+
+		-
+			message: '#^Parameter \#1 \$schema of method App\\Services\\FormSchemaValidator\:\:validate\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Referrals/SubmitReferralAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Actions/Referrals/UpdateReferralStatusAction.php
+
+		-
+			message: '#^Parameter \#2 \$offering of method App\\Services\\CommissionService\:\:calculateCommissions\(\) expects App\\Models\\Offering, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Referrals/UpdateReferralStatusAction.php
+
+		-
+			message: '#^Parameter \#2 \$offering of method App\\Services\\CommissionService\:\:createAllCommissions\(\) expects App\\Models\\Offering, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Referrals/UpdateReferralStatusAction.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Actions/Referrals/UpdateReferralStatusAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$profileable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Settings/UpdateUserSettingsAction.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: app/Actions/Settings/UpdateUserSettingsAction.php
+
+		-
+			message: '#^Cannot access property \$name on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Data/Offerings/OfferingData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Data/Referrals/ReferralPipelineData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Data/Referrals/ReferralPipelineData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Data/Referrals/ReferralPipelineData.php
+
+		-
+			message: '#^Cannot call method load\(\) on class\-string\|object\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Private/Admin/AdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$profileable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Private/Admin/UserController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Offering\:\:\$share_url\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Private/Associate/OfferingController.php
+
+		-
+			message: '#^Parameter \#2 \$session of method App\\Actions\\Settings\\DeleteUserAccountAction\:\:execute\(\) expects Illuminate\\Session\\Store, Illuminate\\Contracts\\Session\\Session given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Private/Settings/ProfileController.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$request with type App\\Http\\Controllers\\Public\\Request is not subtype of native type App\\Http\\Requests\\Public\\PublicRequest\.$#'
+			identifier: parameter.phpDocType
+			count: 2
+			path: app/Http/Controllers/Public/PublicController.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$validator$#'
+			identifier: parameter.notFound
+			count: 1
+			path: app/Http/Controllers/Public/PublicController.php
+
+		-
+			message: '#^Parameter \$request of method App\\Http\\Controllers\\Public\\PublicController\:\:showOfferingApplication\(\) has invalid type App\\Http\\Controllers\\Public\\Request\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Public/PublicController.php
+
+		-
+			message: '#^Parameter \$request of method App\\Http\\Controllers\\Public\\PublicController\:\:submitOfferingApplication\(\) has invalid type App\\Http\\Controllers\\Public\\Request\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Public/PublicController.php
+
+		-
+			message: '#^Missing parameter \$base_commission \(float\|null\) in call to App\\Data\\Offerings\\OfferingUpsertData constructor\.$#'
+			identifier: argument.missing
+			count: 1
+			path: app/Http/Requests/Admin/OfferingRequest.php
+
+		-
+			message: '#^Unknown parameter \$notification_emails in call to App\\Data\\Offerings\\OfferingUpsertData constructor\.$#'
+			identifier: argument.unknown
+			count: 1
+			path: app/Http/Requests/Admin/OfferingRequest.php
+
+		-
+			message: '#^Parameter \#2 \$offering of method App\\Services\\CommissionService\:\:createAllCommissions\(\) expects App\\Models\\Offering, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Listeners/GenerateCommission.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Listeners/SecurityEventSubscriber.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$profileable_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Listeners/SecurityEventSubscriber.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$profileable_type\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Listeners/SecurityEventSubscriber.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Mail/NewReferralAlertMail.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Mail/NewReferralAlertMail.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$base_commission\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Referral.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$commission_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Referral.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$profileable\.$#'
+			identifier: property.notFound
+			count: 9
+			path: app/Models/User.php
+
+		-
+			message: '#^Property ''logo_url'' is not a computed property, remove from \$appends\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Property ''phone'' is not a computed property, remove from \$appends\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$commission_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/CommissionCalculator.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$commission_rate\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Services/CommissionRuleEngine.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/CommissionRuleEngine.php
+
+		-
+			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Services/CommissionRuleEngine.php
+
+		-
+			message: '#^Match arm comparison between ''\!\='' and ''\!\='' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Services/CommissionRuleEngine.php
+
+		-
+			message: '#^Property App\\Models\\Referral\:\:\$offering is not writable\.$#'
+			identifier: assign.propertyReadOnly
+			count: 1
+			path: app/Services/CommissionRuleEngine.php
+
+		-
+			message: '#^Access to constant ATTR_SSL_CA on an unknown class Pdo\\Mysql\.$#'
+			identifier: class.notFound
+			count: 2
+			path: config/database.php
+
+		-
+			message: '#^Call to an undefined method Faker\\Generator\:\:bs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: database/factories/OfferingFactory.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:assignRole\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: database/seeders/UserSeeder.php

@@ -4,8 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
-use App\Enums\RoleName;
 use App\Enums\ReferralStatus;
+use App\Enums\RoleName;
 use App\Models\Referral;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -51,7 +51,7 @@ class ReferralRequest extends FormRequest
             'associate_id' => [
                 RoleName::isAdmin($this->user()) ? 'required' : 'nullable',
                 'integer',
-                'exists:associates,id'
+                'exists:associates,id',
             ],
         ];
 
@@ -61,7 +61,7 @@ class ReferralRequest extends FormRequest
             // but standard consolidation keeps validation strict or 'sometimes'.
             // In the original UpdateReferralRequest, 'status' was validated.
             // Original StoreRequest did NOT validate 'status' (default).
-            
+
             $rules = [
                 'status' => ['sometimes', Rule::enum(ReferralStatus::class)],
                 'deal_value' => 'nullable|numeric|min:0',

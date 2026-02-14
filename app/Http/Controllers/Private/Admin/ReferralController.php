@@ -27,11 +27,11 @@ class ReferralController extends AdminController
     public function index(ReferralRequest $request, GetReferralsAction $action)
     {
         $filters = $request->only(['search', 'status']);
-        
+
         return Inertia::render('Private/Admin/Referrals/Index', [
             'referrals' => $action->execute($request->user(), $filters),
             'filters' => $filters,
-            'statuses' => ReferralStatus::cases()
+            'statuses' => ReferralStatus::cases(),
         ]);
     }
 
@@ -40,8 +40,7 @@ class ReferralController extends AdminController
         GetOfferingsAction $offeringsAction,
         GetOfferingByIdAction $offeringByIdAction,
         GetAssociatesAction $getAssociatesAction
-    )
-    {
+    ) {
         $offeringId = $request->validated('offering_id') ?? $request->query('offering_id');
         $offering = null;
 
@@ -62,7 +61,7 @@ class ReferralController extends AdminController
             $associateId = $request->validated('associate_id');
         } else {
             $associate = $request->user()->associateProfile();
-            if (!$associate) {
+            if (! $associate) {
                 abort(403, 'Solo los asociados pueden crear referidos.');
             }
             $associateId = $associate->id;
@@ -81,7 +80,7 @@ class ReferralController extends AdminController
     public function pipeline(ReferralRequest $request, GetReferralPipelineAction $action)
     {
         return Inertia::render('Private/Admin/Referrals/Pipeline', [
-            'referrals' => ReferralPipelineData::collect($action->execute($request->user()))
+            'referrals' => ReferralPipelineData::collect($action->execute($request->user())),
         ]);
     }
 
@@ -99,6 +98,7 @@ class ReferralController extends AdminController
     public function destroy(Referral $referral)
     {
         $referral->delete();
+
         return back()->with('success', 'Referido eliminado correctamente.');
     }
 }

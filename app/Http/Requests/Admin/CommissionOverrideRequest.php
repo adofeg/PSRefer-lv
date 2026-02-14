@@ -4,8 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Commissions\CommissionOverrideQueryData;
 use App\Data\Commissions\CommissionOverrideUpsertData;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\CommissionOverride;
+use Illuminate\Foundation\Http\FormRequest;
 
 class CommissionOverrideRequest extends FormRequest
 {

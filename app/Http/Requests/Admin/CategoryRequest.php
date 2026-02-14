@@ -12,7 +12,7 @@ class CategoryRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -45,7 +45,7 @@ class CategoryRequest extends FormRequest
         }
 
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $this->route('category')?->id],
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name,'.$this->route('category')?->id],
             'description' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['sometimes', 'boolean'],
         ];

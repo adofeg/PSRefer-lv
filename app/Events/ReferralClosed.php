@@ -9,9 +9,9 @@ use Illuminate\Queue\SerializesModels;
 
 class ReferralClosed
 {
-  use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
-  public function __construct(
-    public Referral $referral
-  ) {}
+    public function __construct(
+        public Referral $referral
+    ) {}
 }

@@ -16,8 +16,7 @@ class UserController extends AdminController
 {
     public function __construct(
         protected AuditService $auditService
-    )
-    {
+    ) {
         $this->authorizeResource(User::class, 'user');
     }
 
@@ -62,7 +61,7 @@ class UserController extends AdminController
     public function update(UserRequest $request, User $user)
     {
         $data = $request->validated();
-        
+
         $oldData = $user->only(['name', 'email', 'is_active']);
 
         $user->update([
@@ -72,29 +71,31 @@ class UserController extends AdminController
         ]);
 
         $this->auditService->logAction(
-            $user, 
-            'UPDATE', 
+            $user,
+            'UPDATE',
             "User '{$user->name}' updated by Admin",
             $oldData,
             $user->only(['name', 'email', 'is_active'])
         );
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $user->update(['password' => Hash::make($data['password'])]);
         }
-        
+
         // Sync Roles
         $user->syncRoles([$data['role']]);
 
         // Update Phone/Category on Profile
         if ($user->profileable) {
             $profileData = [];
-            if (isset($data['phone'])) $profileData['phone'] = $data['phone'];
+            if (isset($data['phone'])) {
+                $profileData['phone'] = $data['phone'];
+            }
             if (isset($data['category']) && $user->hasRole(RoleName::Associate->value)) {
                 $profileData['category'] = $data['category'];
             }
-            
-            if (!empty($profileData)) {
+
+            if (! empty($profileData)) {
                 $user->profileable->update($profileData);
             }
         }

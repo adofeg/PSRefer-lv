@@ -17,7 +17,7 @@ class SmtpSettingsController extends AdminController
         $this->authorizeAdminOnly($request->user());
 
         return Inertia::render('Private/Admin/Settings/SMTP', [
-            'config' => $action->execute()
+            'config' => $action->execute(),
         ]);
     }
 
@@ -45,7 +45,7 @@ class SmtpSettingsController extends AdminController
 
     protected function authorizeAdminOnly(?User $user): void
     {
-        if (!$user || !$user->hasRole(RoleName::Admin->value)) {
+        if (! $user || ! $user->hasRole(RoleName::Admin->value)) {
             abort(403, 'Solo administradores pueden gestionar SMTP.');
         }
     }

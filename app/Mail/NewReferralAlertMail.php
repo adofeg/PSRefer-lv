@@ -5,7 +5,6 @@ namespace App\Mail;
 use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -29,7 +28,7 @@ class NewReferralAlertMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🚨 Nuevo Referido Recibido: ' . $this->referral->client_name,
+            subject: '🚨 Nuevo Referido Recibido: '.$this->referral->client_name,
         );
     }
 
@@ -45,7 +44,7 @@ class NewReferralAlertMail extends Mailable
                 'offeringName' => $this->referral->offering?->name ?? 'General',
                 'referrerName' => $this->referrer->name,
                 'notes' => $this->referral->notes,
-                'url' => url('/admin/referrals/' . $this->referral->id),
+                'url' => url('/admin/referrals/'.$this->referral->id),
             ]
         );
     }

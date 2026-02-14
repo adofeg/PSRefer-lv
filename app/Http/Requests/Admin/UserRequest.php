@@ -13,7 +13,7 @@ class UserRequest extends FormRequest
     public function authorize(): bool
     {
         $actor = $this->user();
-        if (!$actor) {
+        if (! $actor) {
             return false;
         }
 

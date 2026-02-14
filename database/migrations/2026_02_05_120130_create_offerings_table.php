@@ -10,18 +10,18 @@ return new class extends Migration
     {
         Schema::create('offerings', function (Blueprint $table) {
             $table->id();
-            
+
             // Core
             $table->foreignId('owner_employee_id')->nullable()->constrained('employees');
             $table->string('type'); // 'product', 'service'
             $table->string('category')->nullable();
-            
+
             // New Category ID (from redundant migration)
             $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
 
             $table->string('name');
             $table->text('description')->nullable();
-            
+
             // Pricing
             $table->decimal('base_price', 10, 2)->nullable();
             $table->decimal('base_commission', 10, 2)->default(0);

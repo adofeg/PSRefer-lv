@@ -4,6 +4,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowLeft, CheckCircle, Share2, Download, Loader, ImageIcon } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import { copyText } from '@/Utils/clipboard';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     offering: Object,
@@ -11,6 +12,7 @@ const props = defineProps({
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const offering = normalizeResource(props.offering, {});
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -38,7 +40,7 @@ const handleDownload = async () => {
     isGenerating.value = true;
     try {
         // Use offering specific image if available, else stock
-        const imgUrl = props.offering.image_url || getImageUrl(props.offering.category?.name);
+        const imgUrl = offering.image_url || getImageUrl(offering.category?.name || offering.category);
 
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -81,7 +83,7 @@ const handleDownload = async () => {
         ctx.fillStyle = 'white';
         ctx.font = `900 ${fontSize * 2}px sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(props.offering.name.toUpperCase(), canvas.width / 2, canvas.height / 2);
+        ctx.fillText(offering.name.toUpperCase(), canvas.width / 2, canvas.height / 2);
         ctx.restore();
 
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
@@ -91,7 +93,7 @@ const handleDownload = async () => {
 
         const downloadUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.download = `Promo-${props.offering.name.replace(/\s+/g, '-')}.png`;
+        link.download = `Promo-${offering.name.replace(/\s+/g, '-')}.png`;
         link.href = downloadUrl;
         document.body.appendChild(link);
         link.click();
@@ -107,7 +109,11 @@ const handleDownload = async () => {
 };
 
 const copyLink = async () => {
-    const link = `${window.location.origin}/apply/${props.offering.id}?ref=${user.value.id}`;
+    const link = offering.share_url
+        || route('site.apply', {
+            offeringId: offering.id,
+            ref: user.value.profileable_id || user.value.id,
+        });
     const copied = await copyText(link);
 
     if (copied) {

@@ -22,7 +22,7 @@ class GetReferralsAction
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('client_name', 'like', "%{$search}%")
-                  ->orWhere('client_contact', 'like', "%{$search}%");
+                    ->orWhere('client_contact', 'like', "%{$search}%");
             });
         });
 

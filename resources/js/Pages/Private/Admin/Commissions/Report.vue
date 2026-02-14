@@ -4,7 +4,9 @@ import { Head, Link } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import { useFormatters } from '@/Composables/useFormatters';
 import { Bar } from 'vue-chartjs';
+import { computed } from 'vue';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { normalizeResource } from '@/Utils/inertia';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -13,17 +15,31 @@ const props = defineProps({
 });
 
 const { formatCurrency } = useFormatters();
+const stats = normalizeResource(props.stats, {
+    totals: {
+        paid: 0,
+        pending: 0,
+        void: 0,
+        count_paid: 0,
+        count_pending: 0,
+    },
+    chart: {
+        labels: [],
+        data: [],
+    },
+    top_associates: [],
+});
 
-const chartData = {
-    labels: props.stats.chart.labels,
+const chartData = computed(() => ({
+    labels: stats.chart?.labels || [],
     datasets: [
         {
             label: 'Comisiones Generadas',
             backgroundColor: '#4f46e5',
-            data: props.stats.chart.data
-        }
-    ]
-};
+            data: stats.chart?.data || [],
+        },
+    ],
+}));
 
 const chartOptions = {
     responsive: true,

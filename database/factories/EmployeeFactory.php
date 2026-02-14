@@ -19,7 +19,7 @@ class EmployeeFactory extends Factory
         return [
             'department' => $this->faker->randomElement(['Operations', 'Sales', 'Admin']),
             'job_title' => $this->faker->jobTitle(),
-            'internal_code' => 'EMP-' . $this->faker->unique()->numberBetween(100, 999),
+            'internal_code' => 'EMP-'.$this->faker->unique()->numberBetween(100, 999),
         ];
     }
 }

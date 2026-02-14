@@ -2,13 +2,16 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Search, Plus, X, Eye, Mail, Phone, Calendar } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     referrals: Object,
     auth: Object,
     filters: Object,
 });
+
+const referralsResource = computed(() => normalizePaginated(props.referrals));
 
 const searchTerm = ref(props.filters?.search || '');
 
@@ -99,7 +102,7 @@ const getStatusClasses = (statusName) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="referral in referrals.data" :key="referral.id" class="hover:bg-slate-50 transition">
+                            <tr v-for="referral in referralsResource.data" :key="referral.id" class="hover:bg-slate-50 transition">
                                 <td class="px-6 py-4">
                                     <div class="font-medium text-slate-900">{{ referral.client_name }}</div>
                                     <div class="text-xs text-slate-500 flex flex-col gap-1 mt-1">
@@ -126,7 +129,7 @@ const getStatusClasses = (statusName) => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-if="referrals.data.length === 0">
+                            <tr v-if="referralsResource.data.length === 0">
                                 <td colspan="4" class="px-6 py-12 text-center text-slate-500">
                                     No tienes referidos registrados aún.
                                 </td>
@@ -136,10 +139,10 @@ const getStatusClasses = (statusName) => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="referrals.links.length > 3" class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-center">
+                <div v-if="referralsResource.links.length > 3" class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-center">
                      <div class="flex gap-1">
                           <Link
-                             v-for="(link, i) in referrals.links"
+                             v-for="(link, i) in referralsResource.links"
                              :key="i"
                              :href="link.url"
                              v-html="link.label"

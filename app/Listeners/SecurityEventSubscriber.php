@@ -34,7 +34,9 @@ class SecurityEventSubscriber
      */
     public function handleUserLogout(Logout $event): void
     {
-        if (!$event->user) return;
+        if (! $event->user) {
+            return;
+        }
 
         SecurityLog::create([
             'event_type' => 'LOGOUT',

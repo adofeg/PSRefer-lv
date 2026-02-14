@@ -14,7 +14,7 @@ class GetUserClickStatsAction
 
         $query = DB::table('referral_clicks');
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->where('referrer_associate_id', $associateId);
         }
 

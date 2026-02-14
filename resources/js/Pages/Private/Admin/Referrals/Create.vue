@@ -4,6 +4,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 import { computed, watch } from 'vue';
+import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     offering: Object, // Optional pre-selected offering
@@ -11,8 +12,12 @@ const props = defineProps({
     associates: Array // List of associates for Admin selection
 });
 
+const selectedOffering = computed(() => normalizeResource(props.offering, null));
+const offeringsList = computed(() => normalizeCollection(props.offerings));
+const associatesList = computed(() => normalizeCollection(props.associates));
+
 const form = useForm({
-    offering_id: props.offering?.id || '',
+    offering_id: selectedOffering.value?.id || '',
     associate_id: '',
     client_name: '',
     client_contact: '',
@@ -21,12 +26,12 @@ const form = useForm({
 });
 
 // If offering is pre-selected, watch for it
-const selectedOffering = computed(() => {
-    if (props.offering) {
-        return props.offering;
+const currentOffering = computed(() => {
+    if (selectedOffering.value) {
+        return selectedOffering.value;
     }
-    if (form.offering_id && props.offerings) {
-        return props.offerings.find(o => o.id === form.offering_id);
+    if (form.offering_id && offeringsList.value.length > 0) {
+        return offeringsList.value.find((item) => item.id === form.offering_id) || null;
     }
     return null;
 });
@@ -54,7 +59,7 @@ const submit = () => {
             <Card>
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Offering Selector (if not pre-selected) -->
-                    <div v-if="!offering && offerings?.length">
+                    <div v-if="!selectedOffering && offeringsList.length">
                         <label class="block text-sm font-medium text-slate-700 mb-1">
                             Selecciona la Oferta <span class="text-red-500">*</span>
                         </label>
@@ -64,7 +69,7 @@ const submit = () => {
                             class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                         >
                             <option value="">Seleccionar...</option>
-                            <option v-for="off in offerings" :key="off.id" :value="off.id">
+                            <option v-for="off in offeringsList" :key="off.id" :value="off.id">
                                 {{ off.name }} - {{ off.commission_rate }}% comisión
                             </option>
                         </select>
@@ -74,7 +79,7 @@ const submit = () => {
                     </div>
 
                     <!-- Associate Selector (Admin Only) -->
-                    <div v-if="associates?.length">
+                    <div v-if="associatesList.length">
                          <label class="block text-sm font-medium text-slate-700 mb-1">
                             Asignar a Asociado <span class="text-red-500">*</span>
                         </label>
@@ -84,7 +89,7 @@ const submit = () => {
                             class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                         >
                             <option value="">Seleccionar Asociado...</option>
-                            <option v-for="assoc in associates" :key="assoc.id" :value="assoc.id">
+                            <option v-for="assoc in associatesList" :key="assoc.id" :value="assoc.id">
                                 {{ assoc.name }}
                             </option>
                         </select>
@@ -94,10 +99,10 @@ const submit = () => {
                     </div>
 
                     <!-- Pre-selected Offering Display -->
-                    <div v-if="offering" class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                    <div v-if="selectedOffering" class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                         <p class="text-sm text-indigo-700 font-medium mb-1">Refiriendo a:</p>
-                        <p class="text-lg font-semibold text-indigo-900">{{ offering.name }}</p>
-                        <p class="text-sm text-indigo-600 mt-1">Comisión: {{ offering.commission_rate }}%</p>
+                        <p class="text-lg font-semibold text-indigo-900">{{ selectedOffering.name }}</p>
+                        <p class="text-sm text-indigo-600 mt-1">Comisión: {{ selectedOffering.commission_rate }}%</p>
                     </div>
 
                     <!-- Client Information -->
@@ -140,12 +145,12 @@ const submit = () => {
                     </div>
 
                     <!-- Dynamic Form Fields -->
-                    <div v-if="selectedOffering?.form_schema?.length" class="border-t pt-6">
+                    <div v-if="currentOffering?.form_schema?.length" class="border-t pt-6">
                         <h3 class="text-lg font-semibold text-slate-800 mb-4">
                             Información Adicional Requerida
                         </h3>
                         <DynamicForm 
-                            :schema="selectedOffering.form_schema"
+                            :schema="currentOffering.form_schema"
                             v-model="form.form_data"
                             :errors="form.errors"
                         />

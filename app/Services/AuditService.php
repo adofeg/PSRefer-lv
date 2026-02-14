@@ -11,78 +11,80 @@ use Illuminate\Support\Facades\Log;
 
 class AuditService
 {
-  /**
-   * Create an audit log entry
-   */
-  public function log(array $data)
-  {
-    try {
-      return AuditLog::create([
-        'entity' => $data['entity'],
-        'entity_id' => $data['entity_id'],
-        'action' => $data['action'],
-        'actorable_type' => $data['actorable_type'] ?? null,
-        'actorable_id' => $data['actorable_id'] ?? null,
-        'previous_data' => $data['previous_data'] ?? null,
-        'new_data' => $data['new_data'] ?? null,
-        'description' => $data['description'] ?? '',
-        'created_at' => now(),
-      ]);
-    } catch (Exception $e) {
-      Log::error('[AUDIT] Failed to create audit log: ' . $e->getMessage());
-      return null;
+    /**
+     * Create an audit log entry
+     */
+    public function log(array $data)
+    {
+        try {
+            return AuditLog::create([
+                'entity' => $data['entity'],
+                'entity_id' => $data['entity_id'],
+                'action' => $data['action'],
+                'actorable_type' => $data['actorable_type'] ?? null,
+                'actorable_id' => $data['actorable_id'] ?? null,
+                'previous_data' => $data['previous_data'] ?? null,
+                'new_data' => $data['new_data'] ?? null,
+                'description' => $data['description'] ?? '',
+                'created_at' => now(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('[AUDIT] Failed to create audit log: '.$e->getMessage());
+
+            return null;
+        }
     }
-  }
 
-  public function logReferralStatusChange($referralId, $actor, $previousStatus, $newStatus, $notes = '')
-  {
-    return AuditLog::create([
-      'auditable_type' => Referral::class,
-      'auditable_id' => $referralId,
-      'action' => 'UPDATE', // Required field
-      'event_type' => 'status_change',
-      'actorable_type' => $actor ? get_class($actor) : null,
-      'actorable_id' => $actor?->id,
-      'previous_data' => ['status' => $previousStatus], // Map to correct JSON column
-      'new_data' => ['status' => $newStatus],         // Map to correct JSON column
-      'description' => "Status changed from {$previousStatus} to {$newStatus}",
-      'metadata' => [
-        'notes' => $notes,
-        'note' => $notes,
-      ],
-      'created_at' => now(),
-    ]);
-  }
+    public function logReferralStatusChange($referralId, $actor, $previousStatus, $newStatus, $notes = '')
+    {
+        return AuditLog::create([
+            'auditable_type' => Referral::class,
+            'auditable_id' => $referralId,
+            'action' => 'UPDATE', // Required field
+            'event_type' => 'status_change',
+            'actorable_type' => $actor ? get_class($actor) : null,
+            'actorable_id' => $actor?->id,
+            'previous_data' => ['status' => $previousStatus], // Map to correct JSON column
+            'new_data' => ['status' => $newStatus],         // Map to correct JSON column
+            'description' => "Status changed from {$previousStatus} to {$newStatus}",
+            'metadata' => [
+                'notes' => $notes,
+                'note' => $notes,
+            ],
+            'created_at' => now(),
+        ]);
+    }
 
-  public function logOfferingCreate($offeringId, $actor, $name)
-  {
-    return $this->log([
-      'entity' => AuditEntity::Offering->value,
-      'entity_id' => $offeringId,
-      'action' => AuditAction::Create->value,
-      'actorable_type' => $actor ? get_class($actor) : null,
-      'actorable_id' => $actor?->id,
-      'new_data' => ['name' => $name],
-      'description' => "Offering \"{$name}\" created",
-    ]);
-  }
-  /**
-   * Generic log action for any model
-   */
-  public function logAction($model, string $action, string $description, ?array $previous = null, ?array $new = null)
-  {
-    $actor = auth()->user();
+    public function logOfferingCreate($offeringId, $actor, $name)
+    {
+        return $this->log([
+            'entity' => AuditEntity::Offering->value,
+            'entity_id' => $offeringId,
+            'action' => AuditAction::Create->value,
+            'actorable_type' => $actor ? get_class($actor) : null,
+            'actorable_id' => $actor?->id,
+            'new_data' => ['name' => $name],
+            'description' => "Offering \"{$name}\" created",
+        ]);
+    }
 
-    return AuditLog::create([
-        'auditable_type' => get_class($model),
-        'auditable_id' => $model->id,
-        'action' => $action,
-        'actorable_type' => $actor ? get_class($actor) : null,
-        'actorable_id' => $actor?->id,
-        'previous_data' => $previous,
-        'new_data' => $new,
-        'description' => $description,
-        'created_at' => now(),
-    ]);
-  }
+    /**
+     * Generic log action for any model
+     */
+    public function logAction($model, string $action, string $description, ?array $previous = null, ?array $new = null)
+    {
+        $actor = auth()->user();
+
+        return AuditLog::create([
+            'auditable_type' => get_class($model),
+            'auditable_id' => $model->id,
+            'action' => $action,
+            'actorable_type' => $actor ? get_class($actor) : null,
+            'actorable_id' => $actor?->id,
+            'previous_data' => $previous,
+            'new_data' => $new,
+            'description' => $description,
+            'created_at' => now(),
+        ]);
+    }
 }

@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { X, Save, Trash2, Plus, DollarSign, Loader2, AlertCircle } from 'lucide-vue-next';
+import { X, Save, Trash2, Plus, DollarSign, Loader2 } from 'lucide-vue-next';
 import Modal from '@/Components/UI/Modal.vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue';
 import axios from 'axios';
+import { normalizeCollection } from '@/Utils/inertia';
 
 const props = defineProps({
     show: Boolean,
@@ -42,8 +43,8 @@ const loadData = async () => {
             axios.get(route('admin.commissions.overrides.index'), { params: { associate_id: associateId } })
         ]);
         
-        offerings.value = offeringsRes.data.data || offeringsRes.data;
-        overrides.value = overridesRes.data;
+        offerings.value = normalizeCollection(offeringsRes.data);
+        overrides.value = normalizeCollection(overridesRes.data);
     } catch (error) {
         console.error('Error loading override data:', error);
     } finally {
@@ -51,8 +52,8 @@ const loadData = async () => {
     }
 };
 
-watch(() => props.show, (newVal) => {
-    if (newVal && props.user) {
+watch(() => [props.show, props.user?.id], ([isOpen]) => {
+    if (isOpen && props.user) {
         loadData();
     }
 });
@@ -102,7 +103,7 @@ const executeDelete = async () => {
 
 const getStandardRate = (offeringId) => {
     const off = offerings.value.find(o => o.id === offeringId);
-    return off ? off.commission_rate : 0;
+    return off ? Number(off.commission_rate || 0) : 0;
 };
 </script>
 

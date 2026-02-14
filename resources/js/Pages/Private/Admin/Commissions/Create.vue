@@ -2,7 +2,6 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
-import { ref } from 'vue';
 
 const props = defineProps({
     associates: Array,

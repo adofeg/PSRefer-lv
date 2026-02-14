@@ -17,11 +17,11 @@ class GetAllCommissionsAction
         $query->when($filters['search'] ?? null, function (Builder $query, $search) {
             $query->whereHas('associate.user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })
-            ->orWhereHas('referral', function ($q) use ($search) {
-                $q->where('client_name', 'like', "%{$search}%");
-            });
+                ->orWhereHas('referral', function ($q) use ($search) {
+                    $q->where('client_name', 'like', "%{$search}%");
+                });
         });
 
         // Apply Status Filter
@@ -30,7 +30,7 @@ class GetAllCommissionsAction
                 $query->where('status', $status);
             }
         });
-        
+
         // Apply Associate Filter
         $query->when($filters['associate_id'] ?? null, function (Builder $query, $associateId) {
             $query->where('associate_id', $associateId);

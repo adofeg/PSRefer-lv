@@ -2,8 +2,8 @@
 
 namespace App\Data\Offerings;
 
-use Spatie\LaravelData\Data;
 use App\Models\Offering;
+use Spatie\LaravelData\Data;
 
 class OfferingData extends Data
 {

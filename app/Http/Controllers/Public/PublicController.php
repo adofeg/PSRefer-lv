@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Public;
 
-use App\Actions\Public\GetOfferingApplicationViewAction;
 use App\Actions\Public\GetHomePageDataAction;
+use App\Actions\Public\GetOfferingApplicationViewAction;
 use App\Actions\Public\SubmitOfferingApplicationAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\PublicRequest;
@@ -20,8 +20,7 @@ class PublicController extends Controller
     /**
      * Show public offering application page.
      *
-     * @param string $offeringId
-     * @param Request $request
+     * @param  Request  $request
      * @return \Inertia\Response
      */
     public function showOfferingApplication(string $offeringId, PublicRequest $request, GetOfferingApplicationViewAction $action)
@@ -34,13 +33,12 @@ class PublicController extends Controller
             $request
         ));
     }
-    
+
     /**
      * Submit public offering application.
      *
-     * @param string $offeringId
-     * @param Request $request
-     * @param FormSchemaValidator $validator
+     * @param  Request  $request
+     * @param  FormSchemaValidator  $validator
      * @return \Illuminate\Http\RedirectResponse
      */
     public function submitOfferingApplication(
@@ -56,5 +54,4 @@ class PublicController extends Controller
 
         return back()->with('success', '¡Gracias! Tu solicitud ha sido enviada exitosamente.');
     }
-    
 }

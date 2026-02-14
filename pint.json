@@ -1,0 +1,15 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "bootstrap/cache",
+        "node_modules",
+        "public/build",
+        "storage",
+        "vendor"
+    ],
+    "rules": {
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        }
+    }
+}

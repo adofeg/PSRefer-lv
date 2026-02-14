@@ -51,10 +51,10 @@ class LoginRequest extends FormRequest
 
         // Parity: Check is_active
         if (Auth::user()->is_active === false) {
-             Auth::logout();
-             throw ValidationException::withMessages([
-                 'email' => 'Tu cuenta ha sido desactivada. Contacta al administrador.',
-             ]);
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta ha sido desactivada. Contacta al administrador.',
+            ]);
         }
 
         RateLimiter::clear($this->throttleKey());

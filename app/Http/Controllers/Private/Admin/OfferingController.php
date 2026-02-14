@@ -18,8 +18,7 @@ class OfferingController extends AdminController
 {
     public function __construct(
         protected AuditService $auditService
-    )
-    {
+    ) {
         $this->authorizeResource(Offering::class, 'offering');
     }
 
@@ -27,9 +26,9 @@ class OfferingController extends AdminController
     {
         $user = $request->user();
         $includeInactive = $user?->hasRole(RoleName::adminRoles()) ?? false;
-        
+
         $filters = $request->only(['search', 'category', 'status']);
-        
+
         $offerings = $action->execute($user, $includeInactive, $filters);
 
         if ($request->boolean('json') || $request->wantsJson()) {
@@ -41,25 +40,26 @@ class OfferingController extends AdminController
         return Inertia::render('Private/Admin/Offerings/Index', [
             'offerings' => OfferingData::collect($offerings, PaginatedDataCollection::class),
             'filters' => $filters,
-            'categories' => $categoriesAction->execute()
+            'categories' => $categoriesAction->execute(),
         ]);
     }
 
     public function create(GetActiveCategoriesAction $categoriesAction)
     {
         return Inertia::render('Private/Admin/Offerings/Create', [
-            'categories' => $categoriesAction->execute()
+            'categories' => $categoriesAction->execute(),
         ]);
     }
 
     public function store(OfferingRequest $request, CreateOfferingAction $action)
     {
         $employeeId = $request->user()->employeeProfile()?->id;
-        if (!$employeeId) {
+        if (! $employeeId) {
             abort(403, 'Solo empleados pueden crear ofertas.');
         }
 
         $action->execute($request->toData(), $employeeId);
+
         return $this->redirectAfterStore('admin.offerings', 'Offering created.');
     }
 
@@ -67,7 +67,7 @@ class OfferingController extends AdminController
     {
         return Inertia::render('Private/Admin/Offerings/Edit', [
             'offering' => OfferingData::fromModel($offering),
-            'categories' => $categoriesAction->execute()
+            'categories' => $categoriesAction->execute(),
         ]);
     }
 
@@ -87,6 +87,7 @@ class OfferingController extends AdminController
         );
 
         $offering->delete();
+
         return redirect()->back()->with('success', 'Oferta eliminada correctamente.');
     }
 

@@ -6,7 +6,6 @@ use App\Enums\RoleName;
 use App\Models\Category;
 use App\Models\Offering;
 use App\Models\User;
-use Illuminate\Support\Collection;
 
 class GetMarketingCenterDataAction
 {
@@ -21,12 +20,12 @@ class GetMarketingCenterDataAction
                         $q2->whereNull('category')
                             ->orWhere('category', '!=', $category);
                     })
-                    ->where(function ($q2) use ($category) {
-                        $q2->whereNull('category_id')
-                            ->orWhereHas('category', function ($cq) use ($category) {
-                                $cq->where('name', '!=', $category);
-                            });
-                    });
+                        ->where(function ($q2) use ($category) {
+                            $q2->whereNull('category_id')
+                                ->orWhereHas('category', function ($cq) use ($category) {
+                                    $cq->where('name', '!=', $category);
+                                });
+                        });
                 });
             })
             ->get();

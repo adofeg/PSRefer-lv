@@ -18,10 +18,10 @@ class GetAssociatesAction
             ->map(function ($user) {
                 return [
                     'id' => $user->profileable?->id,
-                    'name' => $user->name . ' (' . $user->email . ')',
+                    'name' => $user->name.' ('.$user->email.')',
                 ];
             })
-            ->filter(fn($item) => $item['id'] !== null)
+            ->filter(fn ($item) => $item['id'] !== null)
             ->values();
     }
 }

@@ -5,7 +5,26 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
 import { ZiggyVue } from 'ziggy-js';
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+const syncTimezoneContext = () => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!timezone) {
+        return;
+    }
+
+    document.cookie = `timezone=${encodeURIComponent(timezone)}; path=/; max-age=31536000; SameSite=Lax`;
+
+    if (window.axios) {
+        window.axios.defaults.headers.common['X-Timezone'] = timezone;
+    }
+};
+
+syncTimezoneContext();
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

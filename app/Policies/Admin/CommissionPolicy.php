@@ -17,7 +17,7 @@ class CommissionPolicy
         return $user->hasRole([
             RoleName::Admin->value,
             RoleName::PsAdmin->value,
-            RoleName::Associate->value
+            RoleName::Associate->value,
         ]);
     }
 

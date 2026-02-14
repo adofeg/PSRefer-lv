@@ -3,7 +3,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import { ref } from 'vue';
-import { Plus, Trash, Settings, FileText, Briefcase, Share2, Info } from 'lucide-vue-next';
+import { Plus, Trash, FileText, Info } from 'lucide-vue-next';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     offering: Object,
@@ -11,19 +12,19 @@ const props = defineProps({
 });
 
 const activeTab = ref('general');
+const offering = normalizeResource(props.offering, null);
 
 const form = useForm({
-    name: props.offering?.name || '',
-    type: props.offering?.type || 'service',
-    description: props.offering?.description || '',
-    base_price: props.offering?.base_price || '',
-    commission_rate: props.offering?.commission_rate || '',
-    category_id: props.offering?.category_id || '',
-    is_active: props.offering ? props.offering.is_active : true,
-    is_active: props.offering ? props.offering.is_active : true,
-    form_schema: props.offering?.form_schema || [],
-    commission_rules: props.offering?.commission_rules || [],
-    notification_emails: props.offering?.notification_emails || []
+    name: offering?.name || '',
+    type: offering?.type || 'service',
+    description: offering?.description || '',
+    base_price: offering?.base_price || '',
+    commission_rate: offering?.commission_rate || '',
+    category_id: offering?.category_id || '',
+    is_active: offering ? offering.is_active : true,
+    form_schema: offering?.form_schema || [],
+    commission_rules: offering?.commission_rules || [],
+    notification_emails: offering?.notification_emails || [],
 });
 
 const addFormField = () => {
@@ -62,8 +63,8 @@ const removeEmail = (index) => {
 };
 
 const submit = () => {
-    if (props.offering) {
-        form.put(route('admin.offerings.update', props.offering.id));
+    if (offering) {
+        form.put(route('admin.offerings.update', offering.id));
     } else {
         form.post(route('admin.offerings.store'));
     }

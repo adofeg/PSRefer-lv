@@ -18,7 +18,7 @@ class UpdateUserSettingsAction
 
         if ($data->logo_file) {
             $path = $data->logo_file->store('logos', 'public');
-            $user->update(['logo_url' => '/storage/' . $path]);
+            $user->update(['logo_url' => '/storage/'.$path]);
         }
 
         $profile = $user->profileable;
@@ -36,14 +36,14 @@ class UpdateUserSettingsAction
                 }
                 // If Associate, allow toggling "submitted" / "pending" freely
                 else {
-                     $profileData['w9_status'] = $data->w9_status->value;
+                    $profileData['w9_status'] = $data->w9_status->value;
                 }
             }
 
             if ($data->category) {
-                 if (auth()->user()->hasRole(['admin', 'psadmin'])) {
+                if (auth()->user()->hasRole(['admin', 'psadmin'])) {
                     $profileData['category'] = $data->category;
-                 }
+                }
             }
 
             $profile->update($profileData);

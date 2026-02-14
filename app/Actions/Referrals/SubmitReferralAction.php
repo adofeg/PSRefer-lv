@@ -19,7 +19,7 @@ class SubmitReferralAction
         $offering = Offering::findOrFail($request->validated('offering_id'));
 
         $formData = [];
-        if ($offering->form_schema && !empty($offering->form_schema)) {
+        if ($offering->form_schema && ! empty($offering->form_schema)) {
             $formData = $this->validator->validate(
                 $offering->form_schema,
                 $request->input('form_data', [])
@@ -29,7 +29,7 @@ class SubmitReferralAction
         $allMetadata = array_merge($request->validated('metadata') ?? [], $formData);
 
         $selectedServices = $allMetadata['Servicios de Interés'] ?? null;
-        if ($offering->name === 'Referencia General' && is_array($selectedServices) && !empty($selectedServices)) {
+        if ($offering->name === 'Referencia General' && is_array($selectedServices) && ! empty($selectedServices)) {
             $offerings = Offering::whereIn('name', $selectedServices)->get();
             $count = 0;
 
@@ -39,7 +39,7 @@ class SubmitReferralAction
                     client_contact: $request->validated('client_contact'),
                     offering_id: $targetOffering->id,
                     metadata: array_merge($allMetadata, ['origen' => 'Referencia General']),
-                    notes: "[Ref. General] " . ($request->validated('notes') ?? ''),
+                    notes: '[Ref. General] '.($request->validated('notes') ?? ''),
                     associate_id: $associateId
                 );
 

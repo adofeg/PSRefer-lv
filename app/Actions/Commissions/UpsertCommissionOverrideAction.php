@@ -18,8 +18,8 @@ class UpsertCommissionOverrideAction
         );
 
         $this->auditService->logAction(
-            $override, 
-            $override->wasRecentlyCreated ? 'CREATE' : 'UPDATE', 
+            $override,
+            $override->wasRecentlyCreated ? 'CREATE' : 'UPDATE',
             "Commission Override set to {$commissionRate}% for Associate #{$associateId}",
             null,
             ['rate' => $commissionRate]

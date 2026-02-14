@@ -6,7 +6,6 @@ import {
     ShoppingBag,
     Users,
     DollarSign,
-    LogOut,
     X,
     LayoutGrid,
     Image as ImageIcon,
@@ -29,12 +28,8 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const page = usePage();
 
-const isActive = (routeStr) => {
-    return route().current(routeStr);
-};
-
-const isActiveAny = (routes) => {
-    return routes.some((routeStr) => route().current(routeStr));
+const routeIsCurrent = (patterns = []) => {
+    return patterns.some((pattern) => route().current(pattern));
 };
 
 const adminRoles = ['admin', 'psadmin'];
@@ -48,45 +43,38 @@ const navigationGroups = [
     {
         label: 'Gestión Financiera',
         items: [
-             { name: 'Comisiones', href: route('admin.commissions.index'), icon: ArrowRightLeft, current: isActive('admin.commissions.index'), roles: adminRoles },
-             { name: 'Reportes', href: route('admin.commissions.report'), icon: BarChart3, current: isActive('admin.commissions.report'), roles: adminRoles },
-             { name: 'Reglas y Ajustes', href: route('admin.commissions.overrides.index'), icon: Settings, current: isActive('admin.commissions.overrides.index'), roles: adminRoles },
-             { name: 'Mis Comisiones', href: route('associate.commissions'), icon: DollarSign, current: isActive('associate.commissions'), roles: associateRoles },
+             { name: 'Comisiones', href: route('admin.commissions.index'), icon: ArrowRightLeft, match: ['admin.commissions.index'], roles: adminRoles },
+             { name: 'Reportes', href: route('admin.commissions.report'), icon: BarChart3, match: ['admin.commissions.report'], roles: adminRoles },
+             { name: 'Reglas y Ajustes', href: route('admin.commissions.overrides.index'), icon: Settings, match: ['admin.commissions.overrides.index'], roles: adminRoles },
+             { name: 'Mis Comisiones', href: route('associate.commissions'), icon: DollarSign, match: ['associate.commissions'], roles: associateRoles },
         ]
     },
     {
         label: 'Ajustes del Sistema',
         items: [
-            { name: 'Usuarios', href: route('admin.users.index'), icon: UserCog, current: isActive('admin.users.index'), roles: adminRoles },
-            { name: 'Marketing', href: route('admin.marketing'), icon: ImageIcon, current: isActive('admin.marketing'), roles: ['admin'] },
-            { name: 'Categorías', href: route('admin.categories.index'), icon: Tag, current: isActive('admin.categories.index'), roles: ['admin'] },
-            { name: 'Bitácora', href: route('admin.audit-logs.index'), icon: ClipboardList, current: isActive('admin.audit-logs.index'), roles: ['admin'] },
-            { name: 'Configuración SMTP', href: route('admin.settings.smtp'), icon: Mail, current: isActive('admin.settings.smtp'), roles: ['admin'] },
+            { name: 'Usuarios', href: route('admin.users.index'), icon: UserCog, match: ['admin.users.index'], roles: adminRoles },
+            { name: 'Marketing', href: route('admin.marketing'), icon: ImageIcon, match: ['admin.marketing'], roles: ['admin'] },
+            { name: 'Categorías', href: route('admin.categories.index'), icon: Tag, match: ['admin.categories.index'], roles: ['admin'] },
+            { name: 'Bitácora', href: route('admin.audit-logs.index'), icon: ClipboardList, match: ['admin.audit-logs.index'], roles: ['admin'] },
+            { name: 'Configuración SMTP', href: route('admin.settings.smtp'), icon: Mail, match: ['admin.settings.smtp'], roles: ['admin'] },
         ]
     },
 ];
 
 const standaloneItems = [
-    // Dashboard: Shared label but different routes based on role logic if needed, or better:
-    // Create distinct items per role if the route structure is rigid.
-    // However, route('dashboard') redirects... wait, no.
-    // The previous dashboard route was admin.dashboard.
-    // We added associate.dashboard.
-    // So we need to split this item.
-    { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: isActive('admin.dashboard'), roles: adminRoles },
-    { name: 'Dashboard', href: route('associate.dashboard'), icon: LayoutDashboard, current: isActive('associate.dashboard'), roles: associateRoles },
+    { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, match: ['admin.dashboard'], roles: adminRoles },
+    { name: 'Dashboard', href: route('associate.dashboard'), icon: LayoutDashboard, match: ['associate.dashboard'], roles: associateRoles },
     
-    // Catalog
-    { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, current: isActive('admin.offerings.index'), roles: adminRoles },
-    { name: 'Catálogo', href: route('associate.offerings.index'), icon: ShoppingBag, current: isActive('associate.offerings.index'), roles: associateRoles },
+    { name: 'Catálogo', href: route('admin.offerings.index'), icon: ShoppingBag, match: ['admin.offerings.index'], roles: adminRoles },
+    { name: 'Catálogo', href: route('associate.offerings.index'), icon: ShoppingBag, match: ['associate.offerings.index'], roles: associateRoles },
     
-    { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, current: isActive('admin.referrals.index'), roles: adminRoles },
-    { name: 'Referidos', href: route('associate.referrals.index'), icon: Users, current: isActive('associate.referrals.index'), roles: associateRoles },
+    { name: 'Referidos', href: route('admin.referrals.index'), icon: Users, match: ['admin.referrals.index'], roles: adminRoles },
+    { name: 'Referidos', href: route('associate.referrals.index'), icon: Users, match: ['associate.referrals.index'], roles: associateRoles },
     
-
-
-    { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, current: isActive('admin.referrals.pipeline'), roles: ['admin', 'psadmin'] },
+    { name: 'Pipeline', href: route('admin.referrals.pipeline'), icon: LayoutGrid, match: ['admin.referrals.pipeline'], roles: ['admin', 'psadmin'] },
 ];
+
+const itemIsCurrent = (item) => routeIsCurrent(item.match || []);
 
 const visibleStandaloneItems = computed(() => {
     return standaloneItems.filter((item) => item.roles.includes(currentRole.value));
@@ -104,10 +92,10 @@ const visibleNavigationGroups = computed(() => {
 // Helper to check if a group should be expanded based on current route
 const isGroupActive = (label) => {
     if (label === 'Gestión Financiera') {
-        return route().current('admin.commissions.*') || route().current('associate.commissions');
+        return routeIsCurrent(['admin.commissions.*', 'associate.commissions']);
     }
     if (label === 'Ajustes del Sistema') {
-        return isActiveAny([
+        return routeIsCurrent([
             'admin.users.*', 
             'admin.marketing*', 
             'admin.categories.*', 
@@ -172,12 +160,12 @@ const toggleSection = (label) => {
                     :key="item.name"
                     :href="item.href"
                     class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border border-transparent"
-                    :class="item.current ? 'bg-slate-800/80 text-white border-slate-700/50 shadow-sm' : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                    :class="itemIsCurrent(item) ? 'bg-slate-800/80 text-white border-slate-700/50 shadow-sm' : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
                     "
                 >
                     <div 
                         class="flex items-center justify-center w-8 h-8 rounded-lg transition shrink-0"
-                        :class="item.current ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-900 text-slate-500 group-hover:bg-slate-800 group-hover:text-slate-300'"
+                        :class="itemIsCurrent(item) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-900 text-slate-500 group-hover:bg-slate-800 group-hover:text-slate-300'"
                     >
                         <component :is="item.icon" :size="18" />
                     </div>
@@ -185,7 +173,7 @@ const toggleSection = (label) => {
                     {{ item.name }}
                     </span>
                     <span
-                        v-if="item.current"
+                        v-if="itemIsCurrent(item)"
                         class="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,1)]"
                     ></span>
                 </Link>
@@ -217,13 +205,13 @@ const toggleSection = (label) => {
                         :key="item.name"
                         :href="item.href"
                         class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border border-transparent"
-                        :class="item.current ? 'bg-slate-800/80 text-white border-slate-700/50 shadow-sm' : 'text-slate-400 hover:bg-slate-900/40 hover:text-white'
+                        :class="itemIsCurrent(item) ? 'bg-slate-800/80 text-white border-slate-700/50 shadow-sm' : 'text-slate-400 hover:bg-slate-900/40 hover:text-white'
                         "
-                        :aria-current="item.current ? 'page' : undefined"
+                        :aria-current="itemIsCurrent(item) ? 'page' : undefined"
                     >
                         <div 
                             class="flex items-center justify-center w-8 h-8 rounded-lg transition shrink-0"
-                            :class="item.current ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-900 text-slate-500 group-hover:bg-slate-800 group-hover:text-slate-300'"
+                            :class="itemIsCurrent(item) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-900 text-slate-500 group-hover:bg-slate-800 group-hover:text-slate-300'"
                         >
                             <component :is="item.icon" :size="16" />
                         </div>
@@ -231,7 +219,7 @@ const toggleSection = (label) => {
                         {{ item.name }}
                         </span>
                         <span
-                            v-if="item.current"
+                            v-if="itemIsCurrent(item)"
                             class="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,1)]"
                         ></span>
                     </Link>

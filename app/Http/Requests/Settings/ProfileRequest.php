@@ -52,5 +52,4 @@ class ProfileRequest extends FormRequest
             w9_file: $this->file('w9_file')
         );
     }
-
 }

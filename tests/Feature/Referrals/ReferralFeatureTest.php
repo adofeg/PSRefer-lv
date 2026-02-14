@@ -2,84 +2,86 @@
 
 namespace Tests\Feature\Referrals;
 
-use Tests\TestCase;
-use App\Models\Offering;
 use App\Actions\Referrals\SubmitReferralAction;
 use App\Models\Associate;
-use App\Models\Referral;
+use App\Models\Offering;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class ReferralFeatureTest extends TestCase
 {
-  use RefreshDatabase;
+    use RefreshDatabase;
 
-  public function test_referral_creation_screen_can_be_rendered(): void
-  {
-    // ARRANGE
-    // Mock User
-    $user = new User(['id' => 'user-1', 'name' => 'Test User', 'email' => 'test@example.com']);
-    $this->actingAs($user);
+    public function test_referral_creation_screen_can_be_rendered(): void
+    {
+        // ARRANGE
+        // Mock User
+        $user = new User(['id' => 'user-1', 'name' => 'Test User', 'email' => 'test@example.com']);
+        $this->actingAs($user);
 
-    // We need to mock OfferingController::index logic if we were hitting that.
-    // But here we are testing creation screen?
-    // Route::resource includes 'create'.
-    // We probably need to mock the Offerings retrieval if the view needs it.
-    // For now, simple GET check.
+        // We need to mock OfferingController::index logic if we were hitting that.
+        // But here we are testing creation screen?
+        // Route::resource includes 'create'.
+        // We probably need to mock the Offerings retrieval if the view needs it.
+        // For now, simple GET check.
 
-    // As we don't have DB, any query in Controller will fail.
-    // We need to inspect ReferralController::create to see what it does.
+        // As we don't have DB, any query in Controller will fail.
+        // We need to inspect ReferralController::create to see what it does.
 
-    // Skipping check of 'create' page if it requires DB queries for dropdowns.
-    $this->markTestSkipped('Skipping render test as it likely requires DB data for dropdowns.');
-  }
+        // Skipping check of 'create' page if it requires DB queries for dropdowns.
+        $this->markTestSkipped('Skipping render test as it likely requires DB data for dropdowns.');
+    }
 
-  public function test_referral_can_be_created_via_api(): void
-  {
-    // ARRANGE
-    Role::findOrCreate('associate', 'web');
+    public function test_referral_can_be_created_via_api(): void
+    {
+        // ARRANGE
+        Role::findOrCreate('admin', 'web');
+        Role::findOrCreate('associate', 'web');
 
-    $associate = Associate::factory()->create();
-    $user = $associate->user()->create([
-      'name' => 'Test User',
-      'email' => 'test@example.com',
-      'password' => bcrypt('password'),
-      'is_active' => true,
-      'email_verified_at' => now(),
-    ]);
-    $user->assignRole('associate');
+        $associate = Associate::factory()->create();
 
-    $offering = Offering::create([
-      'name' => 'Offer 1',
-      'type' => 'service',
-      'base_price' => 100,
-      'commission_rate' => 10,
-      'is_active' => true,
-    ]);
+        $admin = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+        $admin->assignRole('admin');
 
-    $this->actingAs($user);
+        $offering = Offering::create([
+            'name' => 'Offer 1',
+            'type' => 'service',
+            'base_price' => 100,
+            'commission_rate' => 10,
+            'is_active' => true,
+        ]);
 
-    // Mock the Action
-    $this->mock(SubmitReferralAction::class, function (MockInterface $mock) {
-      $mock->shouldReceive('execute')
-        ->once()
-        ->andReturn('Referral created successfully.');
-    });
+        $this->actingAs($admin);
 
-    $payload = [
-      'client_name' => 'Jane Doe',
-      'client_contact' => 'jane@example.com',
-      'offering_id' => $offering->id,
-      'notes' => 'Interested',
-    ];
+        // Mock the Action
+        $this->mock(SubmitReferralAction::class, function (MockInterface $mock) {
+            $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn('Referral created successfully.');
+        });
 
-    // ACT
-    $response = $this->post(route('admin.referrals.store'), $payload);
+        $payload = [
+            'client_name' => 'Jane Doe',
+            'client_contact' => 'jane@example.com',
+            'offering_id' => $offering->id,
+            'notes' => 'Interested',
+            'associate_id' => $associate->id,
+        ];
 
-    // ASSERT
-    $response->assertRedirect(route('admin.referrals.index'));
-    $response->assertSessionHas('success');
-  }
+        // ACT
+        $response = $this->post(route('admin.referrals.store'), $payload);
+
+        // ASSERT
+        $response->assertRedirect(route('admin.referrals.index'));
+        $response->assertSessionHas('success');
+    }
 }

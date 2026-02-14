@@ -44,11 +44,11 @@ class UpdateOfferingAction
     {
         $oldStatus = $offering->is_active;
         $offering->update(['is_active' => $isActive]);
-        
+
         $this->auditService->logAction(
             $offering,
             'UPDATE',
-            "Offering '{$offering->name}' status changed to " . ($isActive ? 'Active' : 'Inactive'),
+            "Offering '{$offering->name}' status changed to ".($isActive ? 'Active' : 'Inactive'),
             ['is_active' => $oldStatus],
             ['is_active' => $isActive]
         );

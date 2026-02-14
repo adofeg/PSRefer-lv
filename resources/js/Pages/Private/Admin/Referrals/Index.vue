@@ -1,18 +1,21 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3'; // Added router
-import { ref, watch } from 'vue'; // Added watch, ref
+import { computed, ref, watch } from 'vue'; // Added watch, ref
 import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue'; // Added ConfirmModal
 import { Search, Filter, Plus, Eye, Trash2, X } from 'lucide-vue-next'; // Additional icons
 import { useFormatters } from '@/Composables/useFormatters';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     referrals: Object,
     filters: Object,
     statuses: Array // Added statuses prop
 });
+
+const referralsResource = computed(() => normalizePaginated(props.referrals));
 
 const { formatCurrency, formatShortDate } = useFormatters();
 
@@ -152,7 +155,7 @@ const executeDelete = () => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="referral in referrals.data" :key="referral.id" class="hover:bg-slate-50 transition group">
+                            <tr v-for="referral in referralsResource.data" :key="referral.id" class="hover:bg-slate-50 transition group">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
@@ -217,15 +220,15 @@ const executeDelete = () => {
                             </tr>
                         </tbody>
                     </table>
-                    <div v-if="referrals.data.length === 0" class="p-8 text-center text-slate-400">
+                    <div v-if="referralsResource.data.length === 0" class="p-8 text-center text-slate-400">
                         {{ ['admin', 'psadmin'].includes($page.props.auth.user.role) ? 'No hay referidos en el sistema.' : 'No has registrado referidos aún.' }}
                     </div>
                 </div>
                  <!-- Pagination -->
-                <div v-if="referrals.links.length > 3" class="flex justify-center p-4 border-t border-slate-100">
+                <div v-if="referralsResource.links.length > 3" class="flex justify-center p-4 border-t border-slate-100">
                      <div class="flex gap-1">
                          <Link
-                            v-for="(link, i) in referrals.links"
+                            v-for="(link, i) in referralsResource.links"
                             :key="i"
                             :href="link.url"
                             v-html="link.label"

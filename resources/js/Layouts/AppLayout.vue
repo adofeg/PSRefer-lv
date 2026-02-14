@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Layout/AppLayout/Sidebar.vue';
 import Header from '@/Components/Layout/AppLayout/Header.vue';
@@ -10,9 +10,33 @@ const props = defineProps({
     user: Object,
 });
 
-const sidebarOpen = ref(true);
+const sidebarOpen = ref(false);
+const isDesktopViewport = ref(false);
 const page = usePage();
 const pageKey = computed(() => page.component || page.url);
+
+const syncSidebarByViewport = () => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+
+    // Only auto-sync when switching breakpoint family.
+    if (desktop !== isDesktopViewport.value) {
+        isDesktopViewport.value = desktop;
+        sidebarOpen.value = desktop;
+    }
+};
+
+onMounted(() => {
+    syncSidebarByViewport();
+    window.addEventListener('resize', syncSidebarByViewport);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', syncSidebarByViewport);
+});
 </script>
 
 <template>

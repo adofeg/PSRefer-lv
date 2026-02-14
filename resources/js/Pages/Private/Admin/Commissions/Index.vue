@@ -1,17 +1,20 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue'; // Assuming Badge handles generic status or I need to update it
 import { Search, Filter, X, DollarSign, User, FileText, Calendar, Plus } from 'lucide-vue-next';
 import { useFormatters } from '@/Composables/useFormatters';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     commissions: Object,
     filters: Object,
     statuses: Array
 });
+
+const commissionsResource = computed(() => normalizePaginated(props.commissions));
 
 const { formatCurrency, formatShortDate } = useFormatters();
 
@@ -143,7 +146,7 @@ const getStatusColor = (status) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="commission in commissions.data" :key="commission.id" class="hover:bg-slate-50 transition group">
+                            <tr v-for="commission in commissionsResource.data" :key="commission.id" class="hover:bg-slate-50 transition group">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
@@ -190,15 +193,15 @@ const getStatusColor = (status) => {
                             </tr>
                         </tbody>
                     </table>
-                    <div v-if="commissions.data.length === 0" class="p-8 text-center text-slate-400">
+                    <div v-if="commissionsResource.data.length === 0" class="p-8 text-center text-slate-400">
                         No se encontraron comisiones.
                     </div>
                 </div>
                  <!-- Pagination -->
-                <div v-if="commissions.links.length > 3" class="flex justify-center p-4 border-t border-slate-100">
+                <div v-if="commissionsResource.links.length > 3" class="flex justify-center p-4 border-t border-slate-100">
                      <div class="flex gap-1">
                          <Link
-                            v-for="(link, i) in commissions.links"
+                            v-for="(link, i) in commissionsResource.links"
                             :key="i"
                             :href="link.url"
                             v-html="link.label"

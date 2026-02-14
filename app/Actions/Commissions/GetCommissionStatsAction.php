@@ -3,8 +3,8 @@
 namespace App\Actions\Commissions;
 
 use App\Models\Commission;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GetCommissionStatsAction
 {
@@ -24,12 +24,12 @@ class GetCommissionStatsAction
             DATE_FORMAT(created_at, '%Y-%m') as month,
             SUM(amount) as total
         ")
-        ->where('created_at', '>=', Carbon::now()->subMonths(12))
-        ->where('status', '!=', 'void')
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get()
-        ->mapWithKeys(fn($item) => [$item->month => $item->total]);
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->where('status', '!=', 'void')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(fn ($item) => [$item->month => $item->total]);
 
         // Fill missing months
         $chartData = [];
@@ -48,9 +48,9 @@ class GetCommissionStatsAction
             ->orderByDesc('total_earned')
             ->limit(5)
             ->get()
-            ->map(fn($c) => [
+            ->map(fn ($c) => [
                 'name' => $c->associate->user->name ?? 'Unknown',
-                'amount' => $c->total_earned
+                'amount' => $c->total_earned,
             ]);
 
         return [
@@ -63,9 +63,9 @@ class GetCommissionStatsAction
             ],
             'chart' => [
                 'labels' => $labels,
-                'data' => $chartData
+                'data' => $chartData,
             ],
-            'top_associates' => $topAssociates
+            'top_associates' => $topAssociates,
         ];
     }
 }

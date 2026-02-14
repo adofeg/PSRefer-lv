@@ -4,6 +4,7 @@ import { Link, usePage, useForm } from '@inertiajs/vue3';
 import { CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, MapPin, FileText, AlertCircle, Briefcase } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
 import { copyText } from '@/Utils/clipboard';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     show: Boolean,
@@ -14,6 +15,7 @@ const emit = defineEmits(['close']);
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const offeringResource = computed(() => normalizeResource(props.offering, null));
 
 // --- Tab & Form Logic ---
 const activeTab = ref('details'); // 'details' | 'register'
@@ -32,7 +34,7 @@ watch(() => props.offering, (newVal) => {
     if (newVal) {
         activeTab.value = 'details';
         form.reset();
-        form.offering_id = newVal.id;
+        form.offering_id = offeringResource.value?.id || '';
     }
 });
 
@@ -63,10 +65,11 @@ const isGenerating = ref(false);
 const canvasRef = ref(null);
 
 const handleDownload = async () => {
-    if (!props.offering) return;
+    if (!offeringResource.value) return;
     
     isGenerating.value = true;
     try {
+        const offering = offeringResource.value;
         const canvas = canvasRef.value;
         const ctx = canvas.getContext('2d');
         
@@ -92,7 +95,7 @@ const handleDownload = async () => {
         ctx.fill();
 
         // 3. Category Badge
-        const categoryText = (props.offering.category?.name || props.offering.category || 'SERVICIO').toUpperCase();
+        const categoryText = (offering.category?.name || offering.category || 'SERVICIO').toUpperCase();
         ctx.font = 'bold 30px Inter, sans-serif';
         const textMetrics = ctx.measureText(categoryText);
         const badgeWidth = textMetrics.width + 60;
@@ -118,7 +121,7 @@ const handleDownload = async () => {
         ctx.shadowColor = "rgba(0,0,0,0.3)";
         ctx.shadowBlur = 20;
         
-        const words = props.offering.name.split(' ');
+        const words = offering.name.split(' ');
         let line = '';
         let y = 350;
         const lineHeight = 90;
@@ -161,7 +164,7 @@ const handleDownload = async () => {
         
         // Load QR Code from API (Simple solution)
         // Link to public offering page with ref - NOW SECURE SIGNED URL
-        const shareUrl = props.offering.share_url;
+        const shareUrl = offering.share_url;
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
 
         const qrImg = new Image();
@@ -209,7 +212,7 @@ const handleDownload = async () => {
 
         const downloadUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.download = `Promo-${props.offering.name.replace(/\s+/g, '-')}.png`;
+        link.download = `Promo-${offering.name.replace(/\s+/g, '-')}.png`;
         link.href = downloadUrl;
         document.body.appendChild(link);
         link.click();
@@ -225,8 +228,8 @@ const handleDownload = async () => {
 };
 
 const copyLink = async () => {
-    if (!props.offering || !props.offering.share_url) return;
-    const link = props.offering.share_url;
+    if (!offeringResource.value || !offeringResource.value.share_url) return;
+    const link = offeringResource.value.share_url;
     const copied = await copyText(link);
 
     if (copied) {

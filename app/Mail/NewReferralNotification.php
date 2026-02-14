@@ -3,10 +3,7 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class NewReferralNotification extends Mailable
@@ -25,7 +22,7 @@ class NewReferralNotification extends Mailable
 
     public function build()
     {
-        return $this->subject('Nuevo Referido Recibido: ' . $this->referral->offering->name)
-                    ->markdown('emails.referrals.new_referral');
+        return $this->subject('Nuevo Referido Recibido: '.$this->referral->offering->name)
+            ->markdown('emails.referrals.new_referral');
     }
 }

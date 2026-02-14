@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
-import { ref } from 'vue';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     commission: Object,
@@ -10,13 +10,15 @@ const props = defineProps({
     statuses: Array
 });
 
+const commission = normalizeResource(props.commission, {});
+
 const form = useForm({
-    associate_id: props.commission.associate_id,
-    referral_id: props.commission.referral_id,
-    amount: props.commission.amount,
-    commission_type: props.commission.commission_type,
-    status: props.commission.status,
-    notes: props.commission.metadata?.notes || ''
+    associate_id: commission.associate_id ?? '',
+    referral_id: commission.referral_id ?? null,
+    amount: commission.amount ?? '',
+    commission_type: commission.commission_type ?? 'manual',
+    status: commission.status ?? 'pending',
+    notes: commission.metadata?.notes || '',
 });
 
 const commissionTypes = [
@@ -28,12 +30,12 @@ const commissionTypes = [
 ];
 
 const submit = () => {
-    form.put(route('admin.commissions.update', props.commission.id));
+    form.put(route('admin.commissions.update', commission.id));
 };
 
 const destroy = () => {
     if (confirm('¿Estás seguro de que quieres anular esta comisión? Esta acción no se puede deshacer.')) {
-        router.delete(route('admin.commissions.destroy', props.commission.id));
+        router.delete(route('admin.commissions.destroy', commission.id));
     }
 };
 </script>

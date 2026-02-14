@@ -21,15 +21,14 @@ class SubmitOfferingApplicationAction
         $request,
         string $source = 'public_landing',
         string $linkType = 'conversion'
-    ): array
-    {
+    ): array {
         $createdReferrals = [];
         $offering = Offering::where('id', $offeringId)
             ->where('is_active', true)
             ->firstOrFail();
 
         $formData = [];
-        if ($offering->form_schema && !empty($offering->form_schema)) {
+        if ($offering->form_schema && ! empty($offering->form_schema)) {
             $formData = $this->validator->validate(
                 $offering->form_schema,
                 $data->form_data ?? []
@@ -52,7 +51,7 @@ class SubmitOfferingApplicationAction
                         ['source' => $source, 'origen' => 'Referencia General'],
                         $formData
                     ),
-                    'notes' => "[Ref. General] " . ($data->notes ?? ''),
+                    'notes' => '[Ref. General] '.($data->notes ?? ''),
                     'status' => ReferralStatus::Prospect->value,
                 ]);
             }

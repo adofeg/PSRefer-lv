@@ -4,8 +4,9 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import { Search, Plus, Filter, X, Trash, Edit } from 'lucide-vue-next';
 import { Switch } from '@headlessui/vue';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     offerings: Object,
@@ -13,6 +14,8 @@ const props = defineProps({
     filters: Object,
     categories: Array
 });
+
+const offeringsResource = computed(() => normalizePaginated(props.offerings));
 
 const searchTerm = ref(props.filters?.search || '');
 const categoryFilter = ref(props.filters?.category || '');
@@ -174,7 +177,7 @@ const executeToggle = () => {
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card v-for="offering in offerings.data" :key="offering.id" class="flex flex-col h-full hover:shadow-md transition">
+                <Card v-for="offering in offeringsResource.data" :key="offering.id" class="flex flex-col h-full hover:shadow-md transition">
                    <div class="flex-1">
                        <div class="flex justify-between items-start mb-2">
                            <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-bold uppercase">{{ offering.category || 'General' }}</span>
@@ -230,10 +233,10 @@ const executeToggle = () => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="offerings.links.length > 3" class="flex justify-center mt-6">
+            <div v-if="offeringsResource.links.length > 3" class="flex justify-center mt-6">
                 <div class="flex gap-1">
                      <Link
-                        v-for="(link, i) in offerings.links"
+                        v-for="(link, i) in offeringsResource.links"
                         :key="i"
                         :href="link.url"
                         v-html="link.label"

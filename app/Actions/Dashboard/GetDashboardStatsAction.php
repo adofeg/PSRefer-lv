@@ -16,7 +16,7 @@ class GetDashboardStatsAction
         if ($user->hasRole(RoleName::adminRoles())) {
             $referralsQuery = Referral::query();
             $closedReferralsQuery = Referral::where('status', ReferralStatus::Closed->value);
-            
+
             // Admin Specific Stats
             $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('agency_fee') ?? 0;
             $totalCommissionsPaid = \App\Models\Commission::where('status', \App\Enums\CommissionStatus::Paid->value)->sum('amount');
@@ -26,10 +26,10 @@ class GetDashboardStatsAction
             $associate = $user->associateProfile();
             $referralsQuery = Referral::where('associate_id', $associate?->id);
             $closedReferralsQuery = Referral::where('associate_id', $associate?->id)->where('status', ReferralStatus::Closed->value);
-            
+
             // Personal Revenue Contribution (For associates, maybe Deal Value or their Commission?)
-            // Keeping revenue_generated for Associate for now as it might mean something different, 
-            // OR switching to agency_fee if that's what tracks their contribution. 
+            // Keeping revenue_generated for Associate for now as it might mean something different,
+            // OR switching to agency_fee if that's what tracks their contribution.
             // Actually, for associates 'Revenue' usually means the sales they generated. Let's use deal_value for associates.
             $totalRevenue = $closedReferralsQuery->sum('deal_value') ?? 0;
             $totalCommissionsPaid = 0; // Not used for associate view in same way
@@ -82,7 +82,7 @@ class GetDashboardStatsAction
                 'email' => $user->associateProfile()->referrer->user->email,
                 'phone' => $user->associateProfile()->referrer->user->phone,
                 'logo_url' => $user->associateProfile()->referrer->user->logo_url,
-            ] : null
+            ] : null,
         ];
     }
 }

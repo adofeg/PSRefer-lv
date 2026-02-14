@@ -1,9 +1,9 @@
 <script setup>
-import { useForm, Head } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 import { User, Phone, Mail, DollarSign, Building2, CheckCircle2, ArrowLeft } from 'lucide-vue-next';
-import { computed } from 'vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     offering: Object,
@@ -11,16 +11,19 @@ const props = defineProps({
     success: String
 });
 
+const offering = normalizeResource(props.offering, {});
+const referrer = normalizeResource(props.referrer, null);
+
 const form = useForm({
     client_name: '',
     client_contact: '',
     form_data: {},
     notes: '',
-    referrer_id: props.referrer?.id || null
+    referrer_id: referrer?.id || null
 });
 
 const submit = () => {
-    form.post(route('site.apply.submit', props.offering.id), {
+    form.post(route('site.apply.submit', { offeringId: offering.id }), {
         preserveScroll: true,
         onSuccess: () => {
             // Form will be reset on success via success message
@@ -49,13 +52,13 @@ const formatPrice = (price) => {
             <!-- Header with Back Link -->
             <div class="bg-white border-b border-slate-200 shadow-sm">
                 <div class="max-w-4xl mx-auto px-4 py-4">
-                    <a 
+                    <Link
                         :href="route('home')"
                         class="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600 transition"
                     >
                         <ArrowLeft :size="16" />
                         Volver al inicio
-                    </a>
+                    </Link>
                 </div>
             </div>
 
@@ -247,13 +250,13 @@ const formatPrice = (price) => {
 
             <!-- After Success - CTA -->
             <div v-if="success" class="text-center py-8">
-                <a 
+                <Link
                     :href="route('home')"
                     class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition shadow-lg"
                 >
                     <ArrowLeft :size="20" />
                     Volver al Inicio
-                </a>
+                </Link>
             </div>
         </div>
     </div>

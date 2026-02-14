@@ -17,7 +17,7 @@ class GetSmtpSettingsAction
             'password' => '',
             'encryption' => 'tls',
             'from_address' => 'noreply@example.com',
-            'from_name' => 'PS Refer'
+            'from_name' => 'PS Refer',
         ];
 
         return new SmtpSettingsData(

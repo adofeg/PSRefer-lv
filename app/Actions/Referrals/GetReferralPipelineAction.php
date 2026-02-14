@@ -11,7 +11,7 @@ class GetReferralPipelineAction
     {
         $query = Referral::with([
             'offering:id,name',
-            'associate.user:id,name'
+            'associate.user:id,name',
         ])->latest();
 
         if ($user->hasRole(\App\Enums\RoleName::Associate->value)) {

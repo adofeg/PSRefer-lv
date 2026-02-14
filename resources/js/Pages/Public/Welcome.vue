@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 </script>
@@ -22,18 +22,18 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                             Plataforma robusta para administrar servicios, referencias y comisiones con control por roles.
                         </p>
                         <div class="mt-8 flex flex-wrap gap-3">
-                            <a
+                            <Link
                                 :href="route('login')"
                                 class="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
                             >
                                 Iniciar sesión
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 :href="route('register')"
                                 class="inline-flex items-center justify-center px-5 py-3 rounded-lg border border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                             >
                                 Crear cuenta
-                            </a>
+                            </Link>
                         </div>
                         <div class="mt-6 grid grid-cols-2 gap-4 text-sm text-slate-500">
                             <div class="bg-white border border-slate-200 rounded-lg p-4">

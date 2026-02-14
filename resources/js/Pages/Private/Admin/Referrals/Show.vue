@@ -7,10 +7,11 @@ import StatusChangeModal from '@/Components/Referrals/StatusChangeModal.vue';
 import AuditTimeline from '@/Components/Referrals/AuditTimeline.vue';
 import { 
     ArrowLeft, History, User, Phone, Mail, FileText, 
-    Calendar, DollarSign, Briefcase, CheckCircle, AlertCircle 
+    Calendar, DollarSign, Briefcase, CheckCircle 
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useFormatters } from '@/Composables/useFormatters';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     referral: Object,
@@ -18,6 +19,7 @@ const props = defineProps({
 });
 
 const { formatCurrency, formatDate } = useFormatters();
+const referral = normalizeResource(props.referral, {});
 
 const showStatusModal = ref(false);
 

@@ -4,10 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Associate;
 use App\Models\Employee;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -20,9 +18,9 @@ class UserSeeder extends Seeder
         $psadminProfile = Employee::create([
             'department' => 'Executive',
             'job_title' => 'System Owner',
-            'internal_code' => 'EMP-001'
+            'internal_code' => 'EMP-001',
         ]);
-        
+
         $psadmin = $psadminProfile->user()->create([
             'email' => 'psadmin@psrefer.com',
             'name' => 'PS Administrator',
@@ -38,7 +36,7 @@ class UserSeeder extends Seeder
         $adminProfile = Employee::create([
             'department' => 'Operations',
             'job_title' => 'Manager',
-            'internal_code' => 'EMP-002'
+            'internal_code' => 'EMP-002',
         ]);
 
         $admin = $adminProfile->user()->create([
@@ -73,16 +71,16 @@ class UserSeeder extends Seeder
         // 4. Generate Random Associates with Data
         // Ideally we update UserFactory, but for agility lets just do loop here
         for ($i = 0; $i < 5; $i++) {
-             $prof = Associate::create(['balance' => 0.00]);
-             $u = $prof->user()->create([
-                 'name' => "Associate $i",
-                 'email' => "associate{$i}@example.com",
-                 'password' => Hash::make('password'),
-                 'phone' => '555-1' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
-                 'is_active' => true,
-                 'logo_url' => "https://ui-avatars.com/api/?name=Associate+{$i}&background=random",
-             ]);
-             $u->assignRole('associate');
+            $prof = Associate::create(['balance' => 0.00]);
+            $u = $prof->user()->create([
+                'name' => "Associate $i",
+                'email' => "associate{$i}@example.com",
+                'password' => Hash::make('password'),
+                'phone' => '555-1'.str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                'is_active' => true,
+                'logo_url' => "https://ui-avatars.com/api/?name=Associate+{$i}&background=random",
+            ]);
+            $u->assignRole('associate');
         }
     }
 }

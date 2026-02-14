@@ -13,7 +13,7 @@ class ToggleUserStatusAction
     public function execute(User $user, bool $isActive): User
     {
         $oldStatus = $user->is_active;
-        
+
         $user->update([
             'is_active' => $isActive,
         ]);
@@ -21,7 +21,7 @@ class ToggleUserStatusAction
         $this->auditService->logAction(
             $user,
             'UPDATE',
-            "User '{$user->name}' status changed to " . ($isActive ? 'Active' : 'Inactive'),
+            "User '{$user->name}' status changed to ".($isActive ? 'Active' : 'Inactive'),
             ['is_active' => $oldStatus],
             ['is_active' => $isActive]
         );

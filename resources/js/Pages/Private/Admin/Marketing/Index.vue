@@ -155,15 +155,39 @@ const generateCanvas = () => {
     ctx.fillText('PSRefer', 980, 1050);
 };
 
-const downloadImage = () => {
+const downloadImage = async () => {
     if (!canvasRef.value || !selectedOffering.value) return;
-    
+
     const canvas = canvasRef.value;
-    const link = document.createElement('a');
     const fileName = `${selectedOffering.value.name.replace(/\s+/g, '-')}-promo.png`;
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
+
+    try {
+        if (typeof canvas.toBlob !== 'function') {
+            throw new Error('toBlob no está disponible en este navegador.');
+        }
+
+        const blob = await new Promise((resolve, reject) => {
+            canvas.toBlob((generatedBlob) => {
+                if (!generatedBlob) {
+                    reject(new Error('No se pudo generar la imagen'));
+                    return;
+                }
+
+                resolve(generatedBlob);
+            }, 'image/png');
+        });
+
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = objectUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+        console.error('Canvas download error:', error);
+    }
 };
 
 const regenerateWithRandomColors = () => {

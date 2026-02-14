@@ -6,7 +6,6 @@ use App\Enums\CommissionStatus;
 use App\Models\Commission;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ProcessRecurringCommissions extends Command
 {
@@ -32,13 +31,13 @@ class ProcessRecurringCommissions extends Command
         $this->info('Scanning for due recurring commissions...');
 
         // Find parent commissions that are "recurring", "paid", and due for next payout
-        // A commission is due if it was created more than 1 month ago 
+        // A commission is due if it was created more than 1 month ago
         // AND no child commission has been created in the last 1 month.
         $parents = Commission::where('recurrence_type', 'recurring')
             ->where('status', CommissionStatus::Paid->value)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('recurrence_end_date')
-                      ->orWhere('recurrence_end_date', '>', now());
+                    ->orWhere('recurrence_end_date', '>', now());
             })
             ->where('created_at', '<', now()->subMonth())
             ->whereNotExists(function ($query) {

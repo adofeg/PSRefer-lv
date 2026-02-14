@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class SystemSetting extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $primaryKey = 'key';
-  public $incrementing = false;
-  protected $keyType = 'string';
+    protected $primaryKey = 'key';
 
-  protected $fillable = ['key', 'value'];
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    protected $fillable = ['key', 'value'];
 }

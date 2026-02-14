@@ -2,10 +2,9 @@
 
 namespace App\Actions\Associate;
 
+use App\Enums\ReferralStatus;
 use App\Models\Referral;
 use App\Models\User;
-use App\Enums\ReferralStatus;
-use Illuminate\Support\Facades\DB;
 
 class GetDashboardStatsAction
 {
@@ -15,8 +14,8 @@ class GetDashboardStatsAction
         // If month is null, we show the whole year. If set, we show days of that month.
 
         $associate = $user->associateProfile();
-        
-        if (!$associate) {
+
+        if (! $associate) {
             return [
                 'total_earned' => 0,
                 'pending_earned' => 0,
@@ -33,7 +32,7 @@ class GetDashboardStatsAction
         // The user asked for filtering THE CHART.
         // So I will keep KPIs as "All Time" / "Current Status" to not confuse "Pending Payment" with "Pending Payment in 2024".
         // Pending Payment is a current backlog state.
-        
+
         $referrals = Referral::where('associate_id', $associate->id)->get();
 
         // ... (KPI Logic remains same context) ...
@@ -42,22 +41,22 @@ class GetDashboardStatsAction
 
         // 1. Calculate KPIs (Global Context)
         $totalEarned = $referrals->where('status', ReferralStatus::Paid->value)->sum('revenue_generated');
-        
-        $pendingReferrals = $referrals->filter(function($r) {
-            return in_array($r->status, [ReferralStatus::Closed->value, ReferralStatus::InProcess->value]) 
+
+        $pendingReferrals = $referrals->filter(function ($r) {
+            return in_array($r->status, [ReferralStatus::Closed->value, ReferralStatus::InProcess->value])
                    && $r->status !== ReferralStatus::Paid->value;
         });
-        $pendingEarned = $pendingReferrals->sum(fn($r) => $this->calculatePotential($r));
+        $pendingEarned = $pendingReferrals->sum(fn ($r) => $this->calculatePotential($r));
 
         $lostReferrals = $referrals->where('status', ReferralStatus::Lost->value);
-        $lostPotential = $lostReferrals->sum(fn($r) => $this->calculatePotential($r));
+        $lostPotential = $lostReferrals->sum(fn ($r) => $this->calculatePotential($r));
 
         $totalCount = $referrals->count();
         $wonCount = $referrals->whereIn('status', [ReferralStatus::Closed->value, ReferralStatus::Paid->value])->count();
         $conversionRate = $totalCount > 0 ? round(($wonCount / $totalCount) * 100, 1) : 0;
 
         // 2. Recent Activity (Global)
-        $recentActivity = $referrals->sortByDesc('created_at')->take(5)->values()->map(function($r) {
+        $recentActivity = $referrals->sortByDesc('created_at')->take(5)->values()->map(function ($r) {
             return [
                 'id' => $r->id,
                 'client_name' => $r->client_name,
@@ -71,7 +70,7 @@ class GetDashboardStatsAction
         // 3. Chart Data (Filtered)
         $chartQuery = Referral::where('associate_id', $associate->id)
             ->whereYear('created_at', $year);
-            
+
         if ($month) {
             // Monthly View: Days 1-30/31
             $chartQuery->whereMonth('created_at', $month);
@@ -83,7 +82,7 @@ class GetDashboardStatsAction
 
             foreach ($labels as $day) {
                 // Count referrals for this day
-                $count = $filteredReferrals->filter(function($r) use ($day) {
+                $count = $filteredReferrals->filter(function ($r) use ($day) {
                     return $r->created_at->day == $day;
                 })->count();
                 $values[] = $count;
@@ -95,7 +94,7 @@ class GetDashboardStatsAction
             $values = [];
 
             foreach (range(1, 12) as $m) {
-                $count = $filteredReferrals->filter(function($r) use ($m) {
+                $count = $filteredReferrals->filter(function ($r) use ($m) {
                     return $r->created_at->month == $m;
                 })->count();
                 $values[] = $count;
@@ -117,7 +116,7 @@ class GetDashboardStatsAction
                 'year' => $year,
                 'month' => $month,
                 'available_years' => $this->getAvailableYears($associate->id),
-            ]
+            ],
         ];
     }
 
@@ -129,11 +128,11 @@ class GetDashboardStatsAction
             ->orderByDesc('year')
             ->pluck('year')
             ->toArray();
-            
+
         if (empty($years)) {
             return [now()->year];
         }
-        
+
         // Ensure strictly continuous? Or just distinct years?
         // User asked: "año que empece hasta el actual". Distinct is fine.
         return $years;
@@ -147,7 +146,9 @@ class GetDashboardStatsAction
         }
 
         $offering = $referral->offering;
-        if (!$offering) return 0.0;
+        if (! $offering) {
+            return 0.0;
+        }
 
         $config = $offering->commission_config ?? [];
 
@@ -160,12 +161,15 @@ class GetDashboardStatsAction
         // We need a deal deal_value to calc percentage.
         // If lost, we might not have it. If In Process, we might.
         if (isset($config['percentage']) && $config['percentage'] > 0) {
-             $value = $referral->deal_value ?? 0; // If deal_value is null, potential is 0
-             return ($value * $config['percentage']) / 100;
+            $value = $referral->deal_value ?? 0; // If deal_value is null, potential is 0
+
+            return ($value * $config['percentage']) / 100;
         }
-        
+
         // Fallback to legacy fields if config missing
-         if ($offering->base_commission > 0) return $offering->base_commission;
+        if ($offering->base_commission > 0) {
+            return $offering->base_commission;
+        }
 
         return 0.0;
     }

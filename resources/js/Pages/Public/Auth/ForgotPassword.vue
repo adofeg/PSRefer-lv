@@ -64,7 +64,7 @@ const submit = () => {
 
                     <div class="text-center text-sm text-slate-500">
                         ¿Recordaste tu contraseña?
-                        <Link href="/login" class="text-indigo-600 hover:text-indigo-700 font-medium">Volver a iniciar sesión</Link>
+                        <Link :href="route('login')" class="text-indigo-600 hover:text-indigo-700 font-medium">Volver a iniciar sesión</Link>
                     </div>
                 </form>
             </div>

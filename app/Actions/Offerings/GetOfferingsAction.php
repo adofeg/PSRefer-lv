@@ -5,7 +5,6 @@ namespace App\Actions\Offerings;
 use App\Enums\RoleName;
 use App\Models\Offering;
 use App\Models\User;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetOfferingsAction
 {
@@ -17,7 +16,7 @@ class GetOfferingsAction
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         });
 
@@ -45,12 +44,12 @@ class GetOfferingsAction
                         $q2->whereNull('category')
                             ->orWhere('category', '!=', $category);
                     })
-                    ->where(function ($q2) use ($category) {
-                        $q2->whereNull('category_id')
-                            ->orWhereHas('category', function ($cq) use ($category) {
-                                $cq->where('name', '!=', $category);
-                            });
-                    });
+                        ->where(function ($q2) use ($category) {
+                            $q2->whereNull('category_id')
+                                ->orWhereHas('category', function ($cq) use ($category) {
+                                    $cq->where('name', '!=', $category);
+                                });
+                        });
                 });
             }
         }

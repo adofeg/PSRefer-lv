@@ -1,27 +1,28 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     user: Object,
     roles: Array,
 });
 
-const isEdit = !!props.user;
+const user = normalizeResource(props.user, null);
+const isEdit = !!user;
 
 const form = useForm({
-    name: props.user?.name || '',
-    email: props.user?.email || '',
+    name: user?.name || '',
+    email: user?.email || '',
     password: '',
-    phone: props.user?.phone || '',
-    role: props.user?.role || 'associate', // Default to associate
-    category: props.user?.category || '',
-    is_active: props.user?.is_active ?? true,
+    phone: user?.phone || '',
+    role: user?.role || 'associate', // Default to associate
+    category: user?.category || '',
+    is_active: user?.is_active ?? true,
 });
 
 const submit = () => {
     if (isEdit) {
-        form.put(route('admin.users.update', props.user.id));
+        form.put(route('admin.users.update', user.id));
     } else {
         form.post(route('admin.users.store'));
     }

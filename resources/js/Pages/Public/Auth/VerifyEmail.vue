@@ -57,7 +57,7 @@ const submit = () => {
                     <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                         Reenviar enlace
                     </button>
-                    <Link href="/logout" method="post" as="button" class="w-full inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                    <Link :href="route('logout')" method="post" as="button" class="w-full inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
                         Cerrar sesión
                     </Link>
                 </form>

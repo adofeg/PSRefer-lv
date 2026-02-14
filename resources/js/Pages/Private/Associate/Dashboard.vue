@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { ref } from 'vue';
 import Badge from '@/Components/UI/Badge.vue';
 import { DollarSign, Clock, AlertCircle, TrendingUp, FileText, ArrowRight } from 'lucide-vue-next';
 import LineChart from '@/Components/Dashboard/LineChart.vue';
@@ -233,4 +233,3 @@ const formatCurrency = (amount) => {
         </div>
     </AppLayout>
 </template>
-

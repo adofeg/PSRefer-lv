@@ -3,8 +3,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import { Search, Filter, ImageIcon } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import OfferingDetailsModal from './OfferingDetailsModal.vue'; // Import Modal
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     offerings: Object,
@@ -12,6 +13,8 @@ const props = defineProps({
     auth: Object,
     categories: Array
 });
+
+const offeringsResource = computed(() => normalizePaginated(props.offerings));
 
 // --- Modal Logic ---
 const selectedOffering = ref(null);
@@ -91,7 +94,7 @@ const formatCurrency = (amount) => {
             <!-- Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div 
-                    v-for="offering in offerings.data" 
+                    v-for="offering in offeringsResource.data" 
                     :key="offering.id"
                     class="block h-full cursor-pointer"
                     @click="openModal(offering)"

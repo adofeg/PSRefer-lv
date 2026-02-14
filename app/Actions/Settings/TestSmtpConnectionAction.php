@@ -13,7 +13,7 @@ class TestSmtpConnectionAction
         $timeout = 5;
 
         if ($data->encryption === 'ssl') {
-            $host = 'ssl://' . $host;
+            $host = 'ssl://'.$host;
         }
 
         $errno = 0;

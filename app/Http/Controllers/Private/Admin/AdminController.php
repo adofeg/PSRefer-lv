@@ -26,10 +26,10 @@ abstract class AdminController extends Controller
         if (method_exists($model, 'user')) {
             $model->load('user.roles');
         } elseif (method_exists($model, 'owner')) {
-             $model->load('owner.roles');
+            $model->load('owner.roles');
         }
 
-        return Inertia::render($viewPath . '/Show', [
+        return Inertia::render($viewPath.'/Show', [
             $variableName => $model, // Pass full model or use DataResource
         ]);
     }
@@ -41,7 +41,7 @@ abstract class AdminController extends Controller
     {
         // $this->authorize('update', $model);
 
-        return Inertia::render($viewPath . '/Edit', array_merge([
+        return Inertia::render($viewPath.'/Edit', array_merge([
             $variableName => $model,
         ], $extra));
     }
@@ -51,7 +51,7 @@ abstract class AdminController extends Controller
      */
     protected function redirectAfterUpdate(string $routePrefix, string $successMessage = 'Registro actualizado correctamente.')
     {
-        return redirect()->route($routePrefix . '.index')
+        return redirect()->route($routePrefix.'.index')
             ->with('success', $successMessage);
     }
 
@@ -60,7 +60,7 @@ abstract class AdminController extends Controller
      */
     protected function redirectAfterStore(string $routePrefix, string $successMessage = 'Registro creado correctamente.')
     {
-        return redirect()->route($routePrefix . '.index')
+        return redirect()->route($routePrefix.'.index')
             ->with('success', $successMessage);
     }
 }

@@ -4,10 +4,11 @@ import { Head, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import Pagination from '@/Components/UI/Pagination.vue';
 import Modal from '@/Components/UI/Modal.vue';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Search, Filter, FileText, X } from 'lucide-vue-next';
 import { useFormatters } from '@/Composables/useFormatters';
 import debounce from 'lodash/debounce';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     logs: Object,
@@ -16,8 +17,9 @@ const props = defineProps({
 });
 
 const { formatDate } = useFormatters();
-const search = ref(props.filters.search || '');
-const actionFilter = ref(props.filters.action || '');
+const logsResource = computed(() => normalizePaginated(props.logs));
+const search = ref(props.filters?.search || '');
+const actionFilter = ref(props.filters?.action || '');
 
 const showDiffModal = ref(false);
 const selectedLog = ref(null);
@@ -133,7 +135,7 @@ const getActionColor = (action) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="log in logs.data" :key="log.id" class="hover:bg-slate-50 transition">
+                            <tr v-for="log in logsResource.data" :key="log.id" class="hover:bg-slate-50 transition">
                                 <td class="px-6 py-4 whitespace-nowrap text-slate-600">
                                     <div class="font-medium text-slate-700">{{ formatDate(log.created_at) }}</div>
                                     <div class="text-xs text-slate-400">{{ new Date(log.created_at).toLocaleTimeString() }}</div>
@@ -171,7 +173,7 @@ const getActionColor = (action) => {
                                     </button>
                                 </td>
                             </tr>
-                             <tr v-if="logs.data.length === 0">
+                             <tr v-if="logsResource.data.length === 0">
                                 <td colspan="6" class="px-6 py-12 text-center text-slate-400">
                                     <div class="flex flex-col items-center gap-2">
                                         <FileText :size="32" class="opacity-50" />
@@ -182,7 +184,7 @@ const getActionColor = (action) => {
                         </tbody>
                     </table>
                 </div>
-                <Pagination v-if="logs.data.length > 0" :links="logs.links" class="p-4 border-t border-slate-100" />
+                <Pagination v-if="logsResource.data.length > 0" :links="logsResource.links" class="p-4 border-t border-slate-100" />
             </Card>
         </div>
 

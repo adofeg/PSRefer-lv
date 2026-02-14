@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { MousePointer2, TrendingUp, BarChart3, ExternalLink } from 'lucide-vue-next';
 import axios from 'axios';
+import { router } from '@inertiajs/vue3';
 
 const stats = ref({
     total_clicks: 0,
@@ -107,7 +108,7 @@ onMounted(() => {
                     Comparte tus links del catálogo para ver estadísticas aquí.
                 </p>
                 <button 
-                  @click="$inertia.visit(route('admin.offerings.index'))"
+                  @click="router.visit(route('admin.offerings.index'))"
                   class="w-full py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
                 >
                   Ver Catálogo

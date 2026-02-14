@@ -11,7 +11,7 @@ class DeleteCategoryAction
     {
         if ($category->offerings()->count() > 0) {
             throw ValidationException::withMessages([
-                'category' => 'Cannot delete category with associated offerings.'
+                'category' => 'Cannot delete category with associated offerings.',
             ]);
         }
 

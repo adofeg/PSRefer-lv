@@ -4,10 +4,10 @@ namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralStatusUpdateData;
 use App\Enums\ReferralStatus;
+use App\Mail\ReferralStatusUpdatedMail;
 use App\Models\Referral;
 use App\Services\AuditService;
 use App\Services\CommissionService;
-use App\Mail\ReferralStatusUpdatedMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -42,9 +42,9 @@ class UpdateReferralStatusAction
             if ($status === ReferralStatus::Closed->value) {
                 $ref = $referral->fresh(); // Get updated values
                 $offering = $ref->offering;
-                
+
                 if ($offering && $ref->associate_id) {
-                     // Check for User Override
+                    // Check for User Override
                     $override = DB::table('commission_overrides')
                         ->where('associate_id', $ref->associate_id)
                         ->where('offering_id', $ref->offering_id)
@@ -56,8 +56,8 @@ class UpdateReferralStatusAction
                     $agencyFee = $ref->agency_fee ?? 0;
 
                     if ($agencyFee < $totalCommission) {
-                         throw \Illuminate\Validation\ValidationException::withMessages([
-                            'agency_fee' => "La tarifa de agencia ($" . number_format($agencyFee, 2) . ") no puede ser menor que la comisión estimada ($" . number_format($totalCommission, 2) . ").",
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'agency_fee' => 'La tarifa de agencia ($'.number_format($agencyFee, 2).') no puede ser menor que la comisión estimada ($'.number_format($totalCommission, 2).').',
                         ]);
                     }
                 }
@@ -70,7 +70,7 @@ class UpdateReferralStatusAction
                 $status,
                 $data->notes ?? ''
             );
-            
+
             // Send Email Notification to Associate
             try {
                 Mail::to($referral->associate?->user?->email)->send(new ReferralStatusUpdatedMail(
@@ -81,7 +81,7 @@ class UpdateReferralStatusAction
                 ));
             } catch (\Exception $e) {
                 // Log error but don't fail transaction if mail fails
-                logger()->error('Failed to send status update mail: ' . $e->getMessage());
+                logger()->error('Failed to send status update mail: '.$e->getMessage());
             }
 
             // Handle Commission Trigger
@@ -96,9 +96,11 @@ class UpdateReferralStatusAction
     protected function handleClosedReferral(Referral $referral)
     {
         $offering = $referral->offering;
-        if (!$offering) return;
+        if (! $offering) {
+            return;
+        }
 
-        if (!$referral->associate_id) {
+        if (! $referral->associate_id) {
             return;
         }
 
@@ -110,7 +112,7 @@ class UpdateReferralStatusAction
             ->first();
 
         $commissions = $this->commissionService->createAllCommissions($referral, $offering, $override);
-        
+
         // Parity with JS: Increment balance for one-time commissions
         $totalToIncrement = collect($commissions)->where('recurrence_type', 'one_time')->sum('amount');
         if ($totalToIncrement > 0) {

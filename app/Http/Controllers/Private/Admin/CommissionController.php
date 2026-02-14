@@ -45,6 +45,7 @@ class CommissionController extends AdminController
     public function store(CommissionRequest $request, CreateCommissionAction $action)
     {
         $action->execute($request->validated());
+
         return redirect()->route('admin.commissions.index')->with('success', 'Comisión registrada exitosamente.');
     }
 
@@ -60,6 +61,7 @@ class CommissionController extends AdminController
     public function update(CommissionRequest $request, Commission $commission, UpdateCommissionAction $action)
     {
         $action->execute($commission, $request->validated());
+
         return redirect()->route('admin.commissions.index')->with('success', 'Comisión actualizada exitosamente.');
     }
 
@@ -67,15 +69,16 @@ class CommissionController extends AdminController
     {
         // Instead of hard delete, we void it.
         $commission->update(['status' => 'void']);
+
         return redirect()->route('admin.commissions.index')->with('success', 'Comisión anulada correctamente.');
     }
 
     public function report(GetCommissionStatsAction $action): Response
     {
         $this->authorize('viewAny', Commission::class);
-        
+
         return Inertia::render('Private/Admin/Commissions/Report', [
-            'stats' => $action->execute()
+            'stats' => $action->execute(),
         ]);
     }
 }

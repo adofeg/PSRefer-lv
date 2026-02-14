@@ -8,17 +8,17 @@ use App\Http\Requests\Api\AnalyticsRequest;
 
 class AnalyticsController extends ApiController
 {
-  public function clicks(AnalyticsRequest $request, GetUserClickStatsAction $action)
-  {
-    return response()->json(
-      $action->execute($request->user())
-    );
-  }
+    public function clicks(AnalyticsRequest $request, GetUserClickStatsAction $action)
+    {
+        return response()->json(
+            $action->execute($request->user())
+        );
+    }
 
-  public function revenue(AnalyticsRequest $request, GetRevenueStatsAction $action)
-  {
-    return response()->json(
-      $action->execute($request->user(), $request->toRevenueData()->associate_id)
-    );
-  }
+    public function revenue(AnalyticsRequest $request, GetRevenueStatsAction $action)
+    {
+        return response()->json(
+            $action->execute($request->user(), $request->toRevenueData()->associate_id)
+        );
+    }
 }

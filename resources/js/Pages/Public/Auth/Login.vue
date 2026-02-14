@@ -13,7 +13,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post('/login', {
+    form.post(route('login.store'), {
         onFinish: () => form.reset('password'),
     });
 };
@@ -104,7 +104,7 @@ const submit = () => {
 
                     <div class="text-center text-sm text-slate-500">
                         ¿No tienes cuenta?
-                        <Link href="/register" class="text-indigo-600 hover:text-indigo-700 font-medium">Regístrate</Link>
+                        <Link :href="route('register')" class="text-indigo-600 hover:text-indigo-700 font-medium">Regístrate</Link>
                     </div>
                 </form>
             </div>

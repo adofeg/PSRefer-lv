@@ -22,7 +22,7 @@ enum RoleName: string
     {
         return [self::Admin->value, self::PsAdmin->value, self::Associate->value];
     }
-    
+
     public static function associate(): array
     {
         return [self::Associate->value];

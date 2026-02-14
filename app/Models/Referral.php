@@ -72,20 +72,20 @@ class Referral extends Model
     public function getEstimatedCommissionAttribute(): string
     {
         if ($this->revenue_generated > 0) {
-            return '$' . number_format($this->revenue_generated, 2);
+            return '$'.number_format($this->revenue_generated, 2);
         }
 
         $offering = $this->offering;
-        if (!$offering) {
+        if (! $offering) {
             return '-';
         }
 
         if ($offering->base_commission > 0) {
-            return '$' . number_format($offering->base_commission, 2);
+            return '$'.number_format($offering->base_commission, 2);
         }
 
         if ($offering->commission_rate > 0) {
-            return $offering->commission_rate . '% del valor';
+            return $offering->commission_rate.'% del valor';
         }
 
         return '-';

@@ -11,7 +11,7 @@ class AnalyticsRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -21,7 +21,7 @@ class AnalyticsRequest extends FormRequest
             RoleName::Associate->value,
         ]);
 
-        if (!$canAccessAnalytics) {
+        if (! $canAccessAnalytics) {
             return false;
         }
 
@@ -29,7 +29,7 @@ class AnalyticsRequest extends FormRequest
             $associateId = $user->associateProfile()?->id;
             $requestedId = $this->input('associate_id');
 
-            return !$requestedId || (int) $requestedId === (int) $associateId;
+            return ! $requestedId || (int) $requestedId === (int) $associateId;
         }
 
         return true;

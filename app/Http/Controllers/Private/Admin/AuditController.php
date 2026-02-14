@@ -19,10 +19,10 @@ class AuditController extends AdminController
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('entity', 'like', "%{$search}%")
-                  ->orWhere('action', 'like', "%{$search}%");
+                    ->orWhere('entity', 'like', "%{$search}%")
+                    ->orWhere('action', 'like', "%{$search}%");
             });
         }
 
@@ -32,7 +32,7 @@ class AuditController extends AdminController
 
         if ($request->filled('actor_id')) {
             $query->where('actorable_id', $request->input('actor_id'))
-                  ->where('actorable_type', User::class);
+                ->where('actorable_type', User::class);
         }
 
         $logs = $query->paginate(15)->withQueryString();
@@ -46,7 +46,7 @@ class AuditController extends AdminController
 
     protected function authorizeAdminOnly(?User $user): void
     {
-        if (!$user || !$user->hasRole(RoleName::Admin->value)) {
+        if (! $user || ! $user->hasRole(RoleName::Admin->value)) {
             abort(403, 'Solo administradores pueden ver los registros de auditoría.');
         }
     }

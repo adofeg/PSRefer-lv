@@ -1,17 +1,20 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Plus, Edit2, Trash2, X, Check, Search, Tag, Filter } from 'lucide-vue-next';
 import Card from '@/Components/UI/Card.vue';
 import Modal from '@/Components/UI/Modal.vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue';
 import { Switch } from '@headlessui/vue';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     categories: Object,
     filters: Object
 });
+
+const categoriesResource = computed(() => normalizePaginated(props.categories));
 
 const isModalOpen = ref(false);
 const editingCategory = ref(null);
@@ -211,7 +214,7 @@ const executeToggle = () => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="category in categories.data" :key="category.id" class="hover:bg-slate-50 transition">
+                            <tr v-for="category in categoriesResource.data" :key="category.id" class="hover:bg-slate-50 transition">
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-slate-800">{{ category.name }}</div>
                                 </td>
@@ -251,7 +254,7 @@ const executeToggle = () => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-if="categories.data.length === 0">
+                            <tr v-if="categoriesResource.data.length === 0">
                                 <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
                                     No se encontraron categorías
                                 </td>
@@ -261,10 +264,10 @@ const executeToggle = () => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="categories.links.length > 3" class="px-6 py-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex gap-1">
+                <div v-if="categoriesResource.links.length > 3" class="px-6 py-4 border-t border-slate-100 flex justify-center">
+                     <div class="flex gap-1">
                          <Link
-                            v-for="(link, i) in categories.links"
+                            v-for="(link, i) in categoriesResource.links"
                             :key="i"
                             :href="link.url"
                             v-html="link.label"

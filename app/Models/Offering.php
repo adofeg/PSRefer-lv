@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -69,19 +69,19 @@ class Offering extends Model
     // Query scopes
     public function scopeSearch(Builder $query, ?string $term): Builder
     {
-        if (!$term) {
+        if (! $term) {
             return $query;
         }
 
         return $query->where(function (Builder $q) use ($term) {
-            $q->where('name', 'like', '%' . $term . '%')
-                ->orWhere('description', 'like', '%' . $term . '%');
+            $q->where('name', 'like', '%'.$term.'%')
+                ->orWhere('description', 'like', '%'.$term.'%');
         });
     }
 
     public function scopeFilterByType(Builder $query, ?string $type): Builder
     {
-        if (!$type) {
+        if (! $type) {
             return $query;
         }
 
@@ -90,7 +90,7 @@ class Offering extends Model
 
     public function scopeFilterByCategory(Builder $query, string|int|null $category): Builder
     {
-        if (!$category) {
+        if (! $category) {
             return $query;
         }
 
@@ -102,7 +102,7 @@ class Offering extends Model
 
     public function scopeExcludeCategory(Builder $query, ?string $category): Builder
     {
-        if (!$category) {
+        if (! $category) {
             return $query;
         }
 

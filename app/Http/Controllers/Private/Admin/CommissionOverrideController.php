@@ -48,7 +48,7 @@ class CommissionOverrideController extends AdminController
             $data->offering_id,
             $data->commission_rate
         );
-        
+
         return redirect()->back()->with('success', 'Excepción guardada correctamente.');
     }
 

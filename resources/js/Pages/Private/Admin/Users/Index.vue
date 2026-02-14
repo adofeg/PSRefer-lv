@@ -1,18 +1,21 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Users, UserPlus, Search, DollarSign, Pencil, UserX, UserCheck, Filter, X } from 'lucide-vue-next';
 import { Switch } from '@headlessui/vue';
 import Card from '@/Components/UI/Card.vue';
 import CommissionOverrideModal from '@/Components/Admin/CommissionOverrideModal.vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue';
+import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     users: Object,
     filters: Object,
     roles: Array
 });
+
+const usersResource = computed(() => normalizePaginated(props.users));
 
 const searchTerm = ref(props.filters?.search || '');
 const roleFilter = ref(props.filters?.role || '');
@@ -207,7 +210,7 @@ const getRoleBadgeClass = (role) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="user in users.data" :key="user.id" class="hover:bg-slate-50 transition">
+                            <tr v-for="user in usersResource.data" :key="user.id" class="hover:bg-slate-50 transition">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-500">
@@ -274,7 +277,7 @@ const getRoleBadgeClass = (role) => {
                 </div>
 
                 <!-- Pagination Placeholder -->
-                <div v-if="users.links" class="p-4 border-t border-slate-100 flex justify-center">
+                <div v-if="usersResource.links.length > 0" class="p-4 border-t border-slate-100 flex justify-center">
                     <!-- Simple Pagination component or links -->
                 </div>
             </Card>

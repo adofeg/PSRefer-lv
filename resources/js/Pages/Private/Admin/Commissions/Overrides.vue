@@ -3,19 +3,21 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import Modal from '@/Components/UI/Modal.vue'; 
-import { ref } from 'vue';
-import { Settings, Plus, Trash2, Edit } from 'lucide-vue-next';
-import { useFormatters } from '@/Composables/useFormatters';
+import { computed, ref } from 'vue';
+import { Plus, Trash2, Edit } from 'lucide-vue-next';
+import { normalizeCollection, normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
     overrides: Object,
-    associates: Array, // Need to inject this from Controller
-    offerings: Array   // Need to inject this from Controller
+    associates: Array,
+    offerings: Array,
 });
 
-const { formatCurrency } = useFormatters();
 const isModalOpen = ref(false);
 const editingOverride = ref(null);
+const overridesResource = computed(() => normalizePaginated(props.overrides));
+const associatesList = computed(() => normalizeCollection(props.associates));
+const offeringsList = computed(() => normalizeCollection(props.offerings));
 
 const form = useForm({
     associate_id: '',
@@ -81,7 +83,7 @@ const destroy = (id) => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <tr v-for="override in overrides.data" :key="override.id" class="hover:bg-slate-50 transition">
+                        <tr v-for="override in overridesResource.data" :key="override.id" class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-medium text-slate-800">
                                 {{ override.associate?.user?.name }}
                                 <div class="text-xs text-slate-500">{{ override.associate?.user?.email }}</div>
@@ -106,7 +108,7 @@ const destroy = (id) => {
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="overrides.data.length === 0" class="p-8 text-center text-slate-400">
+                <div v-if="overridesResource.data.length === 0" class="p-8 text-center text-slate-400">
                     No hay excepciones configuradas. Se usan las tasas estándar.
                 </div>
             </Card>
@@ -123,7 +125,7 @@ const destroy = (id) => {
                         <label class="block text-sm font-medium text-slate-700 mb-1">Asociado</label>
                         <select v-model="form.associate_id" class="w-full border-slate-300 rounded-lg" required>
                             <option value="" disabled>Seleccionar Asociado</option>
-                            <option v-for="assoc in associates" :key="assoc.id" :value="assoc.id">
+                            <option v-for="assoc in associatesList" :key="assoc.id" :value="assoc.id">
                                 {{ assoc.name }}
                             </option>
                         </select>
@@ -132,7 +134,7 @@ const destroy = (id) => {
                         <label class="block text-sm font-medium text-slate-700 mb-1">Oferta (Opcional)</label>
                         <select v-model="form.offering_id" class="w-full border-slate-300 rounded-lg">
                             <option value="">Aplicar a todas las ofertas</option>
-                            <option v-for="offer in offerings" :key="offer.id" :value="offer.id">
+                            <option v-for="offer in offeringsList" :key="offer.id" :value="offer.id">
                                 {{ offer.name }}
                             </option>
                         </select>

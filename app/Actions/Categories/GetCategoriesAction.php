@@ -3,7 +3,6 @@
 namespace App\Actions\Categories;
 
 use App\Models\Category;
-use Illuminate\Support\Collection;
 
 class GetCategoriesAction
 {
@@ -15,7 +14,7 @@ class GetCategoriesAction
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         });
 

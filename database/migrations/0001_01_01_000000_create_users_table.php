@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            
+
             // Core Authentication
             $table->string('name');
             $table->string('email')->unique();
@@ -36,7 +36,7 @@ return new class extends Migration
             // UI Preferences
             $table->string('theme')->nullable();
             $table->string('preferred_currency')->default('USD');
-            
+
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

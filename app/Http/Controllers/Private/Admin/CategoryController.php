@@ -25,19 +25,21 @@ class CategoryController extends AdminController
 
         return Inertia::render('Private/Admin/Categories/Index', [
             'categories' => $categories,
-            'filters' => $filters
+            'filters' => $filters,
         ]);
     }
 
     public function store(CategoryRequest $request, CreateCategoryAction $action)
     {
         $action->execute($request->toData());
+
         return back()->with('success', 'Categoría creada correctamente.');
     }
 
     public function update(CategoryRequest $request, Category $category, UpdateCategoryAction $action)
     {
         $action->execute($category, $request->toData());
+
         return back()->with('success', 'Categoría actualizada correctamente.');
     }
 
@@ -45,6 +47,7 @@ class CategoryController extends AdminController
     {
         try {
             $action->execute($category);
+
             return back()->with('success', 'Categoría eliminada correctamente.');
         } catch (ValidationException $e) {
             return back()->with('error', $e->getMessage());
@@ -56,7 +59,7 @@ class CategoryController extends AdminController
         $this->authorize('update', $category);
 
         $isActive = (bool) $request->boolean('is_active');
-        
+
         // Manual update locally since UpdateCategoryAction expects full DTO
         // Ideally we should add updateStatus to Action like in Offering
         $category->update(['is_active' => $isActive]);

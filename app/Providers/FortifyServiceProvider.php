@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -61,10 +61,10 @@ class FortifyServiceProvider extends ServiceProvider
             ]);
         });
 
-                     Fortify::verifyEmailView(function () {
-               return Inertia::render('Public/Auth/VerifyEmail', [
-                 'status' => session('status'),
-             ]);
+        Fortify::verifyEmailView(function () {
+            return Inertia::render('Public/Auth/VerifyEmail', [
+                'status' => session('status'),
+            ]);
         });
 
         RateLimiter::for('login', function (Request $request) {

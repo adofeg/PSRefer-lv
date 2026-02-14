@@ -25,7 +25,7 @@ class MailConfigServiceProvider extends ServiceProvider
     {
         try {
             // Check if table exists to avoid errors during initial migration
-            if (!Schema::hasTable('system_settings')) {
+            if (! Schema::hasTable('system_settings')) {
                 return;
             }
 

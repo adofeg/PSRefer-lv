@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Data\Settings\SmtpSettingsData;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Enums\RoleName;
+use Illuminate\Foundation\Http\FormRequest;
 
 class SmtpSettingsRequest extends FormRequest
 {

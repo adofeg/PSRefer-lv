@@ -2,18 +2,23 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, AlertCircle } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 
 const props = defineProps({
     offerings: Array,
     selectedOffering: Object, 
 });
 
+const offeringsList = computed(() => normalizeCollection(props.offerings));
+const selectedOffering = computed(() => normalizeResource(props.selectedOffering, null));
+
 const form = useForm({
     client_name: '',
     client_email: '',
     client_phone: '',
     client_state: '',
-    offering_id: props.selectedOffering?.id || '',
+    offering_id: selectedOffering.value?.id || '',
     notes: '',
 });
 
@@ -124,7 +129,7 @@ const formatCurrency = (amount) => {
                                 <div class="relative">
                                     <select v-model="form.offering_id" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-white" required>
                                         <option value="" disabled>Selecciona un servicio del catálogo...</option>
-                                        <option v-for="offering in offerings" :key="offering.id" :value="offering.id">
+                                        <option v-for="offering in offeringsList" :key="offering.id" :value="offering.id">
                                             {{ offering.name }} — Comisión: {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
                                         </option>
                                     </select>
