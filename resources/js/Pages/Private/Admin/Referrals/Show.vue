@@ -124,11 +124,29 @@ const handleStatusUpdated = () => {
                                         </dd>
                                     </div>
 
-                                    <div class="space-y-1 sm:col-span-2">
+                                    <div v-if="referral.metadata?.client_state" class="space-y-1">
+                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estado / Ubicación</dt>
+                                        <dd class="text-base font-medium text-slate-900">{{ referral.metadata.client_state }}</dd>
+                                    </div>
+
+                                    <div class="space-y-1">
                                         <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Notas / Comentarios</dt>
                                         <dd class="text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm leading-relaxed">
                                             {{ referral.notes || 'Sin notas adicionales.' }}
                                         </dd>
+                                    </div>
+
+                                    <!-- Dynamic Extra Fields -->
+                                    <div v-if="referral.metadata && Object.keys(referral.metadata).filter(k => !['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact'].includes(k)).length" class="sm:col-span-2 mt-4">
+                                         <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Datos Específicos del Servicio</dt>
+                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div v-for="(value, key) in referral.metadata" :key="key">
+                                                <div v-if="!['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact', 'client_state'].includes(key)" class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50">
+                                                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">{{ key }}</p>
+                                                    <p class="text-sm font-medium text-slate-700">{{ value }}</p>
+                                                </div>
+                                            </div>
+                                         </div>
                                     </div>
                                 </div>
                             </div>

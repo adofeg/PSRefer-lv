@@ -16,13 +16,21 @@ class ReferralFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->name();
+        $email = $this->faker->safeEmail();
+        $phone = $this->faker->phoneNumber();
+
         return [
-            'client_name' => $this->faker->name(),
-            'client_contact' => $this->faker->phoneNumber(),
             'associate_id' => \App\Models\Associate::factory(),
             'offering_id' => \App\Models\Offering::factory(),
             'status' => $this->faker->randomElement(['Pendiente', 'Contactado', 'Cierre', 'Cerrado', 'Perdido']),
-            'metadata' => ['source' => 'factory'],
+            'metadata' => [
+                'source' => 'factory',
+                'client_name' => $name,
+                'client_email' => $email,
+                'client_phone' => $phone,
+                'client_contact' => "{$email} / {$phone}",
+            ],
             'notes' => $this->faker->sentence(),
             'revenue_generated' => 0,
         ];

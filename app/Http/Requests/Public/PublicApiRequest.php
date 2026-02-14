@@ -18,10 +18,8 @@ class PublicApiRequest extends FormRequest
             return [
                 'offering_id' => ['required', 'integer', 'exists:offerings,id'],
                 'referrer_id' => ['required', 'integer', 'exists:associates,id'],
-                'client_name' => ['required', 'string', 'max:255'],
-                'client_contact' => ['required', 'string', 'max:255'],
                 'notes' => ['nullable', 'string', 'max:1000'],
-                'form_data' => ['nullable', 'array'],
+                'form_data' => ['required', 'array'],
                 'metadata' => ['nullable', 'array'],
             ];
         }
@@ -43,8 +41,6 @@ class PublicApiRequest extends FormRequest
         $metadata = $this->validated('metadata') ?? [];
 
         return new OfferingApplicationData(
-            client_name: $this->validated('client_name'),
-            client_contact: $this->validated('client_contact'),
             referrer_id: (int) $this->validated('referrer_id'),
             form_data: array_merge($formData, $metadata),
             notes: $this->validated('notes')

@@ -35,7 +35,7 @@ class CatalogSeeder extends Seeder
                 'description' => 'Cobertura médica integral. Comisión del 30% mensual.',
                 'commission_type' => 'percentage',
                 'base_commission' => 30.00,
-                'is_active' => false, // DEACTIVATED - Not in PDF list
+                'is_active' => true,
                 'form_schema' => [
                     ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
                     ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],

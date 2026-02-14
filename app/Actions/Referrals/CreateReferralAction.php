@@ -37,10 +37,8 @@ class CreateReferralAction
             return Referral::create([
                 'associate_id' => $data->associate_id,
                 'offering_id' => $data->offering_id,
-                'client_name' => $data->client_name,
-                'client_contact' => $data->client_contact,
                 'status' => $data->status?->value ?? ReferralStatus::Prospect->value,
-                'metadata' => $data->metadata,
+                'metadata' => $data->metadata ?? [],
                 'notes' => $data->notes,
             ]);
         });

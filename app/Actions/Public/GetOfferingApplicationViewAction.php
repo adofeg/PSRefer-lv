@@ -4,11 +4,13 @@ namespace App\Actions\Public;
 
 use App\Models\Associate;
 use App\Models\Offering;
+use App\Services\OfferingSchemaService;
 use Illuminate\Http\Request;
 
 class GetOfferingApplicationViewAction
 {
     public function __construct(
+        protected OfferingSchemaService $schemaService,
         protected TrackReferralClickAction $trackReferralClickAction
     ) {}
 
@@ -32,8 +34,7 @@ class GetOfferingApplicationViewAction
                 'description' => $offering->description,
                 'type' => $offering->type,
                 'category' => $offering->category,
-                'base_price' => $offering->base_price,
-                'form_schema' => $offering->form_schema,
+                'form_schema' => $this->schemaService->getSchemaForOffering($offering->form_schema),
                 'owner' => $offering->owner?->user ? [
                     'id' => $offering->owner->user->id,
                     'name' => $offering->owner->user->name,

@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
-import { User, Phone, Mail, DollarSign, Building2, CheckCircle2, ArrowLeft } from 'lucide-vue-next';
+import { User, Phone, Mail, Building2, CheckCircle2, ArrowLeft } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { normalizeResource } from '@/Utils/inertia';
 
@@ -15,8 +15,6 @@ const offering = normalizeResource(props.offering, {});
 const referrer = normalizeResource(props.referrer, null);
 
 const form = useForm({
-    client_name: '',
-    client_contact: '',
     form_data: {},
     notes: '',
     referrer_id: referrer?.id || null
@@ -147,47 +145,10 @@ const submit = () => {
                 </div>
 
                 <div class="space-y-6">
-                    <!-- Basic Information -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                Tu Nombre Completo <span class="text-red-500">*</span>
-                            </label>
-                            <input 
-                                v-model="form.client_name"
-                                type="text"
-                                required
-                                placeholder="Ej: Juan Pérez"
-                                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                                :class="{ 'border-red-500': form.errors.client_name }"
-                            >
-                            <p v-if="form.errors.client_name" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.client_name }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                Email o Teléfono de Contacto <span class="text-red-500">*</span>
-                            </label>
-                            <input 
-                                v-model="form.client_contact"
-                                type="text"
-                                required
-                                placeholder="ejemplo@email.com o (555) 123-4567"
-                                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                                :class="{ 'border-red-500': form.errors.client_contact }"
-                            >
-                            <p v-if="form.errors.client_contact" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.client_contact }}
-                            </p>
-                        </div>
-                    </div>
-
                     <!-- Dynamic Form Fields -->
-                    <div v-if="offering.form_schema?.length" class="pt-6 border-t-2 border-slate-100">
+                    <div v-if="offering.form_schema?.length" class="pt-2">
                         <h3 class="text-lg font-semibold text-slate-900 mb-4">
-                            Información Adicional
+                            Información del Cliente
                         </h3>
                         <DynamicForm 
                             :schema="offering.form_schema"

@@ -3,7 +3,6 @@
 namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralData;
-use App\Http\Requests\Admin\ReferralRequest;
 use App\Models\Offering;
 use App\Services\FormSchemaValidator;
 
@@ -11,22 +10,27 @@ class SubmitReferralAction
 {
     public function __construct(
         protected CreateReferralAction $createReferralAction,
-        protected FormSchemaValidator $validator
+        protected FormSchemaValidator $validator,
+        protected \App\Services\OfferingSchemaService $schemaService
     ) {}
 
     public function execute(ReferralData $data, array $formData = []): string
     {
         $offering = Offering::findOrFail($data->offering_id);
+        $schema = $this->schemaService->getSchemaForOffering($offering->form_schema);
 
         $validatedFormData = [];
-        if ($offering->form_schema && ! empty($offering->form_schema)) {
+        if (! empty($schema)) {
             $validatedFormData = $this->validator->validate(
-                $offering->form_schema,
+                $schema,
                 $formData
             );
         }
 
         $allMetadata = array_merge($data->metadata ?? [], $validatedFormData);
+        
+        // Shadow Sync: Extract core fields from dynamic data
+        $extracted = $this->schemaService->extractCoreFields($schema, $allMetadata);
 
         $selectedServices = $allMetadata['Servicios de Interés'] ?? null;
         if ($offering->name === 'Referencia General' && is_array($selectedServices) && ! empty($selectedServices)) {
@@ -35,10 +39,13 @@ class SubmitReferralAction
 
             foreach ($offerings as $targetOffering) {
                 $referralData = new ReferralData(
-                    client_name: $data->client_name,
-                    client_contact: $data->client_contact,
                     offering_id: $targetOffering->id,
-                    metadata: array_merge($allMetadata, ['origen' => 'Referencia General']),
+                    metadata: array_merge($allMetadata, [
+                        'origen' => 'Referencia General',
+                        'client_name' => $extracted['client_name'] ?? null,
+                        'client_contact' => $extracted['client_contact'] ?? null,
+                        'client_state' => $extracted['client_state'] ?? null
+                    ]),
                     notes: '[Ref. General] '.($data->notes ?? ''),
                     associate_id: $data->associate_id
                 );
@@ -51,10 +58,12 @@ class SubmitReferralAction
         }
 
         $referralData = new ReferralData(
-            client_name: $data->client_name,
-            client_contact: $data->client_contact,
             offering_id: $data->offering_id,
-            metadata: $allMetadata,
+            metadata: array_merge($allMetadata, [
+                'client_name' => $extracted['client_name'] ?? null,
+                'client_contact' => $extracted['client_contact'] ?? null,
+                'client_state' => $extracted['client_state'] ?? null
+            ]),
             notes: $data->notes,
             associate_id: $data->associate_id
         );

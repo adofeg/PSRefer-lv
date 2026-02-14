@@ -7,11 +7,13 @@ use App\Enums\ReferralStatus;
 use App\Models\Offering;
 use App\Models\Referral;
 use App\Services\FormSchemaValidator;
+use App\Services\OfferingSchemaService;
 
 class SubmitOfferingApplicationAction
 {
     public function __construct(
         protected FormSchemaValidator $validator,
+        protected OfferingSchemaService $schemaService,
         protected TrackReferralClickAction $trackReferralClickAction
     ) {}
 
@@ -27,13 +29,22 @@ class SubmitOfferingApplicationAction
             ->where('is_active', true)
             ->firstOrFail();
 
+        $schema = $this->schemaService->getSchemaForOffering($offering->form_schema);
+
         $formData = [];
-        if ($offering->form_schema && ! empty($offering->form_schema)) {
+        if (! empty($schema)) {
             $formData = $this->validator->validate(
-                $offering->form_schema,
+                $schema,
                 $data->form_data ?? []
             );
         }
+
+        $extracted = $this->schemaService->extractCoreFields($schema, $formData);
+        $baseMetadata = array_merge($formData, [
+            'client_name' => $extracted['client_name'] ?? null,
+            'client_contact' => $extracted['client_contact'] ?? null,
+            'client_state' => $extracted['client_state'] ?? null,
+        ]);
 
         $assignedAssociateId = $data->referrer_id ?? null;
 
@@ -45,11 +56,9 @@ class SubmitOfferingApplicationAction
                 $createdReferrals[] = Referral::create([
                     'associate_id' => $assignedAssociateId,
                     'offering_id' => $target->id,
-                    'client_name' => $data->client_name,
-                    'client_contact' => $data->client_contact,
                     'metadata' => array_merge(
                         ['source' => $source, 'origen' => 'Referencia General'],
-                        $formData
+                        $baseMetadata
                     ),
                     'notes' => '[Ref. General] '.($data->notes ?? ''),
                     'status' => ReferralStatus::Prospect->value,
@@ -66,11 +75,9 @@ class SubmitOfferingApplicationAction
         $createdReferrals[] = Referral::create([
             'associate_id' => $assignedAssociateId,
             'offering_id' => $offering->id,
-            'client_name' => $data->client_name,
-            'client_contact' => $data->client_contact,
             'metadata' => array_merge(
                 ['source' => $source],
-                $formData
+                $baseMetadata
             ),
             'notes' => $data->notes,
             'status' => ReferralStatus::Prospect->value,

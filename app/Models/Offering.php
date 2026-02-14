@@ -34,7 +34,6 @@ class Offering extends Model
     {
         return [
             'base_commission' => 'decimal:2',
-            'base_commission' => 'decimal:2',
             'commission_type' => 'string',
             'form_schema' => 'array',
             'commission_config' => 'array',
@@ -43,6 +42,15 @@ class Offering extends Model
             'metadata' => 'array',
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $offering): void {
+            if (empty($offering->form_schema) || ! is_array($offering->form_schema)) {
+                $offering->form_schema = app(\App\Services\OfferingSchemaService::class)->getDefaultSchema();
+            }
+        });
     }
 
     public function owner(): BelongsTo

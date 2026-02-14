@@ -33,6 +33,8 @@ class OfferingData extends Data
             );
         }
 
+        $schemaService = app(\App\Services\OfferingSchemaService::class);
+
         return new self(
             id: (int) $offering->id,
             name: $offering->name,
@@ -42,7 +44,7 @@ class OfferingData extends Data
             description: $offering->description,
             base_commission: $offering->base_commission !== null ? (float) $offering->base_commission : null,
             is_active: (bool) $offering->is_active,
-            form_schema: $offering->form_schema ?? [],
+            form_schema: $schemaService->getSchemaForOffering($offering->form_schema),
             commission_rules: $offering->commission_rules ?? [],
             notification_emails: $offering->notification_emails ?? [],
             share_url: $shareUrl,

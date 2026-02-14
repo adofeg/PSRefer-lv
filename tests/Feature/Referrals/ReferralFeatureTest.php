@@ -69,9 +69,13 @@ class ReferralFeatureTest extends TestCase
         });
 
         $payload = [
-            'client_name' => 'Jane Doe',
-            'client_contact' => 'jane@example.com',
             'offering_id' => $offering->id,
+            'form_data' => [
+                'client_name' => 'Jane Doe',
+                'client_email' => 'jane@example.com',
+                'client_phone' => '555-555-1234',
+                'client_state' => 'Florida',
+            ],
             'notes' => 'Interested',
             'associate_id' => $associate->id,
         ];

@@ -43,9 +43,8 @@ class ReferralRequest extends FormRequest
         }
 
         $rules = [
-            'client_name' => 'required|string|max:255',
-            'client_contact' => 'required|string|max:255',
             'offering_id' => 'required|integer|exists:offerings,id',
+            'form_data' => 'required|array',
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
             'associate_id' => [
@@ -94,8 +93,6 @@ class ReferralRequest extends FormRequest
     public function toStoreData(int $associateId): ReferralData
     {
         return new ReferralData(
-            client_name: $this->validated('client_name'),
-            client_contact: $this->validated('client_contact'),
             offering_id: (int) $this->validated('offering_id'),
             status: ReferralStatus::Prospect,
             metadata: $this->validated('metadata') ?? [],

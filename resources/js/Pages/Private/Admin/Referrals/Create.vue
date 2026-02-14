@@ -19,8 +19,6 @@ const associatesList = computed(() => normalizeCollection(props.associates));
 const form = useForm({
     offering_id: selectedOffering.value?.id || '',
     associate_id: '',
-    client_name: '',
-    client_contact: '',
     form_data: {},
     notes: ''
 });
@@ -105,68 +103,31 @@ const submit = () => {
                         <p class="text-sm text-indigo-600 mt-1">Comisión: {{ selectedOffering.commission_type === 'percentage' ? `${selectedOffering.base_commission}%` : `$${selectedOffering.base_commission}` }}</p>
                     </div>
 
-                    <!-- Client Information -->
-                    <div class="border-t pt-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Información del Cliente</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">
-                                    Nombre del Cliente <span class="text-red-500">*</span>
-                                </label>
-                                <input 
-                                    v-model="form.client_name" 
-                                    type="text" 
-                                    required
-                                    placeholder="Nombre completo del cliente"
-                                    class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" 
-                                />
-                                <div v-if="form.errors.client_name" class="text-red-500 text-xs mt-1">
-                                    {{ form.errors.client_name }}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">
-                                    Contacto (Tel/Email) <span class="text-red-500">*</span>
-                                </label>
-                                <input 
-                                    v-model="form.client_contact" 
-                                    type="text"
-                                    required
-                                    placeholder="Teléfono o email de contacto"
-                                    class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" 
-                                />
-                                <div v-if="form.errors.client_contact" class="text-red-500 text-xs mt-1">
-                                    {{ form.errors.client_contact }}
-                                </div>
-                            </div>
+                    <div v-if="currentOffering" class="space-y-6">
+                        <!-- Dynamic Form (Catalog-Driven) -->
+                        <div class="border-t pt-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">
+                                {{ currentOffering.form_schema?.length > 4 ? 'Información del Cliente y Detalles' : 'Información del Cliente' }}
+                            </h3>
+                            <DynamicForm 
+                                :schema="currentOffering.form_schema"
+                                v-model="form.form_data"
+                                :errors="form.errors"
+                            />
                         </div>
-                    </div>
 
-                    <!-- Dynamic Form Fields -->
-                    <div v-if="currentOffering?.form_schema?.length" class="border-t pt-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4">
-                            Información Adicional Requerida
-                        </h3>
-                        <DynamicForm 
-                            :schema="currentOffering.form_schema"
-                            v-model="form.form_data"
-                            :errors="form.errors"
-                        />
-                    </div>
-
-                    <!-- Notes -->
-                    <div class="border-t pt-6">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">
-                            Notas Adicionales
-                        </label>
-                        <textarea 
-                            v-model="form.notes" 
-                            rows="3" 
-                            placeholder="Información adicional sobre este referido..."
-                            class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                        ></textarea>
+                        <!-- Notes -->
+                        <div class="border-t pt-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">
+                                Notas Adicionales
+                            </label>
+                            <textarea 
+                                v-model="form.notes" 
+                                rows="3" 
+                                placeholder="Información adicional sobre este referido..."
+                                class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                            ></textarea>
+                        </div>
                     </div>
 
                     <!-- Actions -->

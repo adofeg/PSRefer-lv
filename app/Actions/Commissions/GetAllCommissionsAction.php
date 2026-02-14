@@ -20,7 +20,7 @@ class GetAllCommissionsAction
                     ->orWhere('email', 'like', "%{$search}%");
             })
                 ->orWhereHas('referral', function ($q) use ($search) {
-                    $q->where('client_name', 'like', "%{$search}%");
+                    $q->searchByClient($search);
                 });
         });
 

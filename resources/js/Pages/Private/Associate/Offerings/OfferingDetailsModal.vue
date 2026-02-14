@@ -5,6 +5,7 @@ import { CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, Ma
 import { ref, computed, watch } from 'vue';
 import { copyText } from '@/Utils/clipboard';
 import { normalizeResource } from '@/Utils/inertia';
+import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 
 const props = defineProps({
     show: Boolean,
@@ -21,11 +22,8 @@ const offeringResource = computed(() => normalizeResource(props.offering, null))
 const activeTab = ref('details'); // 'details' | 'register'
 
 const form = useForm({
-    client_name: '',
-    client_email: '',
-    client_phone: '',
-    client_state: '',
     offering_id: '',
+    form_data: {},
     notes: '',
 });
 
@@ -378,47 +376,21 @@ const copyLink = async () => {
                     <form @submit.prevent="submitReferral" class="h-full flex flex-col">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                             
-                            <!-- Left Column: Client Data -->
+                            <!-- Dynamic Form (Catalog-Driven) -->
                             <div class="space-y-8">
-                                <div class="border-b border-slate-100 pb-2">
-                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                                        <User class="w-4 h-4 text-slate-400" />
-                                        Datos del Cliente
-                                    </h3>
-                                    <p class="text-xs text-slate-500 mt-1">Información de contacto para nuestros expertos.</p>
-                                </div>
-
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Nombre Completo <span class="text-red-500">*</span></label>
-                                        <input v-model="form.client_name" type="text" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="Ej. Juan Pérez" />
-                                        <div v-if="form.errors.client_name" class="text-red-500 text-xs mt-1">{{ form.errors.client_name }}</div>
+                                <div v-if="offeringResource?.form_schema?.length">
+                                    <div class="border-b border-slate-100 pb-2 mb-6">
+                                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                                            <FileText class="w-4 h-4 text-slate-400" />
+                                            {{ offeringResource.form_schema?.length > 4 ? 'Información del Cliente y Detalles' : 'Información del Cliente' }}
+                                        </h3>
+                                        <p class="text-xs text-slate-500 mt-1">Datos específicos para este servicio.</p>
                                     </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-6">
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Teléfono <span class="text-red-500">*</span></label>
-                                            <input v-model="form.client_phone" type="tel" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="(555) 123-4567" />
-                                            <div v-if="form.errors.client_phone" class="text-red-500 text-xs mt-1">{{ form.errors.client_phone }}</div>
-                                        </div>
-                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Estado <span class="text-red-500">*</span></label>
-                                            <div class="relative">
-                                                <MapPin class="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
-                                                <input v-model="form.client_state" type="text" class="w-full pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="Ej. Florida" />
-                                            </div>
-                                            <div v-if="form.errors.client_state" class="text-red-500 text-xs mt-1">{{ form.errors.client_state }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Email <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <Mail class="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
-                                            <input v-model="form.client_email" type="email" class="w-full pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 py-3" required placeholder="corre@ejemplo.com" />
-                                        </div>
-                                        <div v-if="form.errors.client_email" class="text-red-500 text-xs mt-1">{{ form.errors.client_email }}</div>
-                                    </div>
+                                    <DynamicForm 
+                                        :schema="offeringResource.form_schema"
+                                        v-model="form.form_data"
+                                        :errors="form.errors"
+                                    />
                                 </div>
                             </div>
 

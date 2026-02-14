@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,8 +16,6 @@ class Referral extends Model
     protected $fillable = [
         'associate_id',
         'offering_id',
-        'client_name',
-        'client_contact',
         'status',
         'deal_value',
         'revenue_generated',
@@ -30,7 +29,7 @@ class Referral extends Model
         'paid_at',
     ];
 
-    protected $appends = ['estimated_commission'];
+    protected $appends = ['client_name', 'client_contact', 'client_email', 'client_phone', 'estimated_commission'];
 
     protected function casts(): array
     {
@@ -67,6 +66,105 @@ class Referral extends Model
             ->where('event_type', 'status_change')
             ->with('actorable')
             ->orderBy('created_at', 'desc');
+    }
+
+    public function scopeSearchByClient(Builder $query, string $search): Builder
+    {
+        $term = trim($search);
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($term): void {
+            $q->where('metadata->client_name', 'like', "%{$term}%")
+                ->orWhere('metadata->client_contact', 'like', "%{$term}%")
+                ->orWhere('metadata->client_email', 'like', "%{$term}%")
+                ->orWhere('metadata->client_phone', 'like', "%{$term}%");
+        });
+    }
+
+    public function getClientNameAttribute(): ?string
+    {
+        $metadata = $this->metadata ?? [];
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        return $metadata['client_name']
+            ?? $metadata['full_name']
+            ?? $metadata['name']
+            ?? null;
+    }
+
+    public function setClientNameAttribute(?string $value): void
+    {
+        $this->setMetadataField('client_name', $value);
+    }
+
+    public function getClientContactAttribute(): ?string
+    {
+        $metadata = $this->metadata ?? [];
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        if (! empty($metadata['client_contact'])) {
+            return (string) $metadata['client_contact'];
+        }
+
+        $email = $metadata['client_email'] ?? null;
+        $phone = $metadata['client_phone'] ?? null;
+
+        if ($email && $phone) {
+            return "{$email} / {$phone}";
+        }
+
+        return $email ?: $phone ?: null;
+    }
+
+    public function setClientContactAttribute(?string $value): void
+    {
+        $this->setMetadataField('client_contact', $value);
+    }
+
+    public function getClientEmailAttribute(): ?string
+    {
+        $metadata = $this->metadata ?? [];
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        return $metadata['client_email'] ?? null;
+    }
+
+    public function getClientPhoneAttribute(): ?string
+    {
+        $metadata = $this->metadata ?? [];
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        return $metadata['client_phone'] ?? null;
+    }
+
+    protected function setMetadataField(string $key, ?string $value): void
+    {
+        $metadata = $this->metadata ?? [];
+        if (! is_array($metadata)) {
+            $metadata = [];
+        }
+
+        if ($value === null || trim($value) === '') {
+            unset($metadata[$key]);
+        } else {
+            $metadata[$key] = $value;
+        }
+
+        $this->attributes['metadata'] = json_encode($metadata);
     }
 
     public function getEstimatedCommissionAttribute(): string

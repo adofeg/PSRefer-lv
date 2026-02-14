@@ -24,8 +24,7 @@ class ReferralService
         $referral = Referral::create([
             'associate_id' => $associate->id,
             'offering_id' => $data['offering_id'],
-            'client_name' => $data['client_name'],
-            'client_contact' => $data['client_contact'] ?? null,
+            'metadata' => $data['metadata'] ?? [],
             'notes' => $data['notes'] ?? null,
             'status' => ReferralStatus::Prospect->value,
         ]);

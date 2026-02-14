@@ -14,8 +14,6 @@ return new class extends Migration
             // Core
             $table->foreignId('associate_id')->nullable()->constrained('associates')->nullOnDelete();
             $table->foreignId('offering_id')->constrained('offerings');
-            $table->string('client_name');
-            $table->string('client_contact')->nullable();
             $table->string('status')->default('Prospecto'); // Prospecto, Contactado, Negociación, Cerrado
 
             // Financial Details (Merged from add_total_payment_to_referrals_table)
@@ -28,6 +26,7 @@ return new class extends Migration
 
             // Meta
             $table->text('notes')->nullable();
+            // Dynamic catalog fields, including client identity/contact
             $table->jsonb('metadata')->nullable();
 
             $table->timestamp('closed_at')->nullable();

@@ -55,10 +55,12 @@ class CreateReferralActionTest extends TestCase
         $data = new ReferralData(
             associate_id: $associate->id,
             offering_id: $offering->id,
-            client_name: 'John Doe',
-            client_contact: 'john@example.com',
             status: ReferralStatus::Prospect,
-            metadata: ['source' => 'web'],
+            metadata: [
+                'source' => 'web',
+                'client_name' => 'John Doe',
+                'client_contact' => 'john@example.com',
+            ],
             notes: 'Test note'
         );
 
@@ -70,9 +72,10 @@ class CreateReferralActionTest extends TestCase
         $this->assertInstanceOf(Referral::class, $referral);
         $this->assertDatabaseHas('referrals', [
             'id' => $referral->id,
-            'client_name' => 'John Doe',
             'status' => ReferralStatus::Prospect->value,
         ]);
+        $this->assertSame('John Doe', $referral->client_name);
+        $this->assertSame('john@example.com', $referral->client_contact);
         $this->assertEquals($associate->id, $referral->associate_id);
     }
 }
