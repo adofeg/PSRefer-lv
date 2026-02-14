@@ -70,7 +70,7 @@ const submit = () => {
                         >
                             <option value="">Seleccionar...</option>
                             <option v-for="off in offeringsList" :key="off.id" :value="off.id">
-                                {{ off.name }} - {{ off.commission_rate }}% comisión
+                                {{ off.name }} - {{ off.commission_type === 'percentage' ? `${off.base_commission}%` : `$${off.base_commission}` }} comisión
                             </option>
                         </select>
                         <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-1">
@@ -102,7 +102,7 @@ const submit = () => {
                     <div v-if="selectedOffering" class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                         <p class="text-sm text-indigo-700 font-medium mb-1">Refiriendo a:</p>
                         <p class="text-lg font-semibold text-indigo-900">{{ selectedOffering.name }}</p>
-                        <p class="text-sm text-indigo-600 mt-1">Comisión: {{ selectedOffering.commission_rate }}%</p>
+                        <p class="text-sm text-indigo-600 mt-1">Comisión: {{ selectedOffering.commission_type === 'percentage' ? `${selectedOffering.base_commission}%` : `$${selectedOffering.base_commission}` }}</p>
                     </div>
 
                     <!-- Client Information -->

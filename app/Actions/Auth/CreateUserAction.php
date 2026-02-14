@@ -59,7 +59,7 @@ class CreateUserAction
             if ($data->offering_id) {
                 // Using DB for now to assume table exists from migration.
                 DB::table('associate_offering_links')->insert([
-                    'associate_id' => $user->associateProfile()?->id,
+                    'associate_id' => $user->associate?->id,
                     'offering_id' => $data->offering_id,
                     'created_at' => now(),
                 ]);

@@ -38,7 +38,7 @@ class OfferingController extends AdminController
         }
 
         return Inertia::render('Private/Admin/Offerings/Index', [
-            'offerings' => OfferingData::collect($offerings, PaginatedDataCollection::class),
+            'offerings' => $offerings->through(fn ($offering) => OfferingData::fromModel($offering, $user)),
             'filters' => $filters,
             'categories' => $categoriesAction->execute(),
         ]);
@@ -53,7 +53,7 @@ class OfferingController extends AdminController
 
     public function store(OfferingRequest $request, CreateOfferingAction $action)
     {
-        $employeeId = $request->user()->employeeProfile()?->id;
+        $employeeId = $request->user()->employee?->id;
         if (! $employeeId) {
             abort(403, 'Solo empleados pueden crear ofertas.');
         }

@@ -44,8 +44,8 @@ class CommissionCalculator
         }
 
         // 2. Fallback to basic commission rate
-        if ($offering->commission_rate > 0) {
-            return ($dealValue * $offering->commission_rate) / 100;
+        if ($offering->base_commission > 0) {
+            return ($dealValue * $offering->base_commission) / 100;
         }
 
         // 3. Fallback to base commission (flat fee)

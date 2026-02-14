@@ -21,8 +21,7 @@ class CommissionCalculationTest extends TestCase
             description: 'Desc',
             type: 'service',
             category: 'general',
-            commission_rate: 10.0, // 10%
-            base_price: 100.0,
+            base_commission: 10.0, // 10%
             is_active: true
         );
 
@@ -37,7 +36,7 @@ class CommissionCalculationTest extends TestCase
         $this->assertEquals(50.0, $commission);
     }
 
-    public function test_it_returns_zero_if_commission_rate_is_null(): void
+    public function test_it_returns_zero_if_base_commission_is_null(): void
     {
         $offering = new OfferingData(
             id: 2,
@@ -45,8 +44,7 @@ class CommissionCalculationTest extends TestCase
             type: 'service',
             category: 'general',
             description: 'Desc',
-            base_price: 100.0,
-            commission_rate: null,
+            base_commission: null,
             is_active: true
         );
 

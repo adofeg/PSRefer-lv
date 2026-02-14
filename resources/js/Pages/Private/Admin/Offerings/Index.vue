@@ -206,12 +206,8 @@ const executeToggle = () => {
                            <div class="flex justify-between text-sm">
                                <span class="text-slate-500">Comisión Base:</span>
                                <span class="font-semibold text-green-600">
-                                   {{ offering.commission_rate ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                                    {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                                </span>
-                           </div>
-                            <div v-if="offering.base_price !== null && offering.base_price !== undefined" class="flex justify-between text-sm">
-                               <span class="text-slate-500">Precio Base:</span>
-                               <span class="font-medium text-slate-800">{{ formatCurrency(offering.base_price) }}</span>
                            </div>
                        </div>
                    </div>

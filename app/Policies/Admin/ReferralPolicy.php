@@ -19,7 +19,7 @@ class ReferralPolicy
             return true;
         }
 
-        return $user->associateProfile()?->id === $referral->associate_id;
+        return $user->associate?->id === $referral->associate_id;
     }
 
     public function create(User $user): bool
@@ -34,7 +34,7 @@ class ReferralPolicy
         }
 
         if ($user->hasRole(RoleName::Associate->value)) {
-            return $user->associateProfile()?->id === $referral->associate_id;
+            return $user->associate?->id === $referral->associate_id;
         }
 
         return false;

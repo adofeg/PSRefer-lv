@@ -14,8 +14,12 @@ class GetReferralsAction
         $query = Referral::query();
 
         if ($user->hasRole(RoleName::Associate->value)) {
-            $associate = $user->associateProfile();
-            $query->where('associate_id', $associate?->id);
+            $associate = $user->associate;
+            if (! $associate) {
+                // Return empty if associate profile is missing
+                return $query->whereRaw('1=0')->paginate(1)->withQueryString();
+            }
+            $query->where('associate_id', $associate->id);
         }
 
         // Apply Search Filter
@@ -33,7 +37,7 @@ class GetReferralsAction
             }
         });
 
-        return $query->with(['offering:id,name,base_commission,commission_rate', 'associate.user'])
+        return $query->with(['offering:id,name,base_commission', 'associate.user'])
             ->latest()
             ->paginate(10)
             ->withQueryString();

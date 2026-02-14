@@ -24,7 +24,7 @@ class CommissionOverrideRequest extends FormRequest
             return [
                 'associate_id' => 'required|integer|exists:associates,id',
                 'offering_id' => 'required|integer|exists:offerings,id',
-                'commission_rate' => 'required|numeric|min:0|max:100',
+                'base_commission' => 'required|numeric|min:0|max:100',
             ];
         }
 
@@ -45,7 +45,7 @@ class CommissionOverrideRequest extends FormRequest
         return new CommissionOverrideUpsertData(
             associate_id: (int) $this->validated('associate_id'),
             offering_id: (int) $this->validated('offering_id'),
-            commission_rate: (float) $this->validated('commission_rate')
+            base_commission: (float) $this->validated('base_commission')
         );
     }
 }

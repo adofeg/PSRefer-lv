@@ -19,9 +19,9 @@ class CommissionRuleEngine
             return 0.0;
         }
 
-        // If no rules defined, use base commission_rate
+        // If no rules defined, use base commission
         if (empty($offering->commission_rules)) {
-            return $this->calculateBaseCommission($referral->deal_value, $offering->commission_rate);
+            return $this->calculateBaseCommission($referral->deal_value, $offering->base_commission);
         }
 
         // Evaluate rules in order
@@ -37,14 +37,14 @@ class CommissionRuleEngine
             }
 
             if ($this->evaluateCondition($rule['condition'] ?? 'default', $referral)) {
-                $rate = $rule['commission_rate'] ?? $offering->commission_rate;
+                $rate = $rule['base_commission'] ?? $offering->base_commission;
 
                 return $this->calculateBaseCommission($referral->deal_value, $rate);
             }
         }
 
         // Fallback to base rate
-        return $this->calculateBaseCommission($referral->deal_value, $offering->commission_rate);
+        return $this->calculateBaseCommission($referral->deal_value, $offering->base_commission);
     }
 
     /**
@@ -135,9 +135,9 @@ class CommissionRuleEngine
         // If no rules, return base rate
         if (empty($offering->commission_rules)) {
             return [
-                'rate' => $offering->commission_rate,
+                'rate' => $offering->base_commission,
                 'label' => 'Base Rate',
-                'commission' => $this->calculateBaseCommission($dealValue, $offering->commission_rate),
+                'commission' => $this->calculateBaseCommission($dealValue, $offering->base_commission),
                 'rule_matched' => null,
             ];
         }
@@ -155,7 +155,7 @@ class CommissionRuleEngine
             }
 
             if ($this->evaluateCondition($rule['condition'] ?? 'default', $tempReferral)) {
-                $rate = $rule['commission_rate'] ?? $offering->commission_rate;
+                $rate = $rule['base_commission'] ?? $offering->base_commission;
 
                 return [
                     'rate' => $rate,
@@ -168,9 +168,9 @@ class CommissionRuleEngine
 
         // Fallback
         return [
-            'rate' => $offering->commission_rate,
+            'rate' => $offering->base_commission,
             'label' => 'Base Rate (Fallback)',
-            'commission' => $this->calculateBaseCommission($dealValue, $offering->commission_rate),
+            'commission' => $this->calculateBaseCommission($dealValue, $offering->base_commission),
             'rule_matched' => null,
         ];
     }
@@ -186,8 +186,8 @@ class CommissionRuleEngine
 
         foreach ($rules as $index => $rule) {
             // Check required fields
-            if (! isset($rule['commission_rate'])) {
-                $errors[] = 'Rule #'.($index + 1).': commission_rate is required';
+            if (! isset($rule['base_commission'])) {
+                $errors[] = 'Rule #'.($index + 1).': base_commission is required';
             }
 
             if (! isset($rule['condition'])) {
@@ -203,11 +203,11 @@ class CommissionRuleEngine
                 }
             }
 
-            // Validate commission_rate is numeric and reasonable
-            if (isset($rule['commission_rate'])) {
-                $rate = $rule['commission_rate'];
+            // Validate base_commission is numeric and reasonable
+            if (isset($rule['base_commission'])) {
+                $rate = $rule['base_commission'];
                 if (! is_numeric($rate) || $rate < 0 || $rate > 100) {
-                    $errors[] = 'Rule #'.($index + 1).': commission_rate must be between 0 and 100';
+                    $errors[] = 'Rule #'.($index + 1).': base_commission must be between 0 and 100';
                 }
             }
         }
@@ -229,7 +229,7 @@ class CommissionRuleEngine
         if (! $offering || empty($offering->commission_rules)) {
             return [
                 'has_rules' => false,
-                'base_rate' => $offering->commission_rate ?? 0,
+                'base_rate' => $offering->base_commission ?? 0,
                 'rules' => [],
             ];
         }
@@ -243,7 +243,7 @@ class CommissionRuleEngine
                 'index' => $index,
                 'label' => $rule['label'] ?? 'Rule '.($index + 1),
                 'condition' => $rule['condition'] ?? 'default',
-                'commission_rate' => $rule['commission_rate'] ?? $offering->commission_rate,
+                'base_commission' => $rule['base_commission'] ?? $offering->base_commission,
                 'matches' => $matches,
                 'would_apply' => $matches,
             ];
@@ -251,7 +251,7 @@ class CommissionRuleEngine
 
         return [
             'has_rules' => true,
-            'base_rate' => $offering->commission_rate,
+            'base_rate' => $offering->base_commission,
             'deal_value' => $referral->deal_value,
             'rules_evaluated' => $results,
             'final_rate' => $this->calculateCommission($referral),

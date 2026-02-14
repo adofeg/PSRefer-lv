@@ -1,6 +1,6 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -130,13 +130,18 @@ const toggleSection = (label) => {
     if (isGroupActive(label)) return; // Prevent closing if active
     manualToggles.value[label] = !expandedSections.value[label];
 };
+const isMounted = ref(false);
+onMounted(() => {
+    isMounted.value = true;
+});
 </script>
 
 <template>
     <div
         :class="[
             'fixed inset-y-0 left-0 z-50 w-64 h-screen bg-slate-950 text-white transform transition-transform duration-300 ease-in-out border-r border-slate-800 shadow-2xl',
-            isOpen ? 'translate-x-0' : '-translate-x-full'
+            isOpen ? 'translate-x-0' : '-translate-x-full',
+            !isMounted ? 'transition-none' : ''
         ]"
     >
         <div class="flex items-center justify-between p-4 h-16 border-b border-slate-800/60">

@@ -22,7 +22,7 @@ const itemToDelete = ref(null);
 
 const form = ref({
     offering_id: '',
-    commission_rate: ''
+    base_commission: ''
 });
 
 const loadData = async () => {
@@ -59,7 +59,7 @@ watch(() => [props.show, props.user?.id], ([isOpen]) => {
 });
 
 const handleSave = async () => {
-    if (!form.value.offering_id || !form.value.commission_rate) return;
+    if (!form.value.offering_id || !form.value.base_commission) return;
 
     const associateId = props.user?.profileable_type?.includes('Associate')
         ? props.user.profileable_id
@@ -71,10 +71,10 @@ const handleSave = async () => {
         await axios.post(route('admin.commissions.overrides.store'), {
             associate_id: associateId,
             offering_id: form.value.offering_id,
-            commission_rate: parseFloat(form.value.commission_rate)
+            base_commission: parseFloat(form.value.base_commission)
         });
         
-        form.value = { offering_id: '', commission_rate: '' };
+        form.value = { offering_id: '', base_commission: '' };
         await loadData();
     } catch (error) {
         console.error('Error saving override:', error);
@@ -103,7 +103,7 @@ const executeDelete = async () => {
 
 const getStandardRate = (offeringId) => {
     const off = offerings.value.find(o => o.id === offeringId);
-    return off ? Number(off.commission_rate || 0) : 0;
+    return off ? Number(off.base_commission || 0) : 0;
 };
 </script>
 
@@ -141,13 +141,13 @@ const getStandardRate = (offeringId) => {
                             >
                                 <option value="">Seleccionar producto...</option>
                                 <option v-for="off in offerings" :key="off.id" :value="off.id">
-                                    {{ off.name }} (Base: {{ off.commission_rate }}%)
+                                    {{ off.name }} (Base: {{ off.base_commission }}%)
                                 </option>
                             </select>
                         </div>
                         <div class="md:col-span-3">
                             <input
-                                v-model="form.commission_rate"
+                                v-model="form.base_commission"
                                 type="number"
                                 step="0.1"
                                 class="w-full bg-white border-0 rounded-lg focus:ring-2 focus:ring-indigo-500 py-2.5 text-sm"
@@ -157,7 +157,7 @@ const getStandardRate = (offeringId) => {
                         <div class="md:col-span-2">
                             <button
                                 @click="handleSave"
-                                :disabled="saving || !form.offering_id || !form.commission_rate"
+                                :disabled="saving || !form.offering_id || !form.base_commission"
                                 class="w-full h-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Loader2 v-if="saving" :size="18" class="animate-spin" />
@@ -188,14 +188,14 @@ const getStandardRate = (offeringId) => {
                         <div v-for="ov in overrides" :key="ov.id" class="bg-white border border-slate-100 hover:border-indigo-100 shadow-sm hover:shadow-md rounded-xl p-4 flex justify-between items-center transition group">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs ring-4 ring-white">
-                                    {{ ov.commission_rate }}%
+                                    {{ ov.base_commission }}%
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-slate-800">{{ ov.offering?.name }}</h4>
                                     <div class="flex items-center gap-2 text-xs text-slate-500">
                                         <span>Estándar: {{ getStandardRate(ov.offering_id) }}%</span>
                                         <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                                        <span class="text-indigo-600 font-medium">+{{ (ov.commission_rate - getStandardRate(ov.offering_id)).toFixed(1) }}% Mejora</span>
+                                        <span class="text-indigo-600 font-medium">+{{ (ov.base_commission - getStandardRate(ov.offering_id)).toFixed(1) }}% Mejora</span>
                                     </div>
                                 </div>
                             </div>

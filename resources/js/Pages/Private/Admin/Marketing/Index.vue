@@ -101,10 +101,12 @@ const generateCanvas = () => {
     ctx.fillText(offeringName, canvas.width / 2, 380);
     
     // Commission rate (if exists)
-    if (selectedOffering.value.commission_rate) {
+    // Base commission
+    if (selectedOffering.value.base_commission) {
         ctx.fillStyle = customColor1.value;
         ctx.font = 'bold 56px Inter, system-ui, sans-serif';
-        ctx.fillText(`${selectedOffering.value.commission_rate}% Comisión`, canvas.width / 2, 480);
+        const label = selectedOffering.value.commission_type === 'percentage' ? `${selectedOffering.value.base_commission}%` : `$${selectedOffering.value.base_commission}`;
+        ctx.fillText(`${label} Comisión`, canvas.width / 2, 480);
     }
     
     // Description (truncated)
@@ -250,7 +252,7 @@ watch([customColor1, customColor2], () => {
                                 <p class="text-sm text-slate-600 mt-1">{{ offering.category }}</p>
                                 <div class="flex items-center gap-2 mt-2">
                                     <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-                                        {{ offering.commission_rate }}% comisión
+                                        {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : `$${offering.base_commission}` }} comisión
                                     </span>
                                 </div>
                             </button>

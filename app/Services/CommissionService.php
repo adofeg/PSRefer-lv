@@ -40,8 +40,8 @@ class CommissionService
         $config = $offering->commission_config ?? [];
 
         // 1. Override (Highest Priority)
-        if ($override && isset($override->commission_rate)) {
-            $percentage = $override->commission_rate;
+        if ($override && isset($override->base_commission)) {
+            $percentage = $override->base_commission;
             $amount = $dealValue > 0 ? ($dealValue * $percentage) / 100 : 0;
 
             $commissions[] = [
@@ -54,30 +54,41 @@ class CommissionService
             return $commissions;
         }
 
-        // 2. Fixed Amount
-        if (isset($config['fixed_amount']) && $config['fixed_amount'] > 0) {
-            $commissions[] = [
-                'type' => 'fixed',
-                'amount' => floatval($config['fixed_amount']),
-                'percentage' => 0,
-                'recurrence_type' => 'one_time',
-            ];
-        }
+        // 2. Base Commission by Type
+        if ($offering->commission_type === 'fixed') {
+            $amount = $offering->base_commission;
+            
+            if ($amount > 0) {
+                $commissions[] = [
+                    'type' => 'fixed',
+                    'amount' => floatval($amount),
+                    'percentage' => 0,
+                    'recurrence_type' => 'one_time',
+                ];
 
-        // 3. Percentage with Rule Engine (NEW)
-        if (isset($config['percentage']) && $config['percentage'] > 0 && $dealValue > 0) {
-            $amount = ($dealValue * $config['percentage']) / 100;
-            $commissions[] = [
-                'type' => 'percentage',
-                'amount' => round($amount, 2),
-                'percentage' => $config['percentage'],
-                'recurrence_type' => 'one_time',
-            ];
-        } elseif (! isset($config['percentage']) && $dealValue > 0) {
-            // Use Rule Engine to calculate commission
+                return $commissions;
+            }
+        } elseif ($offering->commission_type === 'percentage') {
+            $percentage = $offering->base_commission;
+            
+            if ($percentage > 0 && $dealValue > 0) {
+                $amount = ($dealValue * $percentage) / 100;
+                $commissions[] = [
+                    'type' => 'percentage',
+                    'amount' => round($amount, 2),
+                    'percentage' => $percentage,
+                    'recurrence_type' => 'one_time',
+                ];
+
+                return $commissions;
+            }
+        }
+ 
+        // 3. Rule Engine Fallback (if no base commission set)
+        if ($dealValue > 0) {
             $amount = $this->ruleEngine->calculateCommission($referral);
             $preview = $this->ruleEngine->previewCommissionRate($offering, $dealValue);
-
+ 
             $commissions[] = [
                 'type' => 'percentage',
                 'amount' => $amount,

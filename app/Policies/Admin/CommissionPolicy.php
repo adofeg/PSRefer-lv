@@ -31,7 +31,7 @@ class CommissionPolicy
         }
 
         // Associate can view their own commissions
-        return $user->associateProfile()?->id === $commission->associate_id;
+        return $user->associate?->id === $commission->associate_id;
     }
 
     /**

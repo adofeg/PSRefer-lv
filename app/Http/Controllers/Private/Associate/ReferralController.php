@@ -16,10 +16,17 @@ class ReferralController extends AssociateController
     public function index(ReferralRequest $request)
     {
         $user = Auth::user();
-        $associate = $user->associate; // Correct accessor from User.php
+        $associate = $user->associate;
+
+        if (! $associate) {
+            return Inertia::render('Private/Associate/Referrals/Index', [
+                'referrals' => [],
+                'filters' => $request->only(['search']),
+            ]);
+        }
 
         $referrals = Referral::query()
-            ->where('associate_id', $associate?->id)
+            ->where('associate_id', $associate->id)
             ->with(['offering'])
             ->when($request->search, function ($query, $search) {
                 $query->where('client_name', 'like', "%{$search}%")
@@ -53,7 +60,7 @@ class ReferralController extends AssociateController
         $offerings = Offering::query()
             ->where('is_active', true)
             ->excludeCategory($associate?->category)
-            ->get(['id', 'name', 'base_commission', 'commission_rate']);
+            ->get(['id', 'name', 'base_commission']);
 
         return Inertia::render('Private/Associate/Referrals/Create', [
             'offerings' => $offerings,
@@ -61,10 +68,8 @@ class ReferralController extends AssociateController
         ]);
     }
 
-    public function store(ReferralRequest $request)
+    public function store(ReferralRequest $request, \App\Actions\Referrals\CreateReferralAction $action)
     {
-        $validated = $request->validated();
-
         $user = Auth::user();
         $associate = $user->associate;
 
@@ -72,22 +77,14 @@ class ReferralController extends AssociateController
             abort(403, 'Usuario no es un asociado válido.');
         }
 
-        $offering = Offering::findOrFail($validated['offering_id']);
-        if ($associate->category && $offering->category === $associate->category) {
-            abort(403, 'Conflicto de intereses.');
-        }
+        $referral = $action->execute($request->toStoreData($associate->id));
 
-        $referral = Referral::create([
-            'associate_id' => $associate->id,
-            'offering_id' => $validated['offering_id'],
-            'client_name' => $validated['client_name'],
-            'client_contact' => $validated['client_email'].' | '.$validated['client_phone'],
-            'status' => 'Prospecto',
-            'notes' => $validated['notes'],
-            'metadata' => ['client_state' => $validated['client_state']], // Store State
-        ]);
-
-        // Email Notification Logic
+        // Note: NewReferralAlertMail is already sent by CreateReferralAction to admins.
+        // Associate-specific notification (to offering contacts) can be handled here if needed,
+        // but often the Action should handle all business-level notifications.
+        // Current AssociateController sent NewReferralNotification to $offering->notification_emails.
+        
+        $offering = $referral->offering;
         $recipients = $offering->notification_emails ?? [];
 
         if (! empty($recipients)) {

@@ -13,7 +13,7 @@ class GetDashboardStatsAction
         $year = $year ?? now()->year;
         // If month is null, we show the whole year. If set, we show days of that month.
 
-        $associate = $user->associateProfile();
+        $associate = $user->associate;
 
         if (! $associate) {
             return [

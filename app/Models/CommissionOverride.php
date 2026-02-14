@@ -14,14 +14,14 @@ class CommissionOverride extends Model
     protected $fillable = [
         'associate_id',
         'offering_id',
-        'commission_rate',
+        'base_commission',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'commission_rate' => 'decimal:2',
+            'base_commission' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

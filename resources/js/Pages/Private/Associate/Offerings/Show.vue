@@ -158,7 +158,7 @@ const copyLink = async () => {
                         <div class="bg-white/10 backdrop-blur-md p-5 rounded-xl border border-white/10 text-center min-w-[160px]">
                             <p class="text-[10px] text-slate-300 uppercase font-bold tracking-wider mb-1">Tu Comisión</p>
                              <p class="text-3xl font-black text-white">
-                                {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                                {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                             </p>
                         </div>
                     </div>

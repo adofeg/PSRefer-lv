@@ -23,7 +23,7 @@ class GetDashboardStatsAction
             $pendingReferralsCount = Referral::where('status', ReferralStatus::Prospect->value)->count();
             $totalUsers = User::count();
         } else {
-            $associate = $user->associateProfile();
+            $associate = $user->associate;
             $referralsQuery = Referral::where('associate_id', $associate?->id);
             $closedReferralsQuery = Referral::where('associate_id', $associate?->id)->where('status', ReferralStatus::Closed->value);
 
@@ -77,11 +77,11 @@ class GetDashboardStatsAction
             ],
             'recentReferrals' => $recentReferrals,
             'monthlyRevenue' => $revenueSeries,
-            'accountManager' => $user->associateProfile()?->referrer?->user ? [
-                'name' => $user->associateProfile()->referrer->user->name,
-                'email' => $user->associateProfile()->referrer->user->email,
-                'phone' => $user->associateProfile()->referrer->user->phone,
-                'logo_url' => $user->associateProfile()->referrer->user->logo_url,
+            'accountManager' => $user->associate?->referrer?->user ? [
+                'name' => $user->associate->referrer->user->name,
+                'email' => $user->associate->referrer->user->email,
+                'phone' => $user->associate->referrer->user->phone,
+                'logo_url' => $user->associate->referrer->user->logo_url,
             ] : null,
         ];
     }

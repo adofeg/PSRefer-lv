@@ -114,12 +114,10 @@ const totalAgencyFees = props.commissions.reduce((sum, c) => sum + parseFloat(c.
                                     <span v-if="commission.offering?.base_commission > 0" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-wider">FIJA</span>
                                     <span v-else class="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-wider">% VARIABLE</span>
                                 </td>
-                                <td class="px-6 py-5 text-right font-bold text-slate-600">
                                     <div class="flex flex-col items-end">
                                         <span>{{ formatCurrency(commission.deal_value || 0) }}</span>
-                                        <span v-if="commission.offering?.commission_rate > 0" class="text-[9px] text-slate-400 font-black">@ {{ commission.offering.commission_rate }}%</span>
+                                        <span v-if="commission.offering?.commission_type === 'percentage'" class="text-[9px] text-slate-400 font-black">@ {{ commission.offering.base_commission }}%</span>
                                     </div>
-                                </td>
                                 <td class="px-6 py-5 text-center">
                                     <span :class="['px-3 py-1 text-[10px] font-black uppercase rounded-full shadow-sm', getStatusColor(commission.status)]">
                                         {{ commission.status }}

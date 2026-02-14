@@ -18,13 +18,13 @@ const form = useForm({
     name: offering?.name || '',
     type: offering?.type || 'service',
     description: offering?.description || '',
-    base_price: offering?.base_price || '',
-    commission_rate: offering?.commission_rate || '',
+    base_commission: offering?.base_commission || '',
     category_id: offering?.category_id || '',
     is_active: offering ? offering.is_active : true,
     form_schema: offering?.form_schema || [],
     commission_rules: offering?.commission_rules || [],
     notification_emails: offering?.notification_emails || [],
+    commission_type: offering?.commission_type || 'percentage',
 });
 
 const addFormField = () => {
@@ -44,7 +44,7 @@ const removeFormField = (index) => {
 const addCommissionRule = () => {
     form.commission_rules.push({
         condition: 'default',
-        commission_rate: form.commission_rate,
+        base_commission: form.base_commission,
         label: '',
         roles: '' // Comma separated Roles (e.g. associate)
     });
@@ -159,14 +159,20 @@ const submit = () => {
                                 </div>
                             </div>
 
+
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Precio Base ($)</label>
-                                <input v-model="form.base_price" type="number" step="0.01" class="w-full border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500" />
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Tipo de Comisión</label>
+                                <select v-model="form.commission_type" class="w-full border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="percentage">Porcentaje (%)</option>
+                                    <option value="fixed">Monto Fijo ($)</option>
+                                </select>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Comisión Base (%)</label>
-                                <input v-model="form.commission_rate" type="number" step="0.01" class="w-full border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500" />
+                                <label class="block text-sm font-bold text-slate-700 mb-2">
+                                    {{ form.commission_type === 'percentage' ? 'Comisión Base (%)' : 'Comisión Base (Monto Fijo $)' }}
+                                </label>
+                                <input v-model="form.base_commission" type="number" step="0.01" class="w-full border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500" />
                             </div>
                         </div>
 
@@ -237,7 +243,7 @@ const submit = () => {
 
                         <div v-if="form.commission_rules.length === 0" class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex gap-3">
                             <Info :size="20" class="text-blue-500 shrink-0" />
-                            <p class="text-sm text-blue-700">Se aplicará el <strong>{{ form.commission_rate }}% base</strong> para todos los referidos si no hay reglas adicionales.</p>
+                            <p class="text-sm text-blue-700">Se aplicará la comisión base de <strong>{{ form.base_commission }}{{ form.commission_type === 'percentage' ? '%' : '$' }}</strong> para todos los referidos si no hay reglas adicionales.</p>
                         </div>
 
                         <div v-else class="space-y-4">
@@ -248,8 +254,10 @@ const submit = () => {
                                         <input v-model="rule.condition" type="text" class="w-full text-sm border-slate-300 rounded-lg p-2" placeholder="deal_value >= 10000" />
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Comisión (%)</label>
-                                        <input v-model="rule.commission_rate" type="number" step="0.01" class="w-full text-sm border-slate-300 rounded-lg p-2" />
+                                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">
+                                            Valor Comisión ({{ form.commission_type === 'percentage' ? '%' : '$' }})
+                                        </label>
+                                        <input v-model="rule.base_commission" type="number" step="0.01" class="w-full text-sm border-slate-300 rounded-lg p-2" />
                                     </div>
                                     <div class="md:col-span-3">
                                         <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Filtro por Rol (Opcional)</label>

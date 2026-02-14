@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('associate_id')->constrained('associates')->cascadeOnDelete();
             $table->foreignId('offering_id')->constrained('offerings')->cascadeOnDelete();
-            $table->decimal('commission_rate', 5, 2);
+            $table->decimal('base_commission', 5, 2);
             $table->timestamps();
 
             $table->unique(['associate_id', 'offering_id']);

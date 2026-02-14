@@ -46,7 +46,7 @@ class CommissionOverrideController extends AdminController
         $action->execute(
             $data->associate_id,
             $data->offering_id,
-            $data->commission_rate
+            $data->base_commission
         );
 
         return redirect()->back()->with('success', 'Excepción guardada correctamente.');

@@ -28,11 +28,16 @@ class UpdateReferralStatusAction
         }
 
         return DB::transaction(function () use ($referral, $status, $actor, $data, $oldStatus) {
+            $contractId = $data->contract_id ?? $referral->contract_id;
+            if (!$contractId && $status === ReferralStatus::Closed->value) {
+                $contractId = 'CTR-' . now()->format('Ym') . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+            }
+
             $referral->update([
                 'status' => $status,
                 'deal_value' => $data->deal_value ?? $referral->deal_value,
                 'revenue_generated' => $data->revenue_generated ?? $data->deal_value ?? $referral->revenue_generated,
-                'contract_id' => $data->contract_id ?? $referral->contract_id,
+                'contract_id' => $contractId,
                 'payment_method' => $data->payment_method ?? $referral->payment_method,
                 'down_payment' => $data->down_payment ?? $referral->down_payment,
                 'agency_fee' => $data->agency_fee ?? $referral->agency_fee,

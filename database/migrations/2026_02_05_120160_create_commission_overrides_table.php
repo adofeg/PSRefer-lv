@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('associate_id')->constrained('associates')->cascadeOnDelete();
             $table->foreignId('offering_id')->nullable()->constrained('offerings')->cascadeOnDelete();
-            $table->decimal('commission_rate', 5, 2);
+            $table->decimal('base_commission', 5, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

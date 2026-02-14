@@ -28,7 +28,7 @@ class CommissionOverrideController extends ApiController
         return response()->json($action->execute(
             $data->associate_id,
             $data->offering_id,
-            $data->commission_rate
+            $data->base_commission
         ));
     }
 

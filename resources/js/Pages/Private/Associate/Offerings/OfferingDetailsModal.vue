@@ -330,11 +330,24 @@ const copyLink = async () => {
                             <div class="absolute top-0 right-0 p-3 opacity-10">
                                 <CheckCircle class="w-16 h-16 text-green-600" />
                             </div>
-                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Tu Comisión Estimada</p>
                              <p class="text-2xl font-black text-green-600">
-                                {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                                {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                             </p>
                             <p class="text-xs text-slate-400 mt-1">Por venta cerrada</p>
+
+                            <!-- Commission Rules List -->
+                            <div v-if="offering.commission_rules && offering.commission_rules.length > 0" class="mt-4 pt-4 border-t border-green-50">
+                                <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-2">Reglas Especiales</p>
+                                <div class="space-y-2">
+                                    <div v-for="(rule, idx) in offering.commission_rules" :key="idx" class="flex items-start gap-2 bg-green-50/50 p-2 rounded-lg border border-green-100/50">
+                                        <div class="mt-0.5"><CheckCircle :size="10" class="text-green-500" /></div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-slate-700 leading-tight">{{ rule.label || 'Regla de Comisión' }}</p>
+                                            <p class="text-[9px] text-slate-500">{{ rule.condition === 'default' ? 'Tarifa por defecto' : rule.condition }} → <span class="text-green-600 font-bold">{{ rule.base_commission }}{{ offering.commission_type === 'percentage' ? '%' : '$' }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Marketing Tools -->

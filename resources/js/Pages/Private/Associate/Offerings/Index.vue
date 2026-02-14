@@ -117,7 +117,7 @@ const formatCurrency = (amount) => {
                            <div class="flex items-center gap-2 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
                                <span class="text-slate-400 font-medium text-xs uppercase tracking-wider flex-1">Comisión</span>
                                <span class="font-black text-slate-700">
-                                   {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                                   {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                                </span>
                            </div>
                        </div>

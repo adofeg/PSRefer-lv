@@ -30,7 +30,7 @@ class OfferingPolicy
         }
 
         if ($user->hasRole(RoleName::PsAdmin->value)) {
-            $employeeId = $user->employeeProfile()?->id;
+            $employeeId = $user->employee?->id;
 
             return $employeeId !== null && $offering->owner_employee_id === $employeeId;
         }

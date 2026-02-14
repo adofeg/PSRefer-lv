@@ -14,19 +14,19 @@ class SubmitReferralAction
         protected FormSchemaValidator $validator
     ) {}
 
-    public function execute(ReferralRequest $request, int $associateId): string
+    public function execute(ReferralData $data, array $formData = []): string
     {
-        $offering = Offering::findOrFail($request->validated('offering_id'));
+        $offering = Offering::findOrFail($data->offering_id);
 
-        $formData = [];
+        $validatedFormData = [];
         if ($offering->form_schema && ! empty($offering->form_schema)) {
-            $formData = $this->validator->validate(
+            $validatedFormData = $this->validator->validate(
                 $offering->form_schema,
-                $request->input('form_data', [])
+                $formData
             );
         }
 
-        $allMetadata = array_merge($request->validated('metadata') ?? [], $formData);
+        $allMetadata = array_merge($data->metadata ?? [], $validatedFormData);
 
         $selectedServices = $allMetadata['Servicios de Interés'] ?? null;
         if ($offering->name === 'Referencia General' && is_array($selectedServices) && ! empty($selectedServices)) {
@@ -35,12 +35,12 @@ class SubmitReferralAction
 
             foreach ($offerings as $targetOffering) {
                 $referralData = new ReferralData(
-                    client_name: $request->validated('client_name'),
-                    client_contact: $request->validated('client_contact'),
+                    client_name: $data->client_name,
+                    client_contact: $data->client_contact,
                     offering_id: $targetOffering->id,
                     metadata: array_merge($allMetadata, ['origen' => 'Referencia General']),
-                    notes: '[Ref. General] '.($request->validated('notes') ?? ''),
-                    associate_id: $associateId
+                    notes: '[Ref. General] '.($data->notes ?? ''),
+                    associate_id: $data->associate_id
                 );
 
                 $this->createReferralAction->execute($referralData);
@@ -51,12 +51,12 @@ class SubmitReferralAction
         }
 
         $referralData = new ReferralData(
-            client_name: $request->validated('client_name'),
-            client_contact: $request->validated('client_contact'),
-            offering_id: (int) $request->validated('offering_id'),
+            client_name: $data->client_name,
+            client_contact: $data->client_contact,
+            offering_id: $data->offering_id,
             metadata: $allMetadata,
-            notes: $request->validated('notes'),
-            associate_id: $associateId
+            notes: $data->notes,
+            associate_id: $data->associate_id
         );
 
         $this->createReferralAction->execute($referralData);

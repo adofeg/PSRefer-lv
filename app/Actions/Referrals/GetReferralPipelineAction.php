@@ -15,9 +15,11 @@ class GetReferralPipelineAction
         ])->latest();
 
         if ($user->hasRole(\App\Enums\RoleName::Associate->value)) {
-            $associate = $user->associateProfile;
+            $associate = $user->associate;
             if ($associate) {
                 $query->where('associate_id', $associate->id);
+            } else {
+                return collect(); // Return empty if no associate profile
             }
         }
 

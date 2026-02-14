@@ -43,7 +43,7 @@ const addRule = () => {
         field: 'deal_value',
         operator: '>=',
         value: 0,
-        commission_rate: props.baseRate || 0,
+        base_commission: props.baseRate || 0,
         condition: 'deal_value >= 0'
     });
     emitUpdate();
@@ -53,7 +53,7 @@ const addDefaultRule = () => {
     rules.value.push({
         label: 'Regla por Defecto',
         condition: 'default',
-        commission_rate: props.baseRate || 0
+        base_commission: props.baseRate || 0
     });
     emitUpdate();
 };
@@ -109,9 +109,9 @@ const previewRule = computed(() => {
     for (const rule of rules.value) {
         if (rule.condition === 'default') {
             return {
-                rate: rule.commission_rate,
+                rate: rule.base_commission,
                 label: rule.label,
-                commission: (previewValue.value * rule.commission_rate) / 100
+                commission: (previewValue.value * rule.base_commission) / 100
             };
         }
         
@@ -134,9 +134,9 @@ const previewRule = computed(() => {
             
             if (passes) {
                 return {
-                    rate: rule.commission_rate,
+                    rate: rule.base_commission,
                     label: rule.label,
-                    commission: (previewValue.value * rule.commission_rate) / 100
+                    commission: (previewValue.value * rule.base_commission) / 100
                 };
             }
         }
@@ -259,9 +259,9 @@ const formatCurrency = (value) => {
                             </div>
                             
                             <div>
-                                <label class="block text-xs font-medium text-slate-700 mb-1">% Comisión</label>
+                                <label class="block text-xs font-medium text-slate-700 mb-1 font-bold tracking-tight uppercase">Base Comisión</label>
                                 <input 
-                                    v-model.number="rule.commission_rate"
+                                    v-model.number="rule.base_commission"
                                     @input="emitUpdate"
                                     type="number"
                                     step="0.01"
@@ -281,7 +281,7 @@ const formatCurrency = (value) => {
                             <div>
                                 <label class="block text-xs font-medium text-slate-700 mb-1">% Comisión</label>
                                 <input 
-                                    v-model.number="rule.commission_rate"
+                                    v-model.number="rule.base_commission"
                                     @input="emitUpdate"
                                     type="number"
                                     step="0.01"
@@ -400,7 +400,7 @@ const formatCurrency = (value) => {
                                     <td class="px-3 py-2 text-slate-600">{{ index + 1 }}</td>
                                     <td class="px-3 py-2 font-medium">{{ rule.label }}</td>
                                     <td class="px-3 py-2 font-mono text-xs text-slate-600">{{ rule.condition }}</td>
-                                    <td class="px-3 py-2 text-right font-semibold text-indigo-600">{{ rule.commission_rate }}%</td>
+                                    <td class="px-3 py-2 text-right font-semibold text-indigo-600">{{ rule.base_commission }}%</td>
                                 </tr>
                             </tbody>
                         </table>

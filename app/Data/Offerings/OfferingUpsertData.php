@@ -13,11 +13,11 @@ class OfferingUpsertData extends Data
         public ?string $type,
         public ?float $base_commission,
         public ?string $description,
-        public ?float $base_price,
-        public ?float $commission_rate,
         public ?array $form_schema,
         public ?array $commission_config,
         public ?array $commission_rules,
+        public ?array $notification_emails,
+        public ?string $commission_type = 'percentage',
         public ?bool $is_active = null,
     ) {}
 }

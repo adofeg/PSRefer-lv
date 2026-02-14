@@ -130,7 +130,7 @@ const formatCurrency = (amount) => {
                                     <select v-model="form.offering_id" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-white" required>
                                         <option value="" disabled>Selecciona un servicio del catálogo...</option>
                                         <option v-for="offering in offeringsList" :key="offering.id" :value="offering.id">
-                                            {{ offering.name }} — Comisión: {{ parseFloat(offering.commission_rate) > 0 ? `${offering.commission_rate}%` : formatCurrency(offering.base_commission) }}
+                                            {{ offering.name }} — Comisión: {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                                         </option>
                                     </select>
                                 </div>

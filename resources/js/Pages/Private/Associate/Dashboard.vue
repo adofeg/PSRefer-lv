@@ -52,7 +52,7 @@ const formatCurrency = (amount) => {
     <Head title="Panel de Asociado" />
 
     <AppLayout>
-        <div class="space-y-6 animate-fade-in">
+        <div class="space-y-6">
             <!-- Header -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>

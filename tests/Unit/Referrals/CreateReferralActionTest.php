@@ -48,8 +48,7 @@ class CreateReferralActionTest extends TestCase
         $offering = Offering::create([
             'name' => 'Offer 1',
             'type' => 'service',
-            'base_price' => 100,
-            'commission_rate' => 10,
+            'base_commission' => 10,
             'is_active' => true,
         ]);
 

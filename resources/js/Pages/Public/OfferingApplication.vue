@@ -31,14 +31,6 @@ const submit = () => {
     });
 };
 
-const formatPrice = (price) => {
-    if (!price) return null;
-    return new Intl.NumberFormat('es-MX', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0
-    }).format(price);
-};
 </script>
 
 <template>
@@ -94,17 +86,6 @@ const formatPrice = (price) => {
                             <p class="text-lg text-indigo-100 leading-relaxed max-w-2xl">
                                 {{ offering.description }}
                             </p>
-                        </div>
-                        <div v-if="offering.base_price" class="ml-4 flex-shrink-0">
-                            <div class="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20">
-                                <p class="text-xs text-indigo-200 uppercase tracking-wide mb-1">Desde</p>
-                                <div class="flex items-center gap-2">
-                                    <DollarSign :size="24" class="text-white" />
-                                    <span class="text-3xl font-bold text-white">
-                                        {{ formatPrice(offering.base_price) }}
-                                    </span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

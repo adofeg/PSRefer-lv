@@ -15,8 +15,7 @@ class OfferingDataTest extends TestCase
             'type' => 'service',
             'category' => 'consulting',
             'description' => 'A great service',
-            'base_price' => 150.00,
-            'commission_rate' => 10.0,
+            'base_commission' => 10.0,
             'is_active' => true,
         ];
 
@@ -24,7 +23,6 @@ class OfferingDataTest extends TestCase
 
         $this->assertInstanceOf(OfferingData::class, $offering);
         $this->assertEquals('Premium Service', $offering->name);
-        $this->assertEquals(150.00, $offering->base_price);
         $this->assertTrue($offering->is_active);
     }
 
@@ -36,8 +34,7 @@ class OfferingDataTest extends TestCase
             'type' => 'product',
             'category' => null,
             'description' => null,
-            'base_price' => null,
-            'commission_rate' => 5.0,
+            'base_commission' => 5.0,
         ];
 
         $offering = OfferingData::from($data);

@@ -22,7 +22,7 @@ const offeringsList = computed(() => normalizeCollection(props.offerings));
 const form = useForm({
     associate_id: '',
     offering_id: '',
-    commission_rate: '',
+    base_commission: '',
 });
 
 const openModal = (override = null) => {
@@ -30,7 +30,7 @@ const openModal = (override = null) => {
     if (override) {
         form.associate_id = override.associate_id;
         form.offering_id = override.offering_id || ''; // Handle null (global override) if supported
-        form.commission_rate = override.commission_rate;
+        form.base_commission = override.base_commission;
     } else {
         form.reset();
     }
@@ -95,7 +95,7 @@ const destroy = (id) => {
                                 <span v-else class="text-slate-400 italic">Todas las ofertas (Default)</span>
                             </td>
                             <td class="px-6 py-4 text-right font-mono font-bold text-emerald-600">
-                                {{ override.commission_rate }}%
+                                {{ override.base_commission }}%
                             </td>
                             <td class="px-6 py-4 text-right flex justify-end gap-2">
                                 <button @click="openModal(override)" class="text-indigo-600 hover:bg-indigo-50 p-1 rounded">
@@ -142,7 +142,7 @@ const destroy = (id) => {
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Tasa de Comisión (%)</label>
-                        <input type="number" step="0.01" v-model="form.commission_rate" class="w-full border-slate-300 rounded-lg" required>
+                        <input type="number" step="0.01" v-model="form.base_commission" class="w-full border-slate-300 rounded-lg" required>
                     </div>
                     <div class="flex justify-end gap-2 mt-6">
                         <button type="button" @click="isModalOpen = false" class="px-4 py-2 border rounded text-slate-600">Cancelar</button>

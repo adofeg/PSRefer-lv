@@ -77,17 +77,12 @@ class User extends Authenticatable
         return $this->morphTo();
     }
 
-    public function associateProfile()
+    public function getAssociateAttribute()
     {
         return $this->profileable_type === Associate::class ? $this->profileable : null;
     }
 
-    public function getAssociateAttribute()
-    {
-        return $this->associateProfile();
-    }
-
-    public function employeeProfile()
+    public function getEmployeeAttribute()
     {
         return $this->profileable_type === Employee::class ? $this->profileable : null;
     }

@@ -49,8 +49,8 @@ class UserController extends AdminController
     {
         $user->load('roles');
         // Ensure profile is loaded for form binding
-        $user->associateProfile();
-        $user->employeeProfile();
+        $user->associate;
+        $user->employee;
 
         return Inertia::render('Private/Admin/Users/Edit', [
             'user' => $user,

@@ -13,15 +13,15 @@ class UpdateOfferingAction
 
     public function execute(Offering $offering, OfferingUpsertData $data): Offering
     {
-        $oldData = $offering->only(['name', 'base_price', 'commission_rate', 'is_active']);
+        $oldData = $offering->only(['name', 'base_commission', 'commission_type', 'is_active']);
 
         $offering->update([
             'name' => $data->name,
             'category_id' => $data->category_id,
             'category' => $data->category,
             'description' => $data->description,
-            'base_price' => $data->base_price,
-            'commission_rate' => $data->commission_rate,
+            'base_commission' => $data->base_commission,
+            'commission_type' => $data->commission_type,
             'form_schema' => $data->form_schema,
             'commission_config' => $data->commission_config,
             'commission_rules' => $data->commission_rules,
@@ -34,7 +34,7 @@ class UpdateOfferingAction
             'UPDATE',
             "Offering '{$offering->name}' updated",
             $oldData,
-            $offering->only(['name', 'base_price', 'commission_rate', 'is_active'])
+            $offering->only(['name', 'base_commission', 'commission_type', 'is_active'])
         );
 
         return $offering->refresh();

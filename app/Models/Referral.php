@@ -81,11 +81,10 @@ class Referral extends Model
         }
 
         if ($offering->base_commission > 0) {
-            return '$'.number_format($offering->base_commission, 2);
-        }
-
-        if ($offering->commission_rate > 0) {
-            return $offering->commission_rate.'% del valor';
+            if ($offering->commission_type === 'fixed') {
+                return '$'.number_format($offering->base_commission, 2);
+            }
+            return $offering->base_commission.'% del valor';
         }
 
         return '-';

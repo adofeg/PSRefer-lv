@@ -20,9 +20,8 @@ class Offering extends Model
         'category_id',
         'name',
         'description',
-        'base_price',
         'base_commission',
-        'commission_rate',
+        'commission_type',
         'form_schema',
         'commission_config',
         'commission_rules',
@@ -34,9 +33,9 @@ class Offering extends Model
     protected function casts(): array
     {
         return [
-            'base_price' => 'decimal:2',
             'base_commission' => 'decimal:2',
-            'commission_rate' => 'decimal:2',
+            'base_commission' => 'decimal:2',
+            'commission_type' => 'string',
             'form_schema' => 'array',
             'commission_config' => 'array',
             'commission_rules' => 'array',
@@ -100,15 +99,38 @@ class Offering extends Model
         });
     }
 
-    public function scopeExcludeCategory(Builder $query, ?string $category): Builder
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeExcludeCategory(Builder $query, string|int|null $category): Builder
     {
         if (! $category) {
             return $query;
         }
 
-        return $query->where(function ($q) use ($category) {
-            $q->where('category', '!=', $category)
-                ->orWhereNull('category');
+        return $query->where(function (Builder $q) use ($category) {
+            // Check string column
+            $q->where(function ($sq) use ($category) {
+                $sq->whereNull('category')
+                    ->orWhere('category', '!=', $category);
+            });
+
+            // Check relationship if category_id exists
+            if (is_numeric($category)) {
+                $q->where(function ($sq) use ($category) {
+                    $sq->whereNull('category_id')
+                        ->orWhere('category_id', '!=', $category);
+                });
+            } else {
+                $q->where(function ($sq) use ($category) {
+                    $sq->whereNull('category_id')
+                        ->orWhereHas('category', function ($cq) use ($category) {
+                            $cq->where('name', '!=', $category);
+                        });
+                });
+            }
         });
     }
 }

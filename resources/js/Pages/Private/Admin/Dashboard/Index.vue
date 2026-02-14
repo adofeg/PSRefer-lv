@@ -26,7 +26,7 @@ const formatCurrency = (amount) => {
     <Head title="Dashboard" />
 
     <AppLayout>
-        <div class="space-y-6 animate-fade-in">
+        <div class="space-y-6">
             <!-- Hero Metric Card -->
             <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-indigo-900/10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 pointer-events-none"></div>

@@ -26,31 +26,20 @@ class GetOfferingsAction
         });
 
         // Apply Status Filter (Only if user is allowed to see inactive)
-        if ($includeInactive) {
+        $canSeeInactive = $includeInactive && $user->hasRole(\App\Enums\RoleName::adminRoles());
+
+        if ($canSeeInactive) {
             $query->when(isset($filters['status']) && $filters['status'] !== 'all', function ($query) use ($filters) {
                 $query->where('is_active', filter_var($filters['status'], FILTER_VALIDATE_BOOLEAN));
             });
         } else {
-            // Force active for non-admins regardless of filter
-            $query->where('is_active', true);
+            $query->active();
         }
 
         if ($user->hasRole(RoleName::Associate->value)) {
             $category = $user->category;
-
             if ($category) {
-                $query->where(function ($q) use ($category) {
-                    $q->where(function ($q2) use ($category) {
-                        $q2->whereNull('category')
-                            ->orWhere('category', '!=', $category);
-                    })
-                        ->where(function ($q2) use ($category) {
-                            $q2->whereNull('category_id')
-                                ->orWhereHas('category', function ($cq) use ($category) {
-                                    $cq->where('name', '!=', $category);
-                                });
-                        });
-                });
+                $query->excludeCategory($category);
             }
         }
 

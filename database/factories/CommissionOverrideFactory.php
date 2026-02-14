@@ -19,7 +19,7 @@ class CommissionOverrideFactory extends Factory
         return [
             'associate_id' => Associate::factory(),
             'offering_id' => Offering::factory(),
-            'commission_rate' => $this->faker->randomFloat(2, 1, 50),
+            'base_commission' => $this->faker->randomFloat(2, 1, 50),
             'is_active' => true,
         ];
     }

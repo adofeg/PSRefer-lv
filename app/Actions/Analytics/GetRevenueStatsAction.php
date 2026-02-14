@@ -14,7 +14,7 @@ class GetRevenueStatsAction
     public function execute(User $user, ?int $targetAssociateId): array
     {
         if ($user->hasRole(RoleName::Associate->value)) {
-            $targetAssociateId = $user->associateProfile()?->id;
+            $targetAssociateId = $user->associate?->id;
         }
 
         $revenueQuery = Referral::where('status', ReferralStatus::Closed->value);

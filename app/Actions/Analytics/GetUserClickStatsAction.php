@@ -10,7 +10,7 @@ class GetUserClickStatsAction
     public function execute(User $user): array
     {
         $isAdmin = $user->hasRole(\App\Enums\RoleName::adminRoles());
-        $associateId = $user->associateProfile()?->id;
+        $associateId = $user->associate?->id;
 
         $query = DB::table('referral_clicks');
 

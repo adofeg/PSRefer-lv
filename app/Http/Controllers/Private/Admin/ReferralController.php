@@ -60,14 +60,17 @@ class ReferralController extends AdminController
         if (RoleName::isAdmin($request->user())) {
             $associateId = $request->validated('associate_id');
         } else {
-            $associate = $request->user()->associateProfile();
+            $associate = $request->user()->associate;
             if (! $associate) {
                 abort(403, 'Solo los asociados pueden crear referidos.');
             }
             $associateId = $associate->id;
         }
 
-        $message = $action->execute($request, (int) $associateId);
+        $message = $action->execute(
+            $request->toStoreData((int) $associateId),
+            $request->input('form_data', [])
+        );
 
         return $this->redirectAfterStore('admin.referrals', $message);
     }

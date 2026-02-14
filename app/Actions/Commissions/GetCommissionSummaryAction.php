@@ -10,7 +10,7 @@ class GetCommissionSummaryAction
 {
     public function execute(User $user): array
     {
-        $associate = $user->associateProfile();
+        $associate = $user->associate;
 
         $referrals = Referral::where('associate_id', $associate?->id)
             ->whereIn('status', ReferralStatus::commissionEligible())

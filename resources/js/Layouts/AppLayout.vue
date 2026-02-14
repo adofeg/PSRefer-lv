@@ -10,26 +10,22 @@ const props = defineProps({
     user: Object,
 });
 
-const sidebarOpen = ref(false);
-const isDesktopViewport = ref(false);
+const sidebarOpen = ref(true); // Default to true for desktop logic, will sync on mount
+const isDesktopViewport = ref(true);
 const page = usePage();
 const pageKey = computed(() => page.component || page.url);
+const isMounted = ref(false);
 
 const syncSidebarByViewport = () => {
-    if (typeof window === 'undefined') {
-        return;
-    }
+    if (typeof window === 'undefined') return;
 
     const desktop = window.matchMedia('(min-width: 768px)').matches;
-
-    // Only auto-sync when switching breakpoint family.
-    if (desktop !== isDesktopViewport.value) {
-        isDesktopViewport.value = desktop;
-        sidebarOpen.value = desktop;
-    }
+    isDesktopViewport.value = desktop;
+    sidebarOpen.value = desktop;
 };
 
 onMounted(() => {
+    isMounted.value = true;
     syncSidebarByViewport();
     window.addEventListener('resize', syncSidebarByViewport);
 });

@@ -23,9 +23,8 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             // Pricing
-            $table->decimal('base_price', 10, 2)->nullable();
+            $table->string('commission_type')->default('percentage'); // 'percentage', 'fixed'
             $table->decimal('base_commission', 10, 2)->default(0);
-            $table->decimal('commission_rate', 5, 2)->nullable();
 
             // Configs
             $table->jsonb('form_schema')->nullable();

@@ -19,8 +19,7 @@ class OfferingFactory extends Factory
         return [
             'name' => $this->faker->bs(),
             'description' => $this->faker->paragraph(),
-            'base_price' => $this->faker->randomFloat(2, 1000, 50000),
-            'commission_rate' => $this->faker->randomFloat(2, 5, 20),
+            'base_commission' => $this->faker->randomFloat(2, 5, 20),
             'is_active' => true,
             'form_schema' => [],
             'commission_config' => [],

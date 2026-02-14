@@ -26,7 +26,7 @@ class AnalyticsRequest extends FormRequest
         }
 
         if ($this->routeIs('api.analytics.revenue') && $user->hasRole(RoleName::Associate->value)) {
-            $associateId = $user->associateProfile()?->id;
+            $associateId = $user->associate?->id;
             $requestedId = $this->input('associate_id');
 
             return ! $requestedId || (int) $requestedId === (int) $associateId;
