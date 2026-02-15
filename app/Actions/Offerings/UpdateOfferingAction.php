@@ -15,6 +15,35 @@ class UpdateOfferingAction
     {
         $oldData = $offering->only(['name', 'base_commission', 'commission_type', 'is_active']);
 
+        // Handle Schema Versioning
+        $currentSchema = $offering->form_schema;
+        $newSchema = $data->form_schema;
+        
+        // If schema content changed (ignoring version/revision fields for comparison)
+        $currentGroups = $currentSchema['groups'] ?? [];
+        $newGroups = $newSchema['groups'] ?? [];
+        
+        if (json_encode($currentGroups) !== json_encode($newGroups)) {
+            // Increment Version
+            $currentVersion = (int)($currentSchema['version'] ?? 1);
+            $newVersion = $currentVersion + 1;
+            
+            $newSchema['version'] = $newVersion;
+            
+            // Save History
+            $history = $currentSchema['history'] ?? [];
+            $history[] = [
+                'version' => $currentVersion,
+                'groups' => $currentGroups,
+                'archived_at' => now()->toIso8601String(),
+            ];
+            $newSchema['history'] = $history;
+        } else {
+            // Restore existing version/history if no change in groups
+            $newSchema['version'] = $currentSchema['version'] ?? 1;
+            $newSchema['history'] = $currentSchema['history'] ?? [];
+        }
+
         $offering->update([
             'name' => $data->name,
             'category_id' => $data->category_id,
@@ -22,7 +51,7 @@ class UpdateOfferingAction
             'description' => $data->description,
             'base_commission' => $data->base_commission,
             'commission_type' => $data->commission_type,
-            'form_schema' => $data->form_schema,
+            'form_schema' => $newSchema,
             'commission_config' => $data->commission_config,
             'commission_rules' => $data->commission_rules,
             'notification_emails' => $data->notification_emails,

@@ -53,7 +53,6 @@ class UserSeeder extends Seeder
         // 3. Associate (Partner) 1
         $associateProfile = Associate::create([
             'balance' => 0.00,
-            'category' => 'Realtor',
             'w9_status' => 'verified',
         ]);
 
@@ -69,9 +68,10 @@ class UserSeeder extends Seeder
         $associate->assignRole('associate');
 
         // 4. Generate Random Associates with Data
-        // Ideally we update UserFactory, but for agility lets just do loop here
         for ($i = 0; $i < 5; $i++) {
-            $prof = Associate::create(['balance' => 0.00]);
+            $prof = Associate::create([
+                'balance' => 0.00,
+            ]);
             $u = $prof->user()->create([
                 'name' => "Associate $i",
                 'email' => "associate{$i}@example.com",

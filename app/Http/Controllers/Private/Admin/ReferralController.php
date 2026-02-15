@@ -68,7 +68,7 @@ class ReferralController extends AdminController
         }
 
         $message = $action->execute(
-            $request->toStoreData((int) $associateId),
+            $request->toStoreData($associateId),
             $request->input('form_data', [])
         );
 

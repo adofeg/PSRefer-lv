@@ -25,7 +25,32 @@ class CatalogSeeder extends Seeder
         $personal = Category::firstOrCreate(['name' => 'Personal']);
         $administrative = Category::firstOrCreate(['name' => 'Administrativo']);
 
-        // 1. Seguros de Salud (30% Mensual)
+        // Helper to prepend identity fields to a schema
+        $withIdentity = function($groups) {
+            $systemFields = [
+                ['name' => 'client_name', 'label' => 'Nombre Completo', 'type' => 'text', 'required' => true, 'is_system' => true],
+                ['name' => 'client_email', 'label' => 'Correo Electrónico', 'type' => 'email', 'required' => true, 'is_system' => true],
+                ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true, 'is_system' => true],
+            ];
+
+            if (empty($groups)) {
+                $groups = [[
+                    'id' => 'group_identity',
+                    'title' => 'Datos Personales',
+                    'fields' => $systemFields
+                ]];
+            } else {
+                $groups[0]['fields'] = array_merge($systemFields, $groups[0]['fields']);
+                // Ensure first group title makes sense for identity if it's generic
+                if ($groups[0]['title'] === 'Datos del Servicio' || $groups[0]['title'] === 'Información General') {
+                    $groups[0]['title'] = 'Datos Personales';
+                }
+            }
+
+            return ['version' => 2, 'groups' => $groups];
+        };
+
+        // --- 1. SEGUROS DE SALUD ---
         Offering::updateOrCreate(
             ['name' => 'Seguros de Salud'],
             [
@@ -36,20 +61,19 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'percentage',
                 'base_commission' => 30.00,
                 'is_active' => true,
-                'form_schema' => [
-                    ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                    ['name' => 'dob', 'label' => 'Fecha de Nacimiento', 'type' => 'date', 'required' => false],
-                    ['name' => 'family_members', 'label' => 'Miembros de la familia a asegurar', 'type' => 'textarea', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 30, 'label' => 'Comisión Mensual', 'roles' => ['associate']],
-                ],
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_extra',
+                        'title' => 'Datos del Servicio',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                        ]
+                    ]
+                ]),
             ]
         );
 
-        // 2. Seguros de Vida (Flat $25)
+        // --- 2. SEGUROS DE VIDA ---
         Offering::updateOrCreate(
             ['name' => 'Seguros de Vida'],
             [
@@ -59,24 +83,174 @@ class CatalogSeeder extends Seeder
                 'description' => 'Protección financiera. Comisión fija de $25.',
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00, 
-                'is_active' => false, // DEACTIVATED - Not in PDF list
-                'form_schema' => [
-                    ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                    ['name' => 'dob', 'label' => 'Fecha de Nacimiento', 'type' => 'date', 'required' => false],
-                    ['name' => 'beneficiary', 'label' => 'Beneficiario Principal', 'type' => 'text', 'required' => false],
-                    ['name' => 'coverage_amount', 'label' => 'Monto de Cobertura Deseado', 'type' => 'text', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 25, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
+                'is_active' => true,
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_extra',
+                        'title' => 'Datos del Servicio',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                        ]
+                    ]
+                ]),
             ]
         );
 
-        // 3. Taxes Personales (Flat $25)
+        // --- 3. SEGUROS DE CARRO Y CASA ---
         Offering::updateOrCreate(
-            ['name' => 'Taxes Personales'],
+            ['name' => 'Seguros de Carro y Casa'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $property->id,
+                'type' => 'service',
+                'description' => 'Seguros de auto (Personal/Comercial) y hogar. Comisión fija de $25.',
+                'commission_type' => 'fixed',
+                'base_commission' => 25.00, 
+                'is_active' => true,
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_general',
+                        'title' => 'Ubicación y Tipo',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                            ['name' => 'coverage_type', 'label' => 'Tipo de Seguro Requerido', 'type' => 'select', 'options' => 'Auto Personal, Auto Comercial, Casa, Múltiple', 'required' => true],
+                            ['name' => 'current_address', 'label' => 'Dirección Actual Completa', 'type' => 'textarea', 'required' => true],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_auto',
+                        'title' => 'Cuestionario de Auto (Personal / Comercial)',
+                        'fields' => [
+                            ['name' => 'business_name_auto', 'label' => 'Nombre Comercial (Si es empresa)', 'type' => 'text', 'required' => false],
+                            ['name' => 'drivers_list', 'label' => 'Nombre de todos los potenciales conductores', 'type' => 'textarea', 'required' => false],
+                            ['name' => 'household_members_15', 'label' => 'Mayores de 15 años que viven en la propiedad', 'type' => 'textarea', 'required' => false],
+                            ['name' => 'vin_numbers', 'label' => 'Número(s) VIN de los autos', 'type' => 'textarea', 'required' => false],
+                            ['name' => 'dot_number', 'label' => 'Número de DOT (Si corresponde)', 'type' => 'text', 'required' => false],
+                            ['name' => 'cargo_type', 'label' => 'Tipo de Carga a Transportar', 'type' => 'text', 'required' => false],
+                            ['name' => 'out_of_state', 'label' => '¿Se transporta fuera del estado?', 'type' => 'select', 'options' => 'Si, No, No Aplica', 'required' => false],
+                            ['name' => 'claims_36m', 'label' => '¿Reclamos PIP o Accidentes (últimos 36 meses)?', 'type' => 'text', 'required' => false],
+                            ['name' => 'coverage_details', 'label' => 'Tipo de Cobertura Necesaria / ¿Financiado?', 'type' => 'textarea', 'required' => false],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_house',
+                        'title' => 'Detalles de Casa (Si aplica)',
+                        'fields' => [
+                            ['name' => 'house_address', 'label' => 'Dirección de la Propiedad (Si es distinta)', 'type' => 'text', 'required' => false],
+                            ['name' => 'construction_year', 'label' => 'Año de Construcción', 'type' => 'number', 'required' => false],
+                            ['name' => 'roof_year', 'label' => 'Año del Techo', 'type' => 'number', 'required' => false],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_documents',
+                        'title' => 'Documentación Requerida (Archivos)',
+                        'fields' => [
+                            ['name' => 'declaration_page', 'label' => 'Declaration Page Vigente', 'type' => 'file', 'required' => false],
+                            ['name' => 'driver_licenses', 'label' => 'Licencia de conducir de todos los conductores', 'type' => 'file', 'required' => false],
+                            ['name' => 'car_photos_or_reg', 'label' => 'Fotos Millas/Lados O Matrícula/Registración', 'type' => 'file', 'required' => false],
+                        ]
+                    ]
+                ]),
+            ]
+        );
+
+        // --- 4. GROUP INSURANCE (5 EMPLEADOS O MAS) ---
+        Offering::updateOrCreate(
+            ['name' => 'Group Insurance (5 empleados o mas)'],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $business->id,
+                'type' => 'service',
+                'description' => 'Seguros colectivos comerciales. Comisión fija de $50.',
+                'commission_type' => 'fixed',
+                'base_commission' => 50.00, 
+                'is_active' => true,
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_business',
+                        'title' => 'Datos de la Empresa',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                            ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
+                            ['name' => 'employee_count', 'label' => 'Número de Empleados', 'type' => 'number', 'required' => true, 'min' => 5],
+                            ['name' => 'census_file', 'label' => 'Censo de Empleados (PDF/Excel)', 'type' => 'file', 'required' => false],
+                        ]
+                    ]
+                ]),
+            ]
+        );
+
+        // --- 5. BUSINESS LIABILITY O WORKER'S COMP ---
+        Offering::updateOrCreate(
+            ['name' => "Business liability o Worker's Comp"],
+            [
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $business->id,
+                'type' => 'service',
+                'description' => 'Seguros empresariales (GL, WC, E&O). Comisión del 10%.',
+                'commission_type' => 'percentage',
+                'base_commission' => 10.00,
+                'is_active' => true,
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_entity',
+                        'title' => 'Entidad Legal',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                            ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
+                            ['name' => 'ein', 'label' => 'E.I.N.', 'type' => 'text', 'required' => true],
+                            ['name' => 'entity_type', 'label' => 'Tipo de Entidad', 'type' => 'select', 'options' => 'Individual, L.L.C, Otra', 'required' => true],
+                            ['name' => 'business_address', 'label' => 'Dirección, Ciudad, Zip Code', 'type' => 'textarea', 'required' => true],
+                            ['name' => 'business_contact_info', 'label' => 'Teléfono y Email de la Empresa (Adicional)', 'type' => 'text', 'required' => false],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_owners',
+                        'title' => 'Dueños y Actividad',
+                        'fields' => [
+                            ['name' => 'owner_count', 'label' => 'Cuantos Dueños', 'type' => 'number', 'required' => true],
+                            ['name' => 'owner_names', 'label' => 'Nombre de los Dueño(s)', 'type' => 'textarea', 'required' => true],
+                            ['name' => 'owner_dob', 'label' => 'Fecha de Nacimiento de Dueño(s)', 'type' => 'text', 'required' => true],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_general_biz',
+                        'title' => 'Información Operativa',
+                        'fields' => [
+                            ['name' => 'business_activity', 'label' => 'Actividad de la Empresa / Ocupación', 'type' => 'textarea', 'required' => true],
+                            ['name' => 'opening_date', 'label' => 'Fecha de Apertura / Años operando', 'type' => 'text', 'required' => true],
+                            ['name' => 'annual_sales', 'label' => 'Ventas Anuales Proyectadas (Próximos 12 meses)', 'type' => 'number', 'required' => true],
+                            ['name' => 'employee_count', 'label' => 'Número de Empleados', 'type' => 'number', 'required' => true],
+                            ['name' => 'has_other_branches', 'label' => '¿Tiene otras sucursales?', 'type' => 'select', 'options' => 'Si, No', 'required' => false],
+                            ['name' => 'partner_count', 'label' => 'Número de Socios', 'type' => 'number', 'required' => false],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_eo_details',
+                        'title' => 'Detalles de Riesgo y E&O',
+                        'fields' => [
+                            ['name' => 'subcontractor_pay_12m', 'label' => 'Pago a sub-contratistas (Próximos 12 meses)', 'type' => 'number', 'required' => false],
+                            ['name' => 'has_current_eo', 'label' => '¿Tiene ahora un E&O?', 'type' => 'select', 'options' => 'Si, No', 'required' => false],
+                            ['name' => 'effective_date', 'label' => 'Fecha de Efectividad deseada', 'type' => 'date', 'required' => false],
+                            ['name' => 'sunbiz_registration', 'label' => 'Copia del EIN o Registro SunBiz (Archivo)', 'type' => 'file', 'required' => false],
+                        ]
+                    ],
+                    [
+                        'id' => 'group_payment',
+                        'title' => 'Información de Pago (Opcional)',
+                        'fields' => [
+                            ['name' => 'card_name', 'label' => 'Nombre en Tarjeta', 'type' => 'text', 'required' => false],
+                            ['name' => 'card_number', 'label' => 'Número de Tarjeta', 'type' => 'text', 'required' => false],
+                            ['name' => 'card_exp_cvc', 'label' => 'Exp / CVC', 'type' => 'text', 'required' => false],
+                        ]
+                    ]
+                ]),
+            ]
+        );
+
+        // --- 6. TAXES PERSONALES ---
+        Offering::updateOrCreate(
+            ['name' => 'Taxes personales'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $personal->id,
@@ -84,262 +258,54 @@ class CatalogSeeder extends Seeder
                 'description' => 'Preparación de impuestos personales. Comisión fija de $25.',
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00, 
-                'is_active' => false, // DEACTIVATED - Not in PDF list
-                'form_schema' => [
-                    ['name' => 'client_name', 'label' => 'Nombre y Apellido', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                    ['name' => 'tax_year', 'label' => 'Año Fiscal', 'type' => 'number', 'required' => true],
-                    ['name' => 'filing_status', 'label' => 'Estado Civil (Filing Status)', 'type' => 'select', 'options' => ['Single', 'Married Filing Jointly', 'Married Filing Separately', 'Head of Household'], 'required' => true],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 25, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
+                'is_active' => true,
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_extra',
+                        'title' => 'Datos del Servicio',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                        ]
+                    ]
+                ]),
             ]
         );
 
-        // 4. Taxes Corporativos (Flat $50)
+        // --- 7. TAXES CORPORATIVOS ---
         Offering::updateOrCreate(
-            ['name' => 'Taxes Corporativos'],
+            ['name' => 'Taxes corporativos'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Servicios fiscales para corporaciones. Comisión fija de $50.',
+                'description' => 'Impuestos para empresas. Comisión fija de $50.',
                 'commission_type' => 'fixed',
-                'base_commission' => 0,
                 'base_commission' => 50.00, 
-                'is_active' => false, // DEACTIVATED - Not in PDF list
-                'form_schema' => [
-                    ['name' => 'company_name', 'label' => 'Nombre de Empresa', 'type' => 'text', 'required' => true],
-                    ['name' => 'ein', 'label' => 'EIN', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                    ['name' => 'fiscal_year_end', 'label' => 'Cierre de Año Fiscal', 'type' => 'date', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'fixed' => 50, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 5. Group Insurance (Flat $50)
-        Offering::updateOrCreate(
-            ['name' => 'Group Insurance'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
-                'type' => 'service',
-                'description' => 'Seguros colectivos (5+ empleados). Comisión fija de $50.',
-                'commission_type' => 'fixed',
-                'base_commission' => 0,
-                'base_commission' => 50.00, 
-                'is_active' => false, // DEACTIVATED - Not in PDF list
-                'form_schema' => [
-                    ['name' => 'company_name', 'label' => 'Nombre de Empresa', 'type' => 'text', 'required' => true],
-                    ['name' => 'contact_person', 'label' => 'Persona de Contacto', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                    ['name' => 'employee_count', 'label' => 'Número de Empleados', 'type' => 'number', 'required' => true, 'min' => 5],
-                    ['name' => 'census_file', 'label' => 'Censo de Empleados (Opcional)', 'type' => 'file', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'fixed' => 50, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 6. Nueva Cotización: Seguro Comercial (10%)
-        Offering::updateOrCreate(
-            ['name' => 'Nueva Cotización: Seguro Comercial'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
-                'type' => 'service',
-                'description' => 'Solicita una cotización para General Liability y cancelación Workers Comp. Comisión del 10%.',
-                'commission_type' => 'percentage',
-                'base_commission' => 10.00,
                 'is_active' => true,
-                'commission_config' => ['percentage' => 10], 
-                'form_schema' => [
-                    ['name' => 'company_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
-                    ['name' => 'ein', 'label' => 'E.I.N.', 'type' => 'text', 'required' => true],
-                    ['name' => 'entity_type', 'label' => 'Tipo de Entidad', 'type' => 'select', 'options' => ['Individual', 'L.L.C', 'Otra'], 'required' => true],
-                    ['name' => 'address', 'label' => 'Dirección Completa (Calle, Ciudad, Estado, Zip)', 'type' => 'text', 'required' => true],
-                    ['name' => 'owners_count', 'label' => 'Cuantos Dueños', 'type' => 'number', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true],
-                    ['name' => 'owner_names', 'label' => 'Nombre de los Dueño(s)', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'owner_dobs', 'label' => 'Fecha de Nacimiento de Dueño(s)', 'type' => 'text', 'required' => true, 'placeholder' => 'Ej: 01/01/1980, 05/12/1985'],
-                    ['name' => 'business_activity', 'label' => 'Actividad de la Empresa', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'opening_date', 'label' => 'Fecha de Apertura de su Empresa', 'type' => 'date', 'required' => true],
-                    ['name' => 'products_interested', 'label' => 'Producto', 'type' => 'checkbox', 'checkboxLabel' => 'General Liability / Workers Comp'],
-                    ['name' => 'gl_coverage', 'label' => 'General Liability Cobertura $', 'type' => 'number', 'required' => false],
-                    ['name' => 'wc_coverage', 'label' => 'Workers Compensation Cobertura $', 'type' => 'number', 'required' => false],
-                    ['name' => 'employees_count', 'label' => 'Cuantos Empleados Tiene', 'type' => 'number', 'required' => true],
-                    ['name' => 'annual_payroll', 'label' => 'Nomina Anual (Payroll) $$', 'type' => 'number', 'required' => true],
-                    ['name' => 'contractor_payroll', 'label' => 'Nomina Anual a Contratista $$', 'type' => 'number', 'required' => false],
-                    ['name' => 'annual_sales', 'label' => 'Ventas Anuales $$', 'type' => 'number', 'required' => true],
-                    ['name' => 'card_name', 'label' => 'Nombre en Tarjeta (Opcional)', 'type' => 'text', 'required' => false],
-                    ['name' => 'card_number', 'label' => 'Numero de Tarjeta (Opcional)', 'type' => 'text', 'required' => false],
-                    ['name' => 'card_exp', 'label' => 'Exp (Opcional)', 'type' => 'text', 'required' => false],
-                    ['name' => 'card_cvc', 'label' => 'CVC (Opcional)', 'type' => 'text', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 10, 'label' => 'Comisión Estándar', 'roles' => ['associate']],
-                ],
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_biz',
+                        'title' => 'Datos de la Empresa',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                            ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
+                        ]
+                    ]
+                ]),
             ]
         );
 
-        // 7. E&O - Personal (10%)
+        // Inactive / Admin
         Offering::updateOrCreate(
-            ['name' => 'Errores y Omisiones (Personal)'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
-                'type' => 'service',
-                'description' => 'Seguro E&O para individuos (Personal).',
-                'commission_type' => 'percentage',
-                'base_commission' => 10.00,
-                'is_active' => true,
-                'commission_config' => ['percentage' => 10], 
-                'form_schema' => [
-                    ['name' => 'rep_name', 'label' => 'Nombre del Representante', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true],
-                    ['name' => 'dob', 'label' => 'Fecha de Nacimiento', 'type' => 'date', 'required' => true],
-                    ['name' => 'address', 'label' => 'Dirección', 'type' => 'text', 'required' => true],
-                    ['name' => 'occupation', 'label' => 'Ocupación', 'type' => 'text', 'required' => true],
-                    ['name' => 'years_operating', 'label' => 'Cuantos años operando su negocio', 'type' => 'number', 'required' => true],
-                    ['name' => 'has_branches', 'label' => 'Tiene otras sucursales (Si/No)', 'type' => 'select', 'options' => ['Si', 'No'], 'required' => true],
-                    ['name' => 'partners_count', 'label' => 'Cuantos socios en su negocio', 'type' => 'number', 'required' => true],
-                    ['name' => 'employees_count', 'label' => 'Cuantos empleados tiene', 'type' => 'number', 'required' => true],
-                    ['name' => 'subcontractors_pay', 'label' => 'Pago a sub-contractors prox 12 meses', 'type' => 'number', 'required' => false],
-                    ['name' => 'has_eo', 'label' => '¿Tiene ahora un E&O?', 'type' => 'select', 'options' => ['Si', 'No'], 'required' => true],
-                    ['name' => 'projected_sales', 'label' => 'Ventas próximos 12 meses', 'type' => 'number', 'required' => true],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 10, 'label' => 'Comisión Estándar', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 8. E&O - Empresa (10%)
-        Offering::updateOrCreate(
-            ['name' => 'Errores y Omisiones (Empresa)'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
-                'type' => 'service',
-                'description' => 'Seguro E&O para empresas. Comisión del 10%.',
-                'commission_type' => 'percentage',
-                'base_commission' => 10.00,
-                'is_active' => true,
-                'commission_config' => ['percentage' => 10], 
-                'form_schema' => [
-                    ['name' => 'company_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
-                    ['name' => 'entity_type', 'label' => 'Tipo de Entidad', 'type' => 'select', 'options' => ['LLC', 'CORP', 'OTRO'], 'required' => true],
-                    ['name' => 'rep_name', 'label' => 'Nombre del Representante', 'type' => 'text', 'required' => true],
-                    ['name' => 'client_phone', 'label' => 'Teléfono', 'type' => 'tel', 'required' => true],
-                    ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true],
-                    ['name' => 'dob', 'label' => 'Fecha de Nacimiento (Representante)', 'type' => 'date', 'required' => false],
-                    ['name' => 'address', 'label' => 'Dirección', 'type' => 'text', 'required' => true],
-                    ['name' => 'occupation', 'label' => 'Ocupación', 'type' => 'text', 'required' => true],
-                    ['name' => 'year_opened', 'label' => 'En qué año abrió su empresa', 'type' => 'number', 'required' => true],
-                    ['name' => 'has_branches', 'label' => 'Tiene otras sucursales (Si/No)', 'type' => 'select', 'options' => ['Si', 'No'], 'required' => true],
-                    ['name' => 'partners_count', 'label' => 'Cuantos socios en su negocio', 'type' => 'number', 'required' => true],
-                    ['name' => 'employees_count', 'label' => 'Cuantos empleados tiene', 'type' => 'number', 'required' => true],
-                    ['name' => 'subcontractors_pay', 'label' => 'Pago a sub-contractors prox 12 meses', 'type' => 'number', 'required' => false],
-                    ['name' => 'has_eo', 'label' => '¿Tiene ahora un E&O?', 'type' => 'select', 'options' => ['Si', 'No'], 'required' => true],
-                    ['name' => 'projected_sales', 'label' => 'Ventas próximos 12 meses', 'type' => 'number', 'required' => true],
-                    ['name' => 'ein_file', 'label' => 'Adjuntar copia del EIN number o registro de SunBiz', 'type' => 'file', 'required' => true],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'base_commission' => 10, 'label' => 'Comisión Estándar', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 9. Seguro de Auto - Personal (Flat $25)
-        Offering::updateOrCreate(
-            ['name' => 'Seguro de Auto (Personal)'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $property->id,
-                'type' => 'service',
-                'description' => 'Poliza de auto personal. Comisión fija de $25.',
-                'commission_type' => 'fixed',
-                'base_commission' => 0,
-                'base_commission' => 25.00, 
-                'is_active' => true,
-                'commission_config' => ['fixed_amount' => 25], 
-                'form_schema' => [
-                    ['name' => 'insured_names_address', 'label' => 'Nombre todos los asegurados y dirección actual', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'household_drivers', 'label' => 'Nombre de todos los mayores de 15 que viven en la propiedad', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'vins', 'label' => 'Numero VIN de todos los autos que van a asegurar', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'prior_claims', 'label' => '¿Tuvo algún reclamo al PIP o accidente en últimos 36 meses?', 'type' => 'select', 'options' => ['Si', 'No'], 'required' => true],
-                    ['name' => 'coverage_needs', 'label' => 'Tipo de coberturas (Comp/Collision si financiado)', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'principal_contact_info', 'label' => 'PRINCIPAL DE LA POLIZA: Nombre, Telefono, Email', 'type' => 'textarea', 'required' => true],
-                    ['name' => 'declaration_page', 'label' => 'Declaration Page (Seguro actual)', 'type' => 'file', 'required' => false],
-                    ['name' => 'licenses', 'label' => 'Licencias de conducir de todos los conductores', 'type' => 'file', 'required' => true],
-                    ['name' => 'car_photos', 'label' => 'Fotos de todos los autos (Millas y Lado del vehiculo)', 'type' => 'file', 'required' => true],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'fixed' => 25, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 10. Seguro de Auto - Comercial (Flat $25)
-        Offering::updateOrCreate(
-            ['name' => 'Seguro de Auto (Comercial)'],
-            [
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $property->id,
-                'type' => 'service',
-                'description' => 'Poliza de auto comercial/Trucking. Comisión fija de $25.',
-                'commission_type' => 'fixed',
-                'base_commission' => 0,
-                'base_commission' => 25.00, 
-                'is_active' => true,
-                'commission_config' => ['fixed_amount' => 25], 
-                'form_schema' => [
-                    ['name' => 'company_name', 'label' => 'Información de la empresa o Nombre Comercial', 'type' => 'text', 'required' => true],
-                    ['name' => 'dot_number', 'label' => 'Número de DOT (Si corresponde)', 'type' => 'text', 'required' => false],
-                    ['name' => 'cargo_type', 'label' => 'Tipo de Carga a Transportar', 'type' => 'text', 'required' => true],
-                    ['name' => 'interstate', 'label' => '¿Se transporta fuera del estado?', 'type' => 'select', 'options' => ['Si', 'No', 'No Aplica'], 'required' => true],
-                    ['name' => 'declaration_page', 'label' => 'Declaration Page Vigente (Incluyendo seguro personal)', 'type' => 'file', 'required' => true],
-                    ['name' => 'licenses', 'label' => 'Licencias de conducir de todos los conductores', 'type' => 'file', 'required' => true],
-                    ['name' => 'registration', 'label' => 'Matrícula/Registracion del Vehículo', 'type' => 'file', 'required' => true],
-                    ['name' => 'coverage_file', 'label' => 'Coberturas Necesarias (Documento opcional)', 'type' => 'file', 'required' => false],
-                    ['name' => 'coverage_text', 'label' => 'Coberturas Necesarias (Texto)', 'type' => 'textarea', 'required' => false],
-                ],
-                'commission_rules' => [
-                    ['condition' => 'default', 'fixed' => 25, 'label' => 'Tarifa Fija', 'roles' => ['associate']],
-                ],
-            ]
-        );
-
-        // 11. Solicitud de Certificado (CDI) - No Commission
-        Offering::updateOrCreate(
-            ['name' => 'Servicio: Pedir Certificado de Seguro'],
+            ['name' => 'Pedir Certificado de Seguro (CDI)'],
             [
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $administrative->id,
                 'type' => 'service',
-                'description' => 'Servicio administrativo para clientes EXISTENTES que necesitan un certificado (Liability, Workers Comp).',
-                'commission_type' => 'fixed',
-                'base_commission' => null,
+                'description' => 'Servicio para clientes existentes.',
                 'base_commission' => 0.00,
-                'is_active' => true,
-                'commission_config' => ['fixed_amount' => 0], 
-                'form_schema' => [
-                    ['name' => 'holder', 'label' => 'Titular', 'type' => 'text', 'required' => true],
-                    ['name' => 'insured', 'label' => 'Asegurado', 'type' => 'text', 'required' => true],
-                    ['name' => 'cert_type', 'label' => 'Tipo de certificado', 'type' => 'select', 'required' => true, 'options' => 'Liability, Workers Comp, Otros'],
-                    ['name' => 'date_required', 'label' => 'Fecha requerida', 'type' => 'date', 'required' => true],
-                    ['name' => 'shipping_address', 'label' => 'Dirección de envío', 'type' => 'text', 'required' => true],
-                ],
+                'is_active' => false,
+                'form_schema' => ['version' => 2, 'groups' => []]
             ]
         );
     }

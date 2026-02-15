@@ -48,6 +48,8 @@ class OfferingController extends AdminController
     {
         return Inertia::render('Private/Admin/Offerings/Create', [
             'categories' => $categoriesAction->execute(),
+            'commissionable_roles' => [RoleName::Associate->value],
+            'all_associates' => \App\Models\User::role(RoleName::Associate->value)->get(['id', 'name', 'email']),
         ]);
     }
 
@@ -68,6 +70,8 @@ class OfferingController extends AdminController
         return Inertia::render('Private/Admin/Offerings/Edit', [
             'offering' => OfferingData::fromModel($offering),
             'categories' => $categoriesAction->execute(),
+            'commissionable_roles' => [RoleName::Associate->value],
+            'all_associates' => \App\Models\User::role(RoleName::Associate->value)->get(['id', 'name', 'email']),
         ]);
     }
 

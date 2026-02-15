@@ -26,7 +26,20 @@ class CommissionRuleEngine
 
         // Evaluate rules in order
         foreach ($offering->commission_rules as $rule) {
-            // Check role eligibility (Parity with JS)
+            // Check user specific eligibility (Search by ID)
+            if (isset($rule['user_ids']) && ! empty($rule['user_ids'])) {
+                $allowedUserIds = is_array($rule['user_ids']) ? $rule['user_ids'] : [$rule['user_ids']];
+                if ($referral->associate?->user && ! in_array($referral->associate->user->id, $allowedUserIds)) {
+                    continue;
+                }
+            } elseif (isset($rule['user_email']) && ! empty($rule['user_email'])) {
+                // Fallback for legacy rules using email
+                if ($referral->associate?->user && strtolower($referral->associate->user->email) !== strtolower(trim($rule['user_email']))) {
+                    continue;
+                }
+            }
+
+            // Check role eligibility (Array or Comma separated)
             if (isset($rule['roles']) && ! empty($rule['roles'])) {
                 $allowedRoles = is_array($rule['roles']) ? $rule['roles'] : explode(',', $rule['roles']);
                 $allowedRoles = array_map('trim', $allowedRoles);
@@ -144,6 +157,14 @@ class CommissionRuleEngine
 
         // Find matching rule
         foreach ($offering->commission_rules as $index => $rule) {
+            // Check user specific eligibility
+            if (isset($rule['user_ids']) && ! empty($rule['user_ids']) && auth()->check()) {
+                $allowedUserIds = is_array($rule['user_ids']) ? $rule['user_ids'] : [$rule['user_ids']];
+                if (! in_array(auth()->id(), $allowedUserIds)) {
+                    continue;
+                }
+            }
+
             // Check role eligibility (optional in preview if user context is available)
             if (isset($rule['roles']) && ! empty($rule['roles']) && auth()->check()) {
                 $allowedRoles = is_array($rule['roles']) ? $rule['roles'] : explode(',', $rule['roles']);

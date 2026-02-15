@@ -47,8 +47,11 @@ class ReferralRequest extends FormRequest
             'form_data' => 'required|array',
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
+            'client_name' => 'required|string|max:255',
+            'client_email' => 'required|email|max:255',
+            'client_phone' => 'required|string|max:50',
             'associate_id' => [
-                RoleName::isAdmin($this->user()) ? 'required' : 'nullable',
+                'nullable',
                 'integer',
                 'exists:associates,id',
             ],
@@ -90,14 +93,17 @@ class ReferralRequest extends FormRequest
         return $rules;
     }
 
-    public function toStoreData(int $associateId): ReferralData
+    public function toStoreData(?int $associateId): ReferralData
     {
         return new ReferralData(
             offering_id: (int) $this->validated('offering_id'),
             status: ReferralStatus::Prospect,
             metadata: $this->validated('metadata') ?? [],
             notes: $this->validated('notes'),
-            associate_id: $associateId
+            associate_id: $associateId,
+            client_name: $this->validated('client_name'),
+            client_email: $this->validated('client_email'),
+            client_phone: $this->validated('client_phone'),
         );
     }
 

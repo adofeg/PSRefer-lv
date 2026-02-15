@@ -24,6 +24,7 @@ class Referral extends Model
         'down_payment',
         'agency_fee',
         'notes',
+        'consent_confirmed',
         'metadata',
         'closed_at',
         'paid_at',
@@ -39,6 +40,7 @@ class Referral extends Model
             'down_payment' => 'decimal:2',
             'agency_fee' => 'decimal:2',
             'metadata' => 'array',
+            'consent_confirmed' => 'boolean',
             'closed_at' => 'datetime',
             'paid_at' => 'datetime',
         ];
@@ -88,13 +90,13 @@ class Referral extends Model
         $metadata = $this->metadata ?? [];
 
         if (! is_array($metadata)) {
-            return null;
+            return "Referido #{$this->id}";
         }
 
         return $metadata['client_name']
             ?? $metadata['full_name']
             ?? $metadata['name']
-            ?? null;
+            ?? "Referido #{$this->id}";
     }
 
     public function setClientNameAttribute(?string $value): void
@@ -110,6 +112,7 @@ class Referral extends Model
             return null;
         }
 
+        // Prioritize explicit client_contact or construct from parts
         if (! empty($metadata['client_contact'])) {
             return (string) $metadata['client_contact'];
         }

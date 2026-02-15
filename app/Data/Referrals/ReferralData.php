@@ -13,5 +13,8 @@ class ReferralData extends Data
         public readonly array $metadata = [],
         public readonly ?string $notes = null,
         public readonly ?int $associate_id = null,
+        public readonly ?string $client_name = null,
+        public readonly ?string $client_email = null,
+        public readonly ?string $client_phone = null,
     ) {}
 }

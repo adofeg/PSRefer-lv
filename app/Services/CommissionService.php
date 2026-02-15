@@ -54,7 +54,30 @@ class CommissionService
             return $commissions;
         }
 
-        // 2. Base Commission by Type
+        // 2. Rule Engine (Dynamic Rules)
+        if ($dealValue > 0) {
+            $matchingRulePreview = $this->ruleEngine->previewCommissionRate($offering, $dealValue);
+            
+            // Check if it's actually a rule match and not just a fallback in the engine
+            // In the engine, 'rule_matched' is null if it just returned the base rate.
+            // But we want to check if calculateCommission returns something based on a rule.
+            $amount = $this->ruleEngine->calculateCommission($referral);
+            
+            // If the rule engine found a specific match (preview has a rule_matched index), we use it.
+            if ($matchingRulePreview['rule_matched'] !== null) {
+                $commissions[] = [
+                    'type' => 'percentage',
+                    'amount' => $amount,
+                    'percentage' => $matchingRulePreview['rate'],
+                    'recurrence_type' => 'one_time',
+                    'rule_label' => $matchingRulePreview['label'] ?? null,
+                ];
+
+                return $commissions;
+            }
+        }
+
+        // 3. Base Commission by Type (Fallback if no rules match)
         if ($offering->commission_type === 'fixed') {
             $amount = $offering->base_commission;
             
@@ -82,20 +105,6 @@ class CommissionService
 
                 return $commissions;
             }
-        }
- 
-        // 3. Rule Engine Fallback (if no base commission set)
-        if ($dealValue > 0) {
-            $amount = $this->ruleEngine->calculateCommission($referral);
-            $preview = $this->ruleEngine->previewCommissionRate($offering, $dealValue);
- 
-            $commissions[] = [
-                'type' => 'percentage',
-                'amount' => $amount,
-                'percentage' => $preview['rate'],
-                'recurrence_type' => 'one_time',
-                'rule_label' => $preview['label'] ?? null,
-            ];
         }
 
         // 4. Monthly Recurring

@@ -25,6 +25,7 @@ const form = useForm({
     offering_id: '',
     form_data: {},
     notes: '',
+    consent_confirmed: false,
 });
 
 // Reset when offering changes
@@ -241,7 +242,7 @@ const copyLink = async () => {
 
 <template>
     <Modal :show="show" maxWidth="4xl" @close="$emit('close')">
-        <div v-if="offering" class="bg-white rounded-2xl overflow-hidden relative flex flex-col h-[90vh] md:h-auto md:max-h-[90vh]">
+        <div v-if="offering" class="bg-white rounded-2xl overflow-hidden relative flex flex-col max-h-[85vh]">
             
             <!-- Close Button -->
             <button @click="$emit('close')" class="absolute top-4 right-4 z-20 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full p-2 transition">
@@ -372,55 +373,76 @@ const copyLink = async () => {
 
 
                 <!-- TAB 2: REGISTER -->
-                <div v-else-if="activeTab === 'register'" class="h-full">
-                    <form @submit.prevent="submitReferral" class="h-full flex flex-col">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            
-                            <!-- Dynamic Form (Catalog-Driven) -->
-                            <div class="space-y-8">
-                                <div v-if="offeringResource?.form_schema?.length">
-                                    <div class="border-b border-slate-100 pb-2 mb-6">
-                                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                                            <FileText class="w-4 h-4 text-slate-400" />
-                                            {{ offeringResource.form_schema?.length > 4 ? 'Información del Cliente y Detalles' : 'Información del Cliente' }}
-                                        </h3>
-                                        <p class="text-xs text-slate-500 mt-1">Datos específicos para este servicio.</p>
-                                    </div>
-                                    <DynamicForm 
-                                        :schema="offeringResource.form_schema"
-                                        v-model="form.form_data"
-                                        :errors="form.errors"
-                                    />
+                <div v-else-if="activeTab === 'register'" class="space-y-6">
+                    <form @submit.prevent="submitReferral" class="space-y-6">
+                        
+                        <!-- Dynamic Form (Catalog-Driven) -->
+                        <!-- Dynamic Form (Catalog-Driven) -->
+                        <div v-if="offeringResource?.form_schema">
+                            <!-- Legacy Flat Schema Wrapper -->
+                            <div v-if="Array.isArray(offeringResource.form_schema) && offeringResource.form_schema.length" class="rounded-xl p-6 border-2 border-slate-200 hover:border-indigo-200 transition-colors">
+                                <div class="border-b border-slate-200 pb-3 mb-6">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                                        <FileText class="w-4 h-4 text-indigo-600" />
+                                        Información del Cliente
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-1">Campos configurados en el catálogo para este servicio.</p>
                                 </div>
+                                <DynamicForm 
+                                    :schema="offeringResource.form_schema"
+                                    v-model="form.form_data"
+                                    :errors="form.errors"
+                                />
                             </div>
 
-                            <!-- Right Column: Notes & Confirmation -->
-                            <div class="space-y-8 flex flex-col">
-                                <div class="border-b border-slate-100 pb-2">
-                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                                        <FileText class="w-4 h-4 text-slate-400" />
-                                        Detalles Adicionales
-                                    </h3>
-                                    <p class="text-xs text-slate-500 mt-1">Ayúdanos a cerrar la venta más rápido.</p>
-                                </div>
+                            <!-- v2.0 Grouped Schema (DynamicForm renders cards directly) -->
+                            <DynamicForm 
+                                v-else-if="!Array.isArray(offeringResource.form_schema)"
+                                :schema="offeringResource.form_schema"
+                                v-model="form.form_data"
+                                :errors="form.errors"
+                            />
+                        </div>
 
-                                <div class="flex-1">
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Notas / Contexto</label>
-                                    <textarea v-model="form.notes" rows="6" class="w-full h-full min-h-[150px] rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-slate-50 resize-none p-4" placeholder="El cliente está interesado principalmente en... Mejor horario de contacto..."></textarea>
-                                </div>
+                        <!-- Notes Section -->
+                        <div class="rounded-xl p-6 border-2 border-slate-200 hover:border-amber-200 transition-colors">
+                            <div class="border-b border-slate-200 pb-3 mb-4">
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                                    <FileText class="w-4 h-4 text-amber-600" />
+                                    Contexto Adicional
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Información que ayude a cerrar la venta más rápido (opcional).</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Notas Internas</label>
+                                <textarea 
+                                    v-model="form.notes" 
+                                    rows="4" 
+                                    class="w-full rounded-lg border-2 border-slate-200 focus:border-amber-500 focus:ring focus:ring-amber-200 text-sm bg-white resize-none p-4 transition" 
+                                    placeholder="Ej: El cliente está interesado en cobertura familiar. Mejor horario: 10am-2pm."
+                                ></textarea>
                             </div>
                         </div>
 
-                        <!-- Footer Actions -->
-                        <div class="pt-8 mt-auto flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100">
-                             <div class="flex items-start gap-2 max-w-sm text-slate-500">
-                                <AlertCircle class="w-4 h-4 mt-0.5 flex-shrink-0 text-indigo-500" />
-                                <p class="text-[10px] leading-tight">
-                                    Al registrar, confirmas que el cliente espera nuestro contacto.
-                                </p>
-                             </div>
+                        <!-- Consent Tracking (persisted to DB) -->
+                        <div class="rounded-xl p-4 border-2 border-indigo-200 bg-indigo-50/50">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input 
+                                    type="checkbox" 
+                                    v-model="form.consent_confirmed" 
+                                    required
+                                    class="mt-0.5 rounded border-indigo-400 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0"
+                                >
+                                <span class="text-xs text-slate-700 leading-relaxed">
+                                    Al registrar, <strong>confirmo que el cliente expresó interés genuino</strong> y autorizo el uso de esta información exclusivamente para contacto relacionado con el servicio.
+                                </span>
+                            </label>
+                        </div>
 
-                             <button type="submit" :disabled="form.processing" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-3.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-xl shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
+                        <!-- Submit Button -->
+                        <div class="pt-4 flex justify-end">
+                            <button type="submit" :disabled="form.processing || !form.consent_confirmed" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-3.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-xl shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
                                 <Loader v-if="form.processing" class="animate-spin w-5 h-5" />
                                 <span v-else>Confirmar y Enviar Referido</span>
                             </button>

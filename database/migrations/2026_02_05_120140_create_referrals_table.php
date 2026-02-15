@@ -26,7 +26,7 @@ return new class extends Migration
 
             // Meta
             $table->text('notes')->nullable();
-            // Dynamic catalog fields, including client identity/contact
+            $table->boolean('consent_confirmed')->default(false);
             $table->jsonb('metadata')->nullable();
 
             $table->timestamp('closed_at')->nullable();

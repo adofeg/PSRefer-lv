@@ -159,11 +159,11 @@ const executeDelete = () => {
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
-                                            {{ referral.client_name.substring(0,2).toUpperCase() }}
+                                            {{ (referral.client_name || '??').substring(0,2).toUpperCase() }}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-slate-800">{{ referral.client_name }}</div>
-                                            <div class="text-xs text-slate-500">{{ referral.client_contact }}</div>
+                                            <div class="font-bold text-slate-800">{{ referral.client_name || 'Sin Nombre' }}</div>
+                                            <div class="text-xs text-slate-500">{{ referral.client_contact || 'Sin Contacto' }}</div>
                                         </div>
                                     </div>
                                 </td>

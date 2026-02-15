@@ -16,9 +16,15 @@ const selectedOffering = computed(() => normalizeResource(props.selectedOffering
 
 const form = useForm({
     offering_id: selectedOffering.value?.id || '',
+    client_name: '',
+    client_email: '',
+    client_phone: '',
     form_data: {},
     notes: '',
 });
+
+const isFormFinalStep = ref(true);
+const isFormValid = ref(true);
 
 const currentOffering = computed(() => {
     if (selectedOffering.value) return selectedOffering.value;
@@ -84,21 +90,23 @@ const formatCurrency = (amount) => {
                     </div>
 
                     <div v-if="currentOffering">
-                        <!-- Dynamic Form (Catalog-Driven) -->
+                        <!-- Standardized Dynamic Form (Step 1: Datos Personales + Step 2+: Detalles del Servicio) -->
                         <div class="p-8 border-b border-slate-100">
-                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-6 flex items-center gap-2">
-                                 <FileText class="w-4 h-4 text-slate-400" />
-                                {{ currentOffering.form_schema?.length > 4 ? 'Información del Cliente y Detalles' : 'Información del Cliente' }}
-                            </h2>
                             <DynamicForm 
                                 :schema="currentOffering.form_schema"
                                 v-model="form.form_data"
+                                v-model:client-name="form.client_name"
+                                v-model:client-email="form.client_email"
+                                v-model:client-phone="form.client_phone"
+                                :is-referral-mode="true"
                                 :errors="form.errors"
+                                @update:is-final-step="isFormFinalStep = $event"
+                                @update:is-valid="isFormValid = $event"
                             />
                         </div>
 
                         <!-- Section 2: Notes -->
-                        <div class="p-8 border-b border-slate-100">
+                        <div v-if="isFormFinalStep" class="p-8 border-b border-slate-100 animate-fade-in">
                              <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
                                  <FileText class="w-4 h-4 text-slate-400" />
                                 Notas Adicionales
@@ -112,7 +120,7 @@ const formatCurrency = (amount) => {
                          <Link :href="route('associate.referrals.index')" class="px-5 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg font-medium text-sm transition">
                             Cancelar
                         </Link>
-                        <button type="submit" :disabled="form.processing" class="flex items-center gap-2 bg-indigo-600 text-white px-8 py-2.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95">
+                        <button v-if="isFormFinalStep" type="submit" :disabled="form.processing || !isFormValid" class="flex items-center gap-2 bg-indigo-600 text-white px-8 py-2.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transform active:scale-95 animate-fade-in">
                             <CheckCircle v-if="!form.processing" class="w-4 h-4" />
                             <span v-else class="animate-pulse">Guardando...</span>
                             {{ form.processing ? '' : 'Crear Referido' }}

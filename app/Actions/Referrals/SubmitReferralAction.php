@@ -29,6 +29,10 @@ class SubmitReferralAction
 
         $allMetadata = array_merge($data->metadata ?? [], $validatedFormData);
         
+        // Inject Schema Version for historical tracking
+        if (isset($schema['version'])) {
+            $allMetadata['_schema_version'] = $schema['version'];
+        }        
         // Shadow Sync: Extract core fields from dynamic data
         $extracted = $this->schemaService->extractCoreFields($schema, $allMetadata);
 
@@ -59,13 +63,12 @@ class SubmitReferralAction
 
         $referralData = new ReferralData(
             offering_id: $data->offering_id,
-            metadata: array_merge($allMetadata, [
-                'client_name' => $extracted['client_name'] ?? null,
-                'client_contact' => $extracted['client_contact'] ?? null,
-                'client_state' => $extracted['client_state'] ?? null
-            ]),
+            metadata: $allMetadata,
             notes: $data->notes,
-            associate_id: $data->associate_id
+            associate_id: $data->associate_id,
+            client_name: $data->client_name,
+            client_email: $data->client_email,
+            client_phone: $data->client_phone,
         );
 
         $this->createReferralAction->execute($referralData);

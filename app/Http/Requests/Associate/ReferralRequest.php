@@ -29,17 +29,23 @@ class ReferralRequest extends FormRequest
             'offering_id' => ['required', 'integer', 'exists:offerings,id'],
             'notes' => ['nullable', 'string'],
             'form_data' => ['required', 'array'],
+            'client_name' => ['required', 'string', 'max:255'],
+            'client_email' => ['required', 'email', 'max:255'],
+            'client_phone' => ['required', 'string', 'max:50'],
         ];
     }
 
-    public function toStoreData(int $associateId): \App\Data\Referrals\ReferralData
+    public function toStoreData(?int $associateId): \App\Data\Referrals\ReferralData
     {
         return new \App\Data\Referrals\ReferralData(
             offering_id: (int) $this->validated('offering_id'),
             status: \App\Enums\ReferralStatus::Prospect,
             metadata: [],
             notes: $this->validated('notes'),
-            associate_id: $associateId
+            associate_id: $associateId,
+            client_name: $this->validated('client_name'),
+            client_email: $this->validated('client_email'),
+            client_phone: $this->validated('client_phone'),
         );
     }
 }

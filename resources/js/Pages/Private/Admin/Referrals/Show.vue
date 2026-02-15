@@ -5,6 +5,7 @@ import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue';
 import StatusChangeModal from '@/Components/Referrals/StatusChangeModal.vue';
 import AuditTimeline from '@/Components/Referrals/AuditTimeline.vue';
+import MetadataDisplay from '@/Components/Referrals/MetadataDisplay.vue';
 import { 
     ArrowLeft, History, User, Phone, Mail, FileText, 
     Calendar, DollarSign, Briefcase, CheckCircle 
@@ -29,7 +30,7 @@ const handleStatusUpdated = () => {
 </script>
 
 <template>
-    <Head :title="`Referido: ${referral.client_name}`" />
+    <Head :title="`Referido: ${referral.client_name || 'Sin Nombre'}`" />
 
     <AppLayout>
         <div class="w-full space-y-6">
@@ -44,7 +45,7 @@ const handleStatusUpdated = () => {
                     </Link>
                     <div>
                         <div class="flex items-center gap-3 mb-1">
-                            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ referral.client_name }}</h1>
+                            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ referral.client_name || 'Sin Nombre' }}</h1>
                             <Badge :status="referral.status" class="px-3 py-1 text-sm shadow-sm" />
                         </div>
                         <div class="flex items-center gap-4 text-sm text-slate-500">
@@ -137,16 +138,15 @@ const handleStatusUpdated = () => {
                                     </div>
 
                                     <!-- Dynamic Extra Fields -->
-                                    <div v-if="referral.metadata && Object.keys(referral.metadata).filter(k => !['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact'].includes(k)).length" class="sm:col-span-2 mt-4">
-                                         <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Datos Específicos del Servicio</dt>
-                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div v-for="(value, key) in referral.metadata" :key="key">
-                                                <div v-if="!['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact', 'client_state'].includes(key)" class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50">
-                                                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">{{ key }}</p>
-                                                    <p class="text-sm font-medium text-slate-700">{{ value }}</p>
-                                                </div>
-                                            </div>
-                                         </div>
+                                    <div v-if="referral.metadata && Object.keys(referral.metadata).filter(k => !['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact'].includes(k)).length" class="sm:col-span-2 mt-6">
+                                         <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                            <FileText :size="14" class="text-indigo-500" />
+                                            Información Específica del Servicio
+                                         </dt>
+                                         <MetadataDisplay 
+                                            :metadata="referral.metadata" 
+                                            :schema="referral.offering?.form_schema"
+                                         />
                                     </div>
                                 </div>
                             </div>

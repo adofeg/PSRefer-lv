@@ -7,36 +7,55 @@ class OfferingSchemaService
     /**
      * Get the default form schema for offerings that don't have one.
      */
+    /**
+     * Get the default form schema for offerings that don't have one.
+     * Returns v2.0 Grouped Schema.
+     */
     public function getDefaultSchema(): array
     {
         return [
-            [
-                'name' => 'client_name',
-                'label' => 'Nombre y Apellido',
-                'type' => 'text',
-                'required' => true,
-                'placeholder' => 'Nombre completo del cliente',
-            ],
-            [
-                'name' => 'client_email',
-                'label' => 'Correo Electrónico',
-                'type' => 'email',
-                'required' => true,
-                'placeholder' => 'ejemplo@correo.com',
-            ],
-            [
-                'name' => 'client_phone',
-                'label' => 'Teléfono',
-                'type' => 'tel',
-                'required' => true,
-                'placeholder' => '+1 (555) 000-0000',
-            ],
-            [
-                'name' => 'client_state',
-                'label' => 'Estado / Provincia',
-                'type' => 'text',
-                'required' => true,
-                'placeholder' => 'Ej. Florida, Madrid, etc.',
+            'version' => 1,
+            'groups' => [
+                [
+                    'id' => 'group_01',
+                    'title' => 'Datos del Cliente',
+                    'fields' => [
+                        [
+                            'name' => 'field_01_01',
+                            'label' => 'Nombre y Apellido',
+                            'type' => 'text',
+                            'required' => true,
+                            'placeholder' => 'Nombre completo del cliente',
+                        ],
+                        [
+                            'name' => 'field_01_02',
+                            'label' => 'Teléfono',
+                            'type' => 'tel',
+                            'required' => true,
+                            'placeholder' => '+1 (555) 000-0000',
+                        ],
+                        [
+                            'name' => 'field_01_03',
+                            'label' => 'Correo Electrónico',
+                            'type' => 'email',
+                            'required' => true,
+                            'placeholder' => 'ejemplo@correo.com',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'group_02',
+                    'title' => 'Ubicación',
+                    'fields' => [
+                        [
+                            'name' => 'field_02_01',
+                            'label' => 'Estado / Provincia',
+                            'type' => 'text',
+                            'required' => true,
+                            'placeholder' => 'Ej. Florida, Madrid, etc.',
+                        ],
+                    ],
+                ],
             ],
         ];
     }
@@ -54,15 +73,44 @@ class OfferingSchemaService
     }
 
     /**
-     * Extract core fields from form data based on schema and keywords.
+     * Check if schema is v2.0 grouped format.
+     */
+    public function isGroupedSchema(array $schema): bool
+    {
+        return isset($schema['groups']) && is_array($schema['groups']);
+    }
+
+    /**
+     * Helper to flatten fields from any schema version.
+     */
+    public function flattenFields(array $schema): array
+    {
+        if ($this->isGroupedSchema($schema)) {
+            $fields = [];
+            foreach ($schema['groups'] as $group) {
+                if (!empty($group['fields'])) {
+                    $fields = array_merge($fields, $group['fields']);
+                }
+            }
+            return $fields;
+        }
+
+        // Legacy flat schema
+        return $schema;
+    }
+
+    /**
+     * Extract core fields from form data based on schema labels since IDs are dynamic.
      */
     public function extractCoreFields(array $schema, array $formData): array
     {
-        $overlaps = [
-            'client_name' => ['name', 'apellido', 'fullname', 'cliente'],
-            'client_email' => ['email', 'correo', 'mail'],
-            'client_phone' => ['phone', 'tel', 'telefono', 'celular', 'mob'],
-            'client_state' => ['state', 'estado', 'provincia', 'location', 'residencia'],
+        $flatSchema = $this->flattenFields($schema);
+        
+        $keywords = [
+            'client_name' => ['nombre', 'name', 'apellido', 'fullname', 'cliente'],
+            'client_email' => ['email', 'correo', 'mail', 'electrónico'],
+            'client_phone' => ['telf', 'tel', 'phone', 'celular', 'móvil'],
+            'client_state' => ['estado', 'state', 'provincia', 'location', 'ubicación', 'ciudad'],
         ];
 
         $extracted = [
@@ -70,44 +118,26 @@ class OfferingSchemaService
             'client_email' => null,
             'client_phone' => null,
             'client_state' => null,
-            'client_contact' => null,
         ];
 
-        foreach ($schema as $field) {
-            $fieldName = $field['name'] ?? null;
-            if (!$fieldName || !isset($formData[$fieldName])) continue;
+        foreach ($flatSchema as $field) {
+            $fieldId = $field['name'] ?? null;
+            $fieldLabel = strtolower($field['label'] ?? '');
+            
+            if (!$fieldId || !isset($formData[$fieldId])) continue;
 
-            $value = $formData[$fieldName];
+            $value = $formData[$fieldId];
 
-            foreach ($overlaps as $coreKey => $keywords) {
+            foreach ($keywords as $coreKey => $terms) {
                 if ($extracted[$coreKey] !== null) continue;
 
-                foreach ($keywords as $kw) {
-                    if (str_contains(strtolower($fieldName), $kw)) {
+                foreach ($terms as $term) {
+                    if (str_contains($fieldLabel, $term)) {
                         $extracted[$coreKey] = $value;
-                        break 2;
+                        break 2; // Move to next schema field
                     }
                 }
             }
-        }
-
-        // Fallback for client_name: use the first text field if not found
-        if ($extracted['client_name'] === null) {
-            foreach ($schema as $field) {
-                if (($field['type'] ?? 'text') === 'text') {
-                    $extracted['client_name'] = $formData[$field['name']] ?? null;
-                    if ($extracted['client_name']) break;
-                }
-            }
-        }
-
-        // Consolidate client_contact
-        $email = $extracted['client_email'];
-        $phone = $extracted['client_phone'];
-        if ($email && $phone) {
-            $extracted['client_contact'] = "$email / $phone";
-        } else {
-            $extracted['client_contact'] = $email ?: $phone;
         }
 
         return array_filter($extracted);
