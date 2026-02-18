@@ -48,7 +48,8 @@ const formatDate = (dateString) => {
 
         <!-- Associate -->
         <div class="flex items-center gap-1 text-xs text-indigo-700 mb-2">
-            <span class="bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+            <span class="text-slate-400 text-[10px] uppercase font-bold mr-1">Referido por:</span>
+            <span class="bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 font-medium">
                 {{ referral.user?.name || 'Sin asignar' }}
             </span>
         </div>

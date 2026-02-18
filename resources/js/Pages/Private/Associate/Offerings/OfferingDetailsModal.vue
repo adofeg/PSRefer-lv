@@ -20,6 +20,7 @@ const offeringResource = computed(() => normalizeResource(props.offering, null))
 
 // --- Tab & Form Logic ---
 const activeTab = ref('details'); // 'details' | 'register'
+const isFormFinalStep = ref(true);
 
 const form = useForm({
     offering_id: '',
@@ -34,6 +35,7 @@ watch(() => props.offering, (newVal) => {
         activeTab.value = 'details';
         form.reset();
         form.offering_id = offeringResource.value?.id || '';
+        isFormFinalStep.value = true;
     }
 });
 
@@ -401,11 +403,12 @@ const copyLink = async () => {
                                 :schema="offeringResource.form_schema"
                                 v-model="form.form_data"
                                 :errors="form.errors"
+                                @update:is-final-step="isFormFinalStep = $event"
                             />
                         </div>
 
                         <!-- Notes Section -->
-                        <div class="rounded-xl p-6 border-2 border-slate-200 hover:border-amber-200 transition-colors">
+                        <div v-if="isFormFinalStep" class="rounded-xl p-6 border-2 border-slate-200 hover:border-amber-200 transition-colors animate-fade-in">
                             <div class="border-b border-slate-200 pb-3 mb-4">
                                 <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
                                     <FileText class="w-4 h-4 text-amber-600" />
@@ -426,7 +429,7 @@ const copyLink = async () => {
                         </div>
 
                         <!-- Consent Tracking (persisted to DB) -->
-                        <div class="rounded-xl p-4 border-2 border-indigo-200 bg-indigo-50/50">
+                        <div v-if="isFormFinalStep" class="rounded-xl p-4 border-2 border-indigo-200 bg-indigo-50/50 animate-fade-in">
                             <label class="flex items-start gap-3 cursor-pointer group">
                                 <input 
                                     type="checkbox" 
@@ -441,7 +444,7 @@ const copyLink = async () => {
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="pt-4 flex justify-end">
+                        <div v-if="isFormFinalStep" class="pt-4 flex justify-end animate-fade-in">
                             <button type="submit" :disabled="form.processing || !form.consent_confirmed" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-3.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-xl shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
                                 <Loader v-if="form.processing" class="animate-spin w-5 h-5" />
                                 <span v-else>Confirmar y Enviar Referido</span>

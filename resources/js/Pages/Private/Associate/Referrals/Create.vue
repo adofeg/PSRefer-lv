@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Briefcase, FileText, CheckCircle, AlertCircle } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 
@@ -29,7 +29,7 @@ const isFormValid = ref(true);
 const currentOffering = computed(() => {
     if (selectedOffering.value) return selectedOffering.value;
     if (form.offering_id) {
-        return offeringsList.value.find(o => o.id === form.offering_id);
+        return offeringsList.value.find(o => o.id == form.offering_id);
     }
     return null;
 });
@@ -50,29 +50,27 @@ const formatCurrency = (amount) => {
     <Head title="Nuevo Referido" />
 
     <AppLayout>
-        <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-            <!-- Breadcrumb / Header -->
-             <div class="mb-8">
-                <Link :href="route('associate.referrals.index')" class="flex items-center text-slate-500 hover:text-indigo-600 transition mb-4 text-sm font-medium">
+        <div class="space-y-6">
+            <!-- Header -->
+             <div class="flex flex-col gap-2">
+                <Link :href="route('associate.referrals.index')" class="flex items-center text-slate-500 hover:text-indigo-600 transition text-sm font-medium w-fit">
                     <ArrowLeft class="w-4 h-4 mr-1.5" />
                     Volver a Mis Referidos
                 </Link>
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-100 p-2 rounded-lg">
-                        <Briefcase class="w-6 h-6 text-indigo-600" />
-                    </div>
+                
+                <div class="flex items-start justify-between">
                     <div>
-                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Registrar Nuevo Referido</h1>
-                        <p class="text-slate-500 text-sm">Ingresa los datos de tu cliente potencial para iniciar el proceso.</p>
+                        <h1 class="text-2xl font-bold text-slate-800">Registrar Nuevo Referido</h1>
+                        <p class="text-slate-500">Ingresa los datos de tu cliente potencial.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Form Card -->
-            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <form @submit.prevent="submit">
-                    <!-- Section 0: Offering Selection (NOW AT TOP) -->
-                    <div class="p-8 border-b border-slate-100 bg-slate-50/50">
+                    <!-- Section 0: Offering Selection -->
+                    <div class="p-6 md:p-8 border-b border-slate-100 bg-slate-50/50">
                         <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
                              <Briefcase class="w-4 h-4 text-slate-400" />
                             Servicio de Interés
@@ -90,8 +88,8 @@ const formatCurrency = (amount) => {
                     </div>
 
                     <div v-if="currentOffering">
-                        <!-- Standardized Dynamic Form (Step 1: Datos Personales + Step 2+: Detalles del Servicio) -->
-                        <div class="p-8 border-b border-slate-100">
+                        <!-- Standardized Dynamic Form -->
+                        <div class="p-6 md:p-8 border-b border-slate-100">
                             <DynamicForm 
                                 :schema="currentOffering.form_schema"
                                 v-model="form.form_data"
@@ -106,7 +104,7 @@ const formatCurrency = (amount) => {
                         </div>
 
                         <!-- Section 2: Notes -->
-                        <div v-if="isFormFinalStep" class="p-8 border-b border-slate-100 animate-fade-in">
+                        <div v-if="isFormFinalStep" class="p-6 md:p-8 border-b border-slate-100 animate-fade-in">
                              <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
                                  <FileText class="w-4 h-4 text-slate-400" />
                                 Notas Adicionales
@@ -116,7 +114,7 @@ const formatCurrency = (amount) => {
                     </div>
 
                     <!-- Actions -->
-                    <div class="p-6 bg-slate-100/50 border-t border-slate-200 flex justify-end gap-3 items-center">
+                    <div class="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 items-center">
                          <Link :href="route('associate.referrals.index')" class="px-5 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg font-medium text-sm transition">
                             Cancelar
                         </Link>

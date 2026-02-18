@@ -56,7 +56,7 @@ class ReferralController extends AssociateController
         $offerings = Offering::query()
             ->where('is_active', true)
             ->excludeCategory($associate?->category)
-            ->get(['id', 'name', 'base_commission']);
+            ->get(['id', 'name', 'base_commission', 'commission_type', 'form_schema']);
 
         return Inertia::render('Private/Associate/Referrals/Create', [
             'offerings' => $offerings,

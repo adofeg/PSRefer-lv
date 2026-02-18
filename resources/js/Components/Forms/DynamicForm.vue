@@ -68,11 +68,33 @@ const updateField = (fieldName, value) => {
 // Version & Wizard Detection
 const isGroupedSchema = computed(() => {
     if (props.isReferralMode) return true;
-    return !Array.isArray(props.schema) && Array.isArray(props.schema?.groups);
+    return effectiveSchema.value?.groups?.length > 0;
 });
 
 const effectiveSchema = computed(() => {
-    return props.schema;
+    // If grouped and valid, return as is (v2.0)
+    if (!Array.isArray(props.schema) && props.schema?.groups) {
+        return props.schema;
+    }
+    
+    // If flat array (legacy) but we need grouped mode (isReferralMode or just flat schema)
+    // We wrap it in a default group so one logic fits all
+    if (Array.isArray(props.schema) && props.schema.length > 0) {
+        return {
+            version: 1,
+            groups: [
+                {
+                    id: 'default',
+                    title: 'Información General',
+                    description: 'Complete los datos solicitados.',
+                    fields: props.schema,
+                    icon: 'file'
+                }
+            ]
+        };
+    }
+    
+    return { groups: [] };
 });
 
 const isWizard = computed(() => {
