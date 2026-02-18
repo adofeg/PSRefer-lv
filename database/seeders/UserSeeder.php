@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Associate;
 use App\Models\Employee;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,10 +15,13 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Disable mass assignment protection to force IDs
+        Model::unguard();
+
         // 1. PS Admin (Super Admin) - Is an Employee
         // ID: 1, Name: 'PS Administrator', Email: 'psadmin@psrefer.com'
         $psadminProfile = Employee::create([
-            'id' => 1, // FORCE ID
+            'id' => 1, 
             'department' => 'Executive',
             'job_title' => 'System Owner',
             'internal_code' => 'EMP-001',
@@ -48,7 +52,7 @@ class UserSeeder extends Seeder
         // 2. Admin (Standard Manager) - Is an Employee
         // ID: 2, Name: 'System Manager', Email: 'admin@psrefer.com'
         $adminProfile = Employee::create([
-            'id' => 2, // FORCE ID
+            'id' => 2,
             'department' => 'Operations',
             'job_title' => 'Manager',
             'internal_code' => 'EMP-002',
@@ -145,5 +149,8 @@ class UserSeeder extends Seeder
             );
             $u->assignRole('associate');
         }
+
+        // Re-enable mass assignment protection
+        Model::reguard();
     }
 }
