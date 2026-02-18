@@ -1,31 +1,62 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
 use App\Models\Category;
 use App\Models\Offering;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 
-class CatalogSeeder extends Seeder
+class SyncCatalogsCommand extends Command
 {
-    public function run(): void
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'psrefer:sync-catalogs';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Syncs the Offerings catalog in production with the latest schema definitions (v2.0)';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
     {
+        $this->info('Starting Catalog Sync...');
+
+        // 1. Ensure Owner Exists
         $psadmin = User::role('psadmin')->first();
-        $ownerEmployeeId = $psadmin?->profileable?->id;
-        if (! $psadmin || ! $ownerEmployeeId) {
-            return;
+        if (!$psadmin || !$psadmin->profileable) {
+            $this->error('User with role "psadmin" not found. Cannot assign owner.');
+            return 1;
+        }
+        $ownerEmployeeId = $psadmin->profileable->id;
+        $this->info("Owner identified: {$psadmin->name} (Employee ID: $ownerEmployeeId)");
+
+        // 2. Ensure Categories Exist
+        $categories = [
+            'Salud' => 'Salud',
+            'Vida' => 'Vida',
+            'Propiedad y Accidentes' => 'Propiedad y Accidentes',
+            'Empresarial' => 'Empresarial',
+            'Personal' => 'Personal',
+            'Administrativo' => 'Administrativo',
+        ];
+
+        $catIds = [];
+        foreach ($categories as $key => $name) {
+            $cat = Category::firstOrCreate(['name' => $name]);
+            $catIds[$key] = $cat->id;
+            $this->line("✓ Category ensured: $name");
         }
 
-        // Categories
-        $health = Category::firstOrCreate(['name' => 'Salud']);
-        $life = Category::firstOrCreate(['name' => 'Vida']);
-        $property = Category::firstOrCreate(['name' => 'Propiedad y Accidentes']);
-        $business = Category::firstOrCreate(['name' => 'Empresarial']);
-        $personal = Category::firstOrCreate(['name' => 'Personal']);
-        $administrative = Category::firstOrCreate(['name' => 'Administrativo']);
-
-        // Helper to prepend identity fields to a schema
+        // 3. Helper for Schema v2.0
         $withIdentity = function($groups) {
             $systemFields = [
                 ['name' => 'client_name', 'label' => 'Nombre Completo', 'type' => 'text', 'required' => true, 'is_system' => true],
@@ -40,30 +71,33 @@ class CatalogSeeder extends Seeder
                     'fields' => $systemFields
                 ]];
             } else {
-                $groups[0]['fields'] = array_merge($systemFields, $groups[0]['fields']);
-                // Ensure first group title makes sense for identity if it's generic
-                if ($groups[0]['title'] === 'Datos del Servicio' || $groups[0]['title'] === 'Información General') {
-                    $groups[0]['title'] = 'Datos Personales';
+                // Ensure first group has system fields
+                $firstGroup = $groups[0];
+                
+                // Remove any manually added system fields to avoid dupes
+                $cleanFields = array_filter($firstGroup['fields'], function($f) {
+                    return !in_array($f['name'], ['client_name', 'client_email', 'client_phone']);
+                });
+                
+                $groups[0]['fields'] = array_merge($systemFields, $cleanFields);
+
+                if (in_array($groups[0]['title'], ['Datos del Servicio', 'Información General'])) {
+                     $groups[0]['title'] = 'Datos Personales';
                 }
             }
-
             return ['version' => 2, 'groups' => $groups];
         };
 
-        // --- 1. SEGUROS DE SALUD ---
-        // Production ID: 1
-        Offering::updateOrCreate(
-            ['id' => 1],
+        // 4. Define Offerings
+        $offerings = [
             [
                 'name' => 'Seguros de Salud',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $health->id,
+                'category_id' => $catIds['Salud'],
                 'type' => 'service',
                 'description' => 'Cobertura médica integral. Comisión del 30% mensual.',
                 'commission_type' => 'percentage',
                 'base_commission' => 30.00,
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'groups' => [
                     [
                         'id' => 'group_extra',
                         'title' => 'Datos del Servicio',
@@ -71,49 +105,33 @@ class CatalogSeeder extends Seeder
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 2. SEGUROS DE VIDA ---
-        // Production ID: 2
-        Offering::updateOrCreate(
-            ['id' => 2], 
+                ]
+            ],
             [
                 'name' => 'Seguros de Vida',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $life->id,
+                'category_id' => $catIds['Vida'],
                 'type' => 'service',
                 'description' => 'Protección financiera. Comisión fija de $25.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
-                'is_active' => true,
-                'form_schema' => $withIdentity([
-                    [
+                'base_commission' => 25.00,
+                'groups' => [
+                     [
                         'id' => 'group_extra',
                         'title' => 'Datos del Servicio',
                         'fields' => [
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 3. SEGUROS DE CARRO Y CASA ---
-        // Production ID: 3
-        Offering::updateOrCreate(
-            ['id' => 3],
+                ]
+            ],
             [
                 'name' => 'Seguros de Carro y Casa',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $property->id,
+                'category_id' => $catIds['Propiedad y Accidentes'],
                 'type' => 'service',
                 'description' => 'Seguros de auto (Personal/Comercial) y hogar. Comisión fija de $25.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'base_commission' => 25.00,
+                'groups' => [
                     [
                         'id' => 'group_general',
                         'title' => 'Ubicación y Tipo',
@@ -156,24 +174,16 @@ class CatalogSeeder extends Seeder
                             ['name' => 'car_photos_or_reg', 'label' => 'Fotos Millas/Lados O Matrícula/Registración', 'type' => 'file', 'required' => false],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 4. GROUP INSURANCE ---
-        // Production ID: 4 (Name: "Group Insurance (5+ empleados)" in DB, updated to Seeder name)
-        Offering::updateOrCreate(
-            ['id' => 4],
+                ]
+            ],
             [
                 'name' => 'Group Insurance (5 empleados o mas)',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
+                'category_id' => $catIds['Empresarial'],
                 'type' => 'service',
                 'description' => 'Seguros colectivos comerciales. Comisión fija de $50.',
                 'commission_type' => 'fixed',
-                'base_commission' => 50.00, 
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'base_commission' => 50.00,
+                'groups' => [
                     [
                         'id' => 'group_business',
                         'title' => 'Datos de la Empresa',
@@ -184,24 +194,16 @@ class CatalogSeeder extends Seeder
                             ['name' => 'census_file', 'label' => 'Censo de Empleados (PDF/Excel)', 'type' => 'file', 'required' => false],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 5. BUSINESS LIABILITY ---
-        // Production ID: 5 (Name: "Business Liability / Workers Comp" in DB, updated to Seeder name)
-        Offering::updateOrCreate(
-            ['id' => 5],
+                ]
+            ],
             [
                 'name' => "Business liability o Worker's Comp",
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
+                'category_id' => $catIds['Empresarial'],
                 'type' => 'service',
                 'description' => 'Seguros empresariales (GL, WC, E&O). Comisión del 10%.',
                 'commission_type' => 'percentage',
                 'base_commission' => 10.00,
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'groups' => [
                     [
                         'id' => 'group_entity',
                         'title' => 'Entidad Legal',
@@ -254,24 +256,16 @@ class CatalogSeeder extends Seeder
                             ['name' => 'card_exp_cvc', 'label' => 'Exp / CVC', 'type' => 'text', 'required' => false],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 6. TAXES PERSONALES ---
-        // Production ID: 6
-        Offering::updateOrCreate(
-            ['id' => 6],
+                ]
+            ],
             [
                 'name' => 'Taxes personales',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $personal->id,
+                'category_id' => $catIds['Personal'],
                 'type' => 'service',
                 'description' => 'Preparación de impuestos personales. Comisión fija de $25.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'base_commission' => 25.00,
+                'groups' => [
                     [
                         'id' => 'group_extra',
                         'title' => 'Datos del Servicio',
@@ -279,24 +273,16 @@ class CatalogSeeder extends Seeder
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 7. TAXES CORPORATIVOS ---
-        // Production ID: 7
-        Offering::updateOrCreate(
-            ['id' => 7],
+                ]
+            ],
             [
                 'name' => 'Taxes corporativos',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $business->id,
+                'category_id' => $catIds['Empresarial'],
                 'type' => 'service',
                 'description' => 'Impuestos para empresas. Comisión fija de $50.',
                 'commission_type' => 'fixed',
-                'base_commission' => 50.00, 
-                'is_active' => true,
-                'form_schema' => $withIdentity([
+                'base_commission' => 50.00,
+                'groups' => [
                     [
                         'id' => 'group_biz',
                         'title' => 'Datos de la Empresa',
@@ -305,24 +291,48 @@ class CatalogSeeder extends Seeder
                             ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
                         ]
                     ]
-                ]),
-            ]
-        );
-
-        // --- 8. CDI ---
-        // Production ID: 8 (Name: "Solicitud de Certificado (CDI)" in DB, updated to Seeder name)
-        Offering::updateOrCreate(
-            ['id' => 8],
-            [
+                ]
+            ],
+             [
                 'name' => 'Pedir Certificado de Seguro (CDI)',
-                'owner_employee_id' => $ownerEmployeeId,
-                'category_id' => $administrative->id,
+                'category_id' => $catIds['Administrativo'],
                 'type' => 'service',
                 'description' => 'Servicio para clientes existentes.',
+                'commission_type' => 'fixed',
                 'base_commission' => 0.00,
                 'is_active' => false,
-                'form_schema' => ['version' => 2, 'groups' => []]
+                'groups' => []
             ]
-        );
+        ];
+
+        // 5. Update Database
+        $bar = $this->output->createProgressBar(count($offerings));
+        $bar->start();
+
+        foreach ($offerings as $data) {
+            $schema = $withIdentity($data['groups']);
+            
+            // Clean keys for UpdateOrCreate (remove temporary keys not in DB column list if any, but Offering uses fillable mostly)
+            Offering::updateOrCreate(
+                ['name' => $data['name']],
+                [
+                    'owner_employee_id' => $ownerEmployeeId,
+                    'category_id' => $data['category_id'],
+                    'type' => $data['type'],
+                    'description' => $data['description'],
+                    'commission_type' => $data['commission_type'] ?? 'fixed',
+                    'base_commission' => $data['base_commission'],
+                    'is_active' => $data['is_active'] ?? true,
+                    'form_schema' => $schema,
+                ]
+            );
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->newLine();
+        $this->info('Catalog Sync Completed Successfully!');
+        
+        return 0;
     }
 }
