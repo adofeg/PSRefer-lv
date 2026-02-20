@@ -23,7 +23,6 @@ return new class extends Migration
 
             // Profile Fields (JS parity + app usage)
             $table->string('phone')->nullable();
-            $table->text('logo_url')->nullable();
 
             // Polymorphic Profile (UUID)
             $table->nullableMorphs('profileable');

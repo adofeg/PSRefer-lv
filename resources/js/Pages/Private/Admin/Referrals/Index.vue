@@ -5,7 +5,7 @@ import { computed, ref, watch } from 'vue'; // Added watch, ref
 import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue'; // Added ConfirmModal
-import { Search, Filter, Plus, Eye, Trash2, X } from 'lucide-vue-next'; // Additional icons
+import { Search, Filter, Plus, Eye, Trash2, X, Check } from 'lucide-vue-next'; // Additional icons including Check
 import { useFormatters } from '@/Composables/useFormatters';
 import { normalizePaginated } from '@/Utils/inertia';
 
@@ -73,6 +73,10 @@ const executeDelete = () => {
             itemToDelete.value = null;
         }
     });
+};
+
+const hasPaidCommission = (referral) => {
+    return referral.commissions && referral.commissions.some(c => c.status === 'paid');
 };
 </script>
 
@@ -197,6 +201,12 @@ const executeDelete = () => {
                                         {{ formatCurrency(referral.offering.base_commission) }}
                                     </span>
                                     <span v-else class="text-slate-400">-</span>
+                                    
+                                    <div v-if="hasPaidCommission(referral)" class="mt-1 flex justify-end">
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-wide border border-green-200 shadow-sm">
+                                            <Check :size="10" /> PAGADO
+                                        </span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition">

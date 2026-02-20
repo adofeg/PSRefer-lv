@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\FileAsset;
 
 class Associate extends Model
 {
@@ -16,8 +17,6 @@ class Associate extends Model
         'balance',
         'category',
         'payment_info',
-        'w9_status',
-        'w9_file_url',
         'referrer_id',
     ];
 
@@ -42,4 +41,14 @@ class Associate extends Model
     }
 
     // Associate-specific logic that used to be on User
+
+    public function w9(): MorphOne
+    {
+        return $this->morphOne(FileAsset::class, 'attachable')->where('purpose', 'w9')->latest();
+    }
+
+    public function getW9FileUrlAttribute()
+    {
+        return $this->w9?->path ? '/storage/' . $this->w9->path : null;
+    }
 }

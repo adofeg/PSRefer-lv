@@ -12,6 +12,7 @@ class ReferralData extends Data
         public readonly ?ReferralStatus $status = ReferralStatus::Prospect,
         public readonly array $metadata = [],
         public readonly ?string $notes = null,
+        public readonly bool $consent_confirmed = false,
         public readonly ?int $associate_id = null,
         public readonly ?string $client_name = null,
         public readonly ?string $client_email = null,

@@ -55,4 +55,9 @@ class Commission extends Model
     {
         return $this->hasMany(Commission::class, 'parent_commission_id');
     }
+
+    public function receipt(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(FileAsset::class, 'attachable')->where('purpose', 'receipt')->latest();
+    }
 }

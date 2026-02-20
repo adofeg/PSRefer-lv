@@ -11,7 +11,6 @@ class UserSettingsData extends Data
 {
     public function __construct(
         public string $name,
-        public W9Status $w9_status,
         public ?array $payment_info,
         public CurrencyCode $preferred_currency,
         public ?string $category,

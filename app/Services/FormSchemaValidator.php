@@ -71,12 +71,44 @@ class FormSchemaValidator
                     $fieldRules[] = 'url';
                     break;
 
+                case 'date':
+                    $fieldRules[] = 'date';
+                    if (isset($field['min'])) {
+                        $fieldRules[] = "after_or_equal:{$field['min']}";
+                    }
+                    if (isset($field['max'])) {
+                        $fieldRules[] = "before_or_equal:{$field['max']}";
+                    }
+                    break;
+
+                case 'file':
+                    $fieldRules[] = 'file';
+                    // Default max 10MB
+                    $fieldRules[] = 'max:'.($field['max_size'] ?? 10240); 
+                    if (isset($field['mimes'])) {
+                        $fieldRules[] = 'mimes:'.$field['mimes'];
+                    }
+                    break;
+
                 case 'select':
+                case 'multiselect':
+                case 'checkbox':
+                    if ($field['type'] === 'multiselect' || ($field['type'] === 'checkbox' && ($field['multiple'] ?? false))) {
+                        $fieldRules[] = 'array';
+                    }
+                    
                     if (! empty($field['options'])) {
                         $options = is_array($field['options'])
                             ? $field['options']
                             : explode(',', $field['options']);
-                        $fieldRules[] = 'in:'.implode(',', $options);
+                        
+                        $rule = 'in:'.implode(',', $options);
+                        if (in_array('array', $fieldRules)) {
+                           // If it's an array, we need to validate each item
+                           $rules[$fieldName . '.*'] = $rule; 
+                        } else {
+                           $fieldRules[] = $rule;
+                        }
                     }
                     break;
 
@@ -111,10 +143,16 @@ class FormSchemaValidator
                 continue;
             }
 
-            $messages["{$fieldName}.required"] = "El campo {$fieldLabel} es obligatorio.";
-            $messages["{$fieldName}.email"] = "El campo {$fieldLabel} debe ser un email válido.";
-            $messages["{$fieldName}.numeric"] = "El campo {$fieldLabel} debe ser un número.";
-            $messages["{$fieldName}.url"] = "El campo {$fieldLabel} debe ser una URL válida.";
+            $messages["{$fieldName}.required"] = __('validation.required', ['attribute' => $fieldLabel]);
+            $messages["{$fieldName}.email"] = __('validation.email', ['attribute' => $fieldLabel]);
+            $messages["{$fieldName}.numeric"] = __('validation.numeric', ['attribute' => $fieldLabel]);
+            $messages["{$fieldName}.url"] = __('validation.url', ['attribute' => $fieldLabel]);
+            
+            // Custom file messages derived from generic ones where appropriate
+            $messages["{$fieldName}.file"] = __('validation.file', ['attribute' => $fieldLabel]);
+            $messages["{$fieldName}.max"] = __('validation.max.file', ['attribute' => $fieldLabel, 'max' => ':max']);
+            $messages["{$fieldName}.mimes"] = __('validation.mimes', ['attribute' => $fieldLabel, 'values' => ':values']);
+            $messages["{$fieldName}.uploaded"] = __('validation.uploaded', ['attribute' => $fieldLabel]);
         }
 
         return $messages;

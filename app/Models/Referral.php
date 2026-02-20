@@ -61,6 +61,11 @@ class Referral extends Model
         return $this->hasMany(Commission::class);
     }
 
+    public function fileAssets(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(FileAsset::class, 'attachable');
+    }
+
     public function history(): HasMany
     {
         return $this->hasMany(AuditLog::class, 'auditable_id')

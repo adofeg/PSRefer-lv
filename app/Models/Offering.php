@@ -13,6 +13,7 @@ class Offering extends Model
 {
     use HasFactory, SoftDeletes;
 
+
     protected $fillable = [
         'owner_employee_id',
         'type',

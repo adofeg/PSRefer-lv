@@ -30,6 +30,7 @@ class CommissionRequest extends FormRequest
             'commission_type' => ['required', 'string', 'max:50'],
             'status' => ['required', Rule::enum(CommissionStatus::class)],
             'notes' => ['nullable', 'string', 'max:500'],
+            'receipt_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'], // 5MB max
         ];
     }
 }

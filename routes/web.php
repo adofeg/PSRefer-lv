@@ -5,10 +5,8 @@ use App\Http\Controllers\Public\PublicApiController;
 use App\Http\Controllers\Public\PublicController;
 use Illuminate\Support\Facades\Route;
 
-// Guest-facing welcome route
 Route::get('/', [PublicController::class, 'home'])->name('home');
 
-// Guest-facing routes (no auth required)
 Route::name('site.')->group(function () {
     Route::get('/users/{id}', [PublicApiController::class, 'userInfo'])->name('users.show');
     Route::get('/offerings/{id}', [PublicApiController::class, 'offeringInfo'])->name('offerings.show');
@@ -31,3 +29,4 @@ Route::name('site.')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
 });
+

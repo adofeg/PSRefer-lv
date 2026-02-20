@@ -28,6 +28,7 @@ class ReferralRequest extends FormRequest
         return [
             'offering_id' => ['required', 'integer', 'exists:offerings,id'],
             'notes' => ['nullable', 'string'],
+            'consent_confirmed' => ['boolean'],
             'form_data' => ['required', 'array'],
             'client_name' => ['required', 'string', 'max:255'],
             'client_email' => ['required', 'email', 'max:255'],
@@ -42,6 +43,7 @@ class ReferralRequest extends FormRequest
             status: \App\Enums\ReferralStatus::Prospect,
             metadata: [],
             notes: $this->validated('notes'),
+            consent_confirmed: (bool) $this->validated('consent_confirmed'),
             associate_id: $associateId,
             client_name: $this->validated('client_name'),
             client_email: $this->validated('client_email'),

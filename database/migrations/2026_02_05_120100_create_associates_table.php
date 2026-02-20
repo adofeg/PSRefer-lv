@@ -16,8 +16,6 @@ return new class extends Migration
             $table->decimal('balance', 10, 2)->default(0);
             $table->string('category')->nullable();
             $table->jsonb('payment_info')->nullable();
-            $table->string('w9_status')->default('pending');
-            $table->text('w9_file_url')->nullable();
             $table->foreignId('referrer_id')->nullable()->constrained('associates');
             $table->timestamps();
             $table->softDeletes();

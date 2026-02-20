@@ -5,6 +5,8 @@ namespace App\Actions\Settings;
 use App\Data\Settings\UserSettingsData;
 use App\Models\Associate;
 use App\Models\User;
+use App\Models\FileAsset;
+use Illuminate\Support\Str;
 
 class UpdateUserSettingsAction
 {
@@ -17,8 +19,29 @@ class UpdateUserSettingsAction
         ]);
 
         if ($data->logo_file) {
-            $path = $data->logo_file->store('logos', 'public');
-            $user->update(['logo_url' => '/storage/'.$path]);
+            // Remove old logo if exists
+            if ($user->logo) {
+                // Only delete file if it's local (disk=public) and not a shared asset
+                if ($user->logo->disk === 'public') {
+                     \Illuminate\Support\Facades\Storage::disk('public')->delete($user->logo->path);
+                }
+                $user->logo->delete();
+            }
+
+            $file = $data->logo_file;
+            $path = $file->store('logos', 'public');
+
+            $user->logo()->create([
+                'uuid' => (string) Str::uuid(),
+                'disk' => 'public',
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize(),
+                'purpose' => 'logo',
+                'category' => 'profile',
+                'uploaded_by' => auth()->id(),
+            ]);
         }
 
         $profile = $user->profileable;
@@ -28,17 +51,7 @@ class UpdateUserSettingsAction
                 'payment_info' => $data->payment_info ?? [],
             ];
 
-            // W-9 Status Logic (Manual Toggle or Admin Override)
-            if ($data->w9_status) {
-                // If user is Admin/PSAdmin, allow any status change
-                if (auth()->user()->hasRole(['admin', 'psadmin'])) {
-                    $profileData['w9_status'] = $data->w9_status->value;
-                }
-                // If Associate, allow toggling "submitted" / "pending" freely
-                else {
-                    $profileData['w9_status'] = $data->w9_status->value;
-                }
-            }
+            // W-9 Status Logic Removed (File-based only)
 
             if ($data->category) {
                 if (auth()->user()->hasRole(['admin', 'psadmin'])) {
@@ -47,6 +60,31 @@ class UpdateUserSettingsAction
             }
 
             $profile->update($profileData);
+
+            if ($data->w9_file) {
+                 // Remove old W9 if exists
+                if ($profile->w9) {
+                    if ($profile->w9->disk === 'public') {
+                         \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->w9->path);
+                    }
+                    $profile->w9->delete();
+                }
+
+                $file = $data->w9_file;
+                $path = $file->store('w9_forms', 'public');
+
+                $profile->w9()->create([
+                    'uuid' => (string) Str::uuid(),
+                    'disk' => 'public',
+                    'path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'purpose' => 'w9',
+                    'category' => 'legal',
+                    'uploaded_by' => auth()->id(),
+                ]);
+            }
         }
 
         return $user->refresh();

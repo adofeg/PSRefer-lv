@@ -81,7 +81,7 @@ watch(localGroups, () => {
     // Filter out redundant fields that might have been added manually or from old seeders
     const cleanedGroups = localGroups.value.map(group => ({
         ...group,
-        fields: group.fields.filter(f => !reservedNames.includes(f.name))
+        fields: group.fields // Keep all fields, including system ones
     }));
 
     emit('update:modelValue', {

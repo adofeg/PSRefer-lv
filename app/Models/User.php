@@ -28,7 +28,6 @@ class User extends Authenticatable
         'profileable_id',
         'profileable_type',
         'phone',
-        'logo_url',
         'theme',
         'preferred_currency',
     ];
@@ -39,7 +38,6 @@ class User extends Authenticatable
         'phone',
         'logo_url',
         'balance',
-        'w9_status',
         'w9_file_url',
         'payment_info',
     ];
@@ -77,6 +75,11 @@ class User extends Authenticatable
         return $this->morphTo();
     }
 
+    public function logo(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(FileAsset::class, 'attachable')->where('purpose', 'logo')->latest();
+    }
+
     public function getAssociateAttribute()
     {
         return $this->profileable_type === Associate::class ? $this->profileable : null;
@@ -90,9 +93,9 @@ class User extends Authenticatable
     // Helper to access common profile fields
     public function getLogoUrlAttribute()
     {
-        return $this->attributes['logo_url']
-            ?? optional($this->profileable)->logo_url
-            ?? 'https://ui-avatars.com/api/?name='.urlencode($this->name);
+        return $this->logo?->path
+            ? '/storage/' . $this->logo->path
+            : 'https://ui-avatars.com/api/?name='.urlencode($this->name);
     }
 
     public function getRoleAttribute()
@@ -120,10 +123,7 @@ class User extends Authenticatable
         return optional($this->profileable)->payment_info;
     }
 
-    public function getW9StatusAttribute()
-    {
-        return optional($this->profileable)->w9_status;
-    }
+
 
     public function getW9FileUrlAttribute()
     {

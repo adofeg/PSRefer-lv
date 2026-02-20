@@ -89,7 +89,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                         <p class="mt-3 text-sm text-slate-600">
                             Un asociado no puede referir servicios de su misma categoría profesional.
                         </p>
-                        <p class="mt-2 text-xs text-slate-500">Ej: Agente de Seguros no verá “Seguros”.</p>
+                        <p class="mt-2 text-xs text-slate-500">Ej: Agente de Seguros no verá "Seguros".</p>
                     </div>
                     <div class="bg-white border border-slate-200 rounded-2xl p-6">
                         <h3 class="text-lg font-bold text-slate-900">Creación de Referencias</h3>

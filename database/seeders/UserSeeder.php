@@ -22,8 +22,6 @@ class UserSeeder extends Seeder
         // ID: 1, Name: 'PS Administrator', Email: 'psadmin@psrefer.com'
         $psadminProfile = Employee::create([
             'id' => 1, 
-            'department' => 'Executive',
-            'job_title' => 'System Owner',
             'internal_code' => 'EMP-001',
             'created_at' => '2026-02-10 04:06:07',
             'updated_at' => '2026-02-10 04:06:07',
@@ -38,7 +36,6 @@ class UserSeeder extends Seeder
                 'phone' => '555-0001',
                 'is_active' => true,
                 'email_verified_at' => '2026-02-10 04:06:08',
-                'logo_url' => 'https://ui-avatars.com/api/?name=PS+Administrator&background=random',
                 'preferred_currency' => 'USD',
                 'profileable_type' => 'App\Models\Employee',
                 'profileable_id' => 1,
@@ -53,8 +50,6 @@ class UserSeeder extends Seeder
         // ID: 2, Name: 'System Manager', Email: 'admin@psrefer.com'
         $adminProfile = Employee::create([
             'id' => 2,
-            'department' => 'Operations',
-            'job_title' => 'Manager',
             'internal_code' => 'EMP-002',
             'created_at' => '2026-02-10 04:06:08',
             'updated_at' => '2026-02-10 04:06:08',
@@ -69,7 +64,6 @@ class UserSeeder extends Seeder
                 'phone' => '555-0002',
                 'is_active' => true,
                 'email_verified_at' => '2026-02-10 04:06:08',
-                'logo_url' => 'https://ui-avatars.com/api/?name=System+Manager&background=random',
                 'preferred_currency' => 'USD',
                 'profileable_type' => 'App\Models\Employee',
                 'profileable_id' => 2,
@@ -85,7 +79,6 @@ class UserSeeder extends Seeder
         $associateProfile1 = Associate::create([
             'id' => 1, // Associate ID 1 matches User ID 3 in SQL dump relationships
             'balance' => 0.00,
-            'w9_status' => 'verified',
             'category' => 'Realtor',
             'created_at' => '2026-02-10 04:06:08',
             'updated_at' => '2026-02-10 04:06:08',
@@ -100,7 +93,6 @@ class UserSeeder extends Seeder
                 'phone' => '555-1000',
                 'is_active' => true,
                 'email_verified_at' => '2026-02-10 04:06:08',
-                'logo_url' => 'https://ui-avatars.com/api/?name=Active+Partner&background=random',
                 'remember_token' => 'sBVQg226dXcgeGHpIfCIUiesV28oAl1ZM4Z4oM7ShY0iNn17pSaR6np24kaQ',
                 'preferred_currency' => 'USD',
                 'profileable_type' => 'App\Models\Associate',
@@ -126,7 +118,6 @@ class UserSeeder extends Seeder
             $prof = Associate::create([
                 'id' => $data['aid'],
                 'balance' => 0.00,
-                'w9_status' => 'pending',
                 'created_at' => $uid >= 6 ? '2026-02-10 04:06:09' : '2026-02-10 04:06:08',
                 'updated_at' => $uid >= 6 ? '2026-02-10 04:06:09' : '2026-02-10 04:06:08',
             ]);
@@ -139,7 +130,6 @@ class UserSeeder extends Seeder
                     'password' => $data['hash'],
                     'phone' => '555-100' . ($uid - 4),
                     'is_active' => true,
-                    'logo_url' => "https://ui-avatars.com/api/?name=" . urlencode($data['name']) . "&background=random",
                     'preferred_currency' => 'USD',
                     'profileable_type' => 'App\Models\Associate',
                     'profileable_id' => $data['aid'],

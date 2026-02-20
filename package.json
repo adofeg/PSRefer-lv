@@ -25,6 +25,7 @@
         "@vitejs/plugin-vue": "^6.0.4",
         "autoprefixer": "^10.4.24",
         "chart.js": "^4.5.1",
+        "laravel-vue-i18n": "^2.8.0",
         "lodash": "^4.17.23",
         "lucide-vue-next": "^0.563.0",
         "postcss": "^8.5.6",

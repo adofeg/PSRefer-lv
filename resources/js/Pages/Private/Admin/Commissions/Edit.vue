@@ -19,6 +19,7 @@ const form = useForm({
     commission_type: commission.commission_type ?? 'manual',
     status: commission.status ?? 'pending',
     notes: commission.metadata?.notes || '',
+    receipt_file: null,
 });
 
 const commissionTypes = [
@@ -30,7 +31,10 @@ const commissionTypes = [
 ];
 
 const submit = () => {
-    form.put(route('admin.commissions.update', commission.id));
+    form.post(route('admin.commissions.update', commission.id), {
+        _method: 'put',
+        forceFormData: true,
+    });
 };
 
 const destroy = () => {
@@ -147,6 +151,33 @@ const destroy = () => {
                             </label>
                         </div>
                          <div v-if="form.errors.status" class="text-red-500 text-xs mt-1">{{ form.errors.status }}</div>
+                    </div>
+
+                    <!-- Recibo / Comprobante -->
+                    <div class="border-t pt-4 mt-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Comprobante de Pago</label>
+                        
+                        <div v-if="commission.receipt" class="mb-3 p-3 bg-slate-50 border rounded-lg flex justify-between items-center text-sm">
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <span class="font-medium">Archivo actual:</span>
+                                <a :href="'/storage/' + commission.receipt.path" target="_blank" class="text-indigo-600 hover:underline">Ver Comprobante</a>
+                            </div>
+                        </div>
+
+                        <input 
+                            @input="form.receipt_file = $event.target.files[0]"
+                            type="file" 
+                            accept="image/*,application/pdf"
+                            class="block w-full text-sm text-slate-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-indigo-50 file:text-indigo-700
+                                hover:file:bg-indigo-100
+                            "
+                        />
+                        <div v-if="form.errors.receipt_file" class="text-red-500 text-xs mt-1">{{ form.errors.receipt_file }}</div>
+                        <p class="text-xs text-slate-400 mt-1">Sube una imagen o PDF del comprobante de pago.</p>
                     </div>
 
                     <!-- Notes -->

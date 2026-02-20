@@ -4,6 +4,7 @@ namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralStatusUpdateData;
 use App\Enums\ReferralStatus;
+use App\Enums\CommissionStatus;
 use App\Mail\ReferralStatusUpdatedMail;
 use App\Models\Referral;
 use App\Services\AuditService;
@@ -43,30 +44,8 @@ class UpdateReferralStatusAction
                 'agency_fee' => $data->agency_fee ?? $referral->agency_fee,
             ]);
 
-            // Loss Prevention Validation
-            if ($status === ReferralStatus::Closed->value) {
-                $ref = $referral->fresh(); // Get updated values
-                $offering = $ref->offering;
-
-                if ($offering && $ref->associate_id) {
-                    // Check for User Override
-                    $override = DB::table('commission_overrides')
-                        ->where('associate_id', $ref->associate_id)
-                        ->where('offering_id', $ref->offering_id)
-                        ->where('is_active', true)
-                        ->first();
-
-                    $commissions = $this->commissionService->calculateCommissions($ref, $offering, $override);
-                    $totalCommission = collect($commissions)->sum('amount');
-                    $agencyFee = $ref->agency_fee ?? 0;
-
-                    if ($agencyFee < $totalCommission) {
-                        throw \Illuminate\Validation\ValidationException::withMessages([
-                            'agency_fee' => 'La tarifa de agencia ($'.number_format($agencyFee, 2).') no puede ser menor que la comisión estimada ($'.number_format($totalCommission, 2).').',
-                        ]);
-                    }
-                }
-            }
+            // Removed Agency Fee Validation ("Loss Prevention") as per business request.
+            // If commission > agency_fee, the system should still allow the closing.
 
             $this->auditService->logReferralStatusChange(
                 $referral->id,
@@ -101,11 +80,7 @@ class UpdateReferralStatusAction
     protected function handleClosedReferral(Referral $referral)
     {
         $offering = $referral->offering;
-        if (! $offering) {
-            return;
-        }
-
-        if (! $referral->associate_id) {
+        if (! $offering || ! $referral->associate_id) {
             return;
         }
 
@@ -116,12 +91,10 @@ class UpdateReferralStatusAction
             ->where('is_active', true)
             ->first();
 
+        // Create commissions (default status: Pending)
         $commissions = $this->commissionService->createAllCommissions($referral, $offering, $override);
 
-        // Parity with JS: Increment balance for one-time commissions
-        $totalToIncrement = collect($commissions)->where('recurrence_type', 'one_time')->sum('amount');
-        if ($totalToIncrement > 0) {
-            $referral->associate?->increment('balance', $totalToIncrement);
-        }
+        // NOTE: Auto-pay logic removed. Commissions are now always created as Pending.
+        // Admin must manually approve comissions and upload receipt.
     }
 }

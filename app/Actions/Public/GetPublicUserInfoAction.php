@@ -9,7 +9,7 @@ class GetPublicUserInfoAction
     public function execute(int $userId): array
     {
         $user = User::query()
-            ->select(['id', 'name', 'email', 'phone', 'logo_url'])
+            ->select(['id', 'name', 'email', 'phone'])
             ->findOrFail($userId);
 
         return [

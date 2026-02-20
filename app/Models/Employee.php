@@ -11,10 +11,17 @@ class Employee extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'department',
-        'job_title',
         'internal_code',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Employee $employee) {
+            if (empty($employee->internal_code)) {
+                $employee->internal_code = 'EMP-' . strtoupper(str()->random(6));
+            }
+        });
+    }
 
     public function user()
     {

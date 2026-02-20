@@ -31,17 +31,12 @@ class CreateUserAction
                     'password' => Hash::make($data->password),
                     'phone' => $data->phone,
                     'is_active' => true,
-                    'logo_url' => 'https://ui-avatars.com/api/?name='.urlencode($data->name).'&background=random',
                 ]);
 
                 $user->assignRole(RoleName::Associate->value);
 
             } else {
-                $employee = Employee::create([
-                    'department' => 'Administration',
-                    'job_title' => 'Staff',
-                    'internal_code' => null,
-                ]);
+                $employee = Employee::create([]);
 
                 $user = $employee->user()->create([
                     'name' => $data->name,
@@ -49,7 +44,6 @@ class CreateUserAction
                     'password' => Hash::make($data->password),
                     'phone' => $data->phone,
                     'is_active' => true,
-                    'logo_url' => 'https://ui-avatars.com/api/?name='.urlencode($data->name).'&background=random',
                 ]);
 
                 $user->assignRole($data->role);

@@ -21,6 +21,7 @@ const form = useForm({
     client_phone: '',
     form_data: {},
     notes: '',
+    consent_confirmed: false
 });
 
 const isFormFinalStep = ref(true);
@@ -110,6 +111,23 @@ const formatCurrency = (amount) => {
                                 Notas Adicionales
                             </h2>
                             <textarea v-model="form.notes" rows="4" placeholder="Cualquier detalle extra sobre el cliente o sus necesidades..." class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-slate-50/50"></textarea>
+                        </div>
+
+                        <!-- Consent Confirmation -->
+                        <div v-if="isFormFinalStep" class="p-6 md:p-8 border-b border-slate-100 animate-fade-in bg-slate-50/30">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <div class="flex items-center h-5 mt-0.5">
+                                    <input 
+                                        type="checkbox" 
+                                        v-model="form.consent_confirmed" 
+                                        class="w-5 h-5 border-slate-300 rounded text-indigo-600 focus:ring-indigo-600 transition shadow-sm group-hover:border-indigo-400"
+                                    >
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-800">Confirmo que el cliente ha dado su consentimiento</span>
+                                    <span class="text-xs text-slate-500 mt-0.5">He explicado los servicios y el cliente acepta ser contactado por nuestro equipo.</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
 

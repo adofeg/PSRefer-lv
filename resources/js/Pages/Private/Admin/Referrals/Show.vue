@@ -8,7 +8,7 @@ import AuditTimeline from '@/Components/Referrals/AuditTimeline.vue';
 import MetadataDisplay from '@/Components/Referrals/MetadataDisplay.vue';
 import { 
     ArrowLeft, History, User, Phone, Mail, FileText, 
-    Calendar, DollarSign, Briefcase, CheckCircle 
+    Calendar, DollarSign, Briefcase, CheckCircle, LayoutDashboard, FileInput
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useFormatters } from '@/Composables/useFormatters';
@@ -23,6 +23,7 @@ const { formatCurrency, formatDate } = useFormatters();
 const referral = normalizeResource(props.referral, {});
 
 const showStatusModal = ref(false);
+const activeTab = ref('summary'); // 'summary', 'data'
 
 const handleStatusUpdated = () => {
     showStatusModal.value = false;
@@ -86,132 +87,80 @@ const handleStatusUpdated = () => {
                 </div>
             </div>
 
-            <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Tabs Navigation -->
+            <div class="flex items-center gap-1 bg-slate-100/50 p-1 rounded-xl w-fit border border-slate-200">
+                <button 
+                    @click="activeTab = 'summary'"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+                    :class="activeTab === 'summary' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'"
+                >
+                    <LayoutDashboard :size="16" />
+                    Resumen
+                </button>
+                <button 
+                    @click="activeTab = 'data'"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+                    :class="activeTab === 'data' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'"
+                >
+                    <FileInput :size="16" />
+                    Datos del Referido
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <!-- Tab Content: Summary -->
+            <div v-if="activeTab === 'summary'" class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
                 
-                <!-- Left Column (2/3): Info + Financials -->
+                <!-- Left Column (2/3): Service Info -->
                 <div class="lg:col-span-2 space-y-8">
-                    <!-- Consolidated Info Card -->
-                    <Card class="overflow-hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
-                            <!-- Left: Client Info (2/3) -->
-                            <div class="md:col-span-2 p-0 md:pr-8 md:border-r border-slate-100">
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                                        <User :size="20" />
-                                    </div>
-                                    <h3 class="font-bold text-lg text-slate-800">Información del Cliente</h3>
+                    <Card class="overflow-hidden h-full">
+                        <div class="p-6 flex flex-col h-full">
+                             <div class="flex items-center gap-2 mb-6 text-indigo-600">
+                                <Briefcase :size="20" />
+                                <h3 class="font-bold text-base uppercase tracking-wide">Servicio de Interés</h3>
+                            </div>
+                            
+                            <div v-if="referral.offering" class="flex-1">
+                                <div class="text-2xl font-bold text-slate-800 mb-2 leading-tight">{{ referral.offering.name }}</div>
+                                <div class="inline-block px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 rounded mb-6">
+                                    {{ referral.offering.category }}
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nombre Completo</dt>
-                                        <dd class="text-base font-medium text-slate-900">{{ referral.client_name }}</dd>
-                                    </div>
-
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contacto Principal</dt>
-                                        <dd class="text-base font-medium text-slate-900 flex items-center gap-2">
-                                            <Phone v-if="referral.client_phone" :size="16" class="text-slate-400" />
-                                            {{ referral.client_contact || 'No registrado' }}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
+                                    <div>
+                                        <dt class="text-[10px] uppercase font-bold text-slate-400 mb-1.5">Tipo de Comisión</dt>
+                                        <dd class="font-bold text-emerald-600 text-xl">
+                                            {{ referral.offering.commission_type === 'percentage' ? `${referral.offering.base_commission}%` : formatCurrency(referral.offering.base_commission) }}
                                         </dd>
                                     </div>
-
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Correo Electrónico</dt>
-                                        <dd class="text-base font-medium text-slate-900 flex items-center gap-2">
-                                            <Mail v-if="referral.client_email" :size="16" class="text-slate-400" />
-                                            {{ referral.client_email || 'No registrado' }}
+                                    <div>
+                                        <dt class="text-[10px] uppercase font-bold text-slate-400 mb-1.5">Fuente del Referido</dt>
+                                        <dd v-if="referral.associate" class="font-medium text-slate-700 flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold ring-2 ring-white shadow-sm">
+                                                {{ referral.associate.user?.name?.charAt(0) || 'A' }}
+                                            </div>
+                                            <div class="leading-tight">
+                                                <div class="text-sm font-bold">{{ referral.associate.user?.name || 'Asociado' }}</div>
+                                                <div class="text-[10px] text-slate-400">Asociado Certificado</div>
+                                            </div>
                                         </dd>
-                                    </div>
-
-                                    <div v-if="referral.metadata?.client_state" class="space-y-1">
-                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estado / Ubicación</dt>
-                                        <dd class="text-base font-medium text-slate-900">{{ referral.metadata.client_state }}</dd>
-                                    </div>
-
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Notas / Comentarios</dt>
-                                        <dd class="text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm leading-relaxed">
-                                            {{ referral.notes || 'Sin notas adicionales.' }}
+                                        <dd v-else class="font-medium text-slate-700 flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-sm font-bold ring-2 ring-white shadow-sm">
+                                                <LayoutDashboard :size="16" />
+                                            </div>
+                                            <div class="leading-tight">
+                                                <div class="text-sm font-bold">Sistema / Directo</div>
+                                                <div class="text-[10px] text-slate-400">Registro Interno</div>
+                                            </div>
                                         </dd>
-                                    </div>
-
-                                    <!-- Dynamic Extra Fields -->
-                                    <div v-if="referral.metadata && Object.keys(referral.metadata).filter(k => !['client_name', 'client_email', 'client_phone', 'client_state', 'origen', 'client_contact'].includes(k)).length" class="sm:col-span-2 mt-6">
-                                         <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                            <FileText :size="14" class="text-indigo-500" />
-                                            Información Específica del Servicio
-                                         </dt>
-                                         <MetadataDisplay 
-                                            :metadata="referral.metadata" 
-                                            :schema="referral.offering?.form_schema"
-                                         />
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Right: Service Info (1/3) -->
-                            <div class="md:col-span-1 p-0 md:pl-8 pt-8 md:pt-0 border-t md:border-t-0 border-slate-100 flex flex-col justify-center">
-                                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                                     <div class="flex items-center gap-2 mb-4 text-indigo-600">
-                                        <Briefcase :size="18" />
-                                        <h3 class="font-bold text-sm uppercase tracking-wide">Servicio de Interés</h3>
-                                    </div>
-                                    
-                                    <div v-if="referral.offering">
-                                        <div class="text-xl font-bold text-slate-800 mb-1 leading-tight">{{ referral.offering.name }}</div>
-                                        <div class="inline-block px-2 text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 rounded mb-4">
-                                            {{ referral.offering.category }}
-                                        </div>
-
-                                        <div class="space-y-2 pt-4 border-t border-slate-200">
-                                            <div class="flex justify-between items-center text-sm">
-                                                <span class="text-slate-500">Comisión Est.</span>
-                                                <span class="font-bold text-emerald-600 px-1 py-0.5 bg-emerald-50 rounded">
-                                                    {{ referral.offering.commission_type === 'percentage' ? `${referral.offering.base_commission}%` : formatCurrency(referral.offering.base_commission) }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                     <div v-else class="text-slate-400 italic text-sm text-center py-4">
-                                        Oferta no asignada.
-                                    </div>
-                                </div>
+                            <div v-else class="text-slate-400 italic py-8 text-center">
+                                No se ha asignado un servicio específico.
                             </div>
                         </div>
                     </Card>
-                    
-                    <!-- Financial Stats -->
-                    <div v-if="referral.status === 'Cerrado' || referral.status === 'Venta' || referral.contract_id" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Revenue Card -->
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between relative overflow-hidden group">
-                           <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                                <DollarSign :size="48" class="text-emerald-500" />
-                           </div>
-                           <dt class="text-sm font-medium text-slate-500 mb-1">Venta Total</dt>
-                           <dd class="text-2xl font-bold text-emerald-600">{{ formatCurrency(referral.revenue_generated) }}</dd>
-                           <div class="h-1 w-full bg-emerald-100 mt-3 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 w-full"></div>
-                           </div>
-                        </div>
-
-                         <!-- Initial Payment Card -->
-                         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                           <dt class="text-sm font-medium text-slate-500 mb-1">Pago Inicial</dt>
-                           <dd class="text-2xl font-bold text-slate-800">{{ formatCurrency(referral.down_payment) }}</dd>
-                           <div class="text-xs text-slate-400 mt-2 flex items-center gap-1">
-                                <CheckCircle :size="12" class="text-green-500" /> Confirmado
-                           </div>
-                        </div>
-
-                         <!-- Contract ID Card -->
-                         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                           <dt class="text-sm font-medium text-slate-500 mb-1">Contrato</dt>
-                           <dd class="text-xl font-bold text-indigo-600 font-mono">{{ referral.contract_id || '---' }}</dd>
-                           <div class="text-xs text-slate-400 mt-2">Método: {{ referral.payment_method || 'N/A' }}</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Right Column (1/3): Timeline -->
@@ -231,6 +180,18 @@ const handleStatusUpdated = () => {
                     </Card>
                 </div>
             </div>
+
+            <!-- Tab Content: Data -->
+            <div v-else-if="activeTab === 'data'" class="animate-fade-in">
+                <Card class="p-8">
+                    <MetadataDisplay 
+                        :metadata="referral.metadata" 
+                        :schema="referral.offering?.form_schema"
+                        :files="referral.file_assets || []"
+                        :exclude-keys="['_schema_version']" 
+                    />
+                </Card>
+            </div>
         </div>
 
         <!-- Status Change Modal -->
@@ -243,3 +204,14 @@ const handleStatusUpdated = () => {
         />
     </AppLayout>
 </template>
+
+<style scoped>
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

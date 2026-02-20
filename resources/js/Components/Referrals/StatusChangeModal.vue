@@ -29,20 +29,6 @@ const form = useForm({
     agency_fee: null,
 });
 
-const generateContractId = () => {
-    const date = new Date();
-    const yearMonth = date.getFullYear().toString() + (date.getMonth() + 1).toString().padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    form.contract_id = `CTR-${yearMonth}-${random}`;
-};
-
-// Sync agency fee (20% of deal value)
-const updateSuggestedFee = () => {
-    if (form.deal_value && (!form.agency_fee || form.agency_fee === 0)) {
-        form.agency_fee = (form.deal_value * 0.20).toFixed(2);
-    }
-};
-
 const selectedStatusLabel = computed(() => {
     const status = statusOptions.find(s => s.value === form.status);
     return status ? status.label : '';
@@ -143,29 +129,6 @@ const closeModal = () => {
                             <div v-if="form.status === 'Cerrado'" class="space-y-4 pt-4 border-t border-slate-100">
                                 <h4 class="font-semibold text-slate-800 text-sm">Detalles Financieros</h4>
                                 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">ID de Contrato</label>
-                                        <div class="flex gap-2">
-                                            <input
-                                                v-model="form.contract_id"
-                                                type="text"
-                                                class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                                placeholder="Ej: CTR-202402-001"
-                                            />
-                                            <button 
-                                                type="button"
-                                                @click="generateContractId"
-                                                class="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition"
-                                                title="Generar ID"
-                                            >
-                                                <RefreshCw :size="18" />
-                                            </button>
-                                        </div>
-                                        <div v-if="form.errors.contract_id" class="text-red-500 text-xs mt-1">
-                                            {{ form.errors.contract_id }}
-                                        </div>
-                                    </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-2">Método de Pago</label>
                                         <select
@@ -181,27 +144,12 @@ const closeModal = () => {
                                             {{ form.errors.payment_method }}
                                         </div>
                                     </div>
-                                </div>
 
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Anticipo Recibido (Down Payment)</label>
-                                        <input
-                                            v-model="form.down_payment"
-                                            type="number"
-                                            step="0.01"
-                                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                            placeholder="0.00"
-                                        />
-                                        <div v-if="form.errors.down_payment" class="text-red-500 text-xs mt-1">
-                                            {{ form.errors.down_payment }}
-                                        </div>
-                                    </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-2">Valor Total de la Venta (Deal Value)</label>
                                         <input
                                             v-model="form.deal_value"
-                                            @input="updateSuggestedFee"
                                             type="number"
                                             step="0.01"
                                             class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -211,20 +159,37 @@ const closeModal = () => {
                                             {{ form.errors.deal_value }}
                                         </div>
                                     </div>
-                                </div>
- 
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-2">Utilidad Bruta de la Plataforma (Agency Fee)</label>
-                                    <input
-                                        v-model="form.agency_fee"
-                                        type="number"
-                                        step="0.01"
-                                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                        placeholder="0.00"
-                                    />
-                                    <div v-if="form.errors.agency_fee" class="text-red-500 text-xs mt-1">
-                                        {{ form.errors.agency_fee }}
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Anticipo Recibido (Down Payment)</label>
+                                        <input
+                                            v-model="form.down_payment"
+                                            type="number"
+                                            step="0.01"
+                                            :max="form.deal_value"
+                                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            :class="{'border-red-300 focus:ring-red-500': form.down_payment > form.deal_value}"
+                                            placeholder="0.00"
+                                        />
+                                        <div v-if="form.errors.down_payment" class="text-red-500 text-xs mt-1">
+                                            {{ form.errors.down_payment }}
+                                        </div>
+                                        <div v-if="form.down_payment > form.deal_value" class="text-red-500 text-xs mt-1 font-bold">
+                                            El anticipo no puede ser mayor al total.
+                                        </div>
                                     </div>
+                                </div>
+
+                                <!-- Payment Status Feedback -->
+                                <div v-if="form.deal_value > 0" class="p-3 rounded-lg text-sm border transition-all"
+                                    :class="form.down_payment >= form.deal_value ? 'bg-green-50 border-green-200 text-green-700' : 'bg-amber-50 border-amber-200 text-amber-700'">
+                                    <div class="flex items-center gap-2 font-bold">
+                                        <span v-if="form.down_payment >= form.deal_value">✓ COMISIÓN GENERADA (PENDIENTE DE APROBACIÓN)</span>
+                                        <span v-else>⚠ COMISIÓN QUEDARÁ PENDIENTE</span>
+                                    </div>
+                                    <p class="text-xs mt-1 opacity-90">
+                                        <span v-if="form.down_payment >= form.deal_value">El pago está completo. La comisión ha sido registrada y está pendiente de aprobación por administración.</span>
+                                        <span v-else>Solo hay un anticipo. La comisión se registrará pero no se procesará hasta completar el pago.</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -236,7 +201,7 @@ const closeModal = () => {
                             </button>
                             <button
                                 @click="submitStatusChange"
-                                :disabled="!form.status || !form.notes.trim() || form.processing"
+                                :disabled="!form.status || !form.notes.trim() || form.processing || (Number(form.down_payment) > Number(form.deal_value) && form.deal_value > 0)"
                                 class="flex-1 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {{ form.processing ? 'Guardando...' : 'Confirmar Cambio' }}

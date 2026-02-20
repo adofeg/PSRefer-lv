@@ -69,7 +69,7 @@ class ReferralController extends AdminController
 
         $message = $action->execute(
             $request->toStoreData($associateId),
-            $request->input('form_data', [])
+            $request->all()['form_data'] ?? []
         );
 
         return $this->redirectAfterStore('admin.referrals', $message);
@@ -77,7 +77,7 @@ class ReferralController extends AdminController
 
     public function show(Referral $referral)
     {
-        return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate']), 'Private/Admin/Referrals', 'referral');
+        return $this->renderShow($referral->load(['offering', 'commissions', 'history', 'associate', 'fileAssets']), 'Private/Admin/Referrals', 'referral');
     }
 
     public function pipeline(ReferralRequest $request, GetReferralPipelineAction $action)

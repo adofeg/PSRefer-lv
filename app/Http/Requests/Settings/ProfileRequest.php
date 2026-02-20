@@ -29,7 +29,7 @@ class ProfileRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'w9_status' => ['required', Rule::enum(W9Status::class)],
+            'name' => ['required', 'string', 'max:255'],
             'payment_info' => ['nullable', 'array'],
             'preferred_currency' => ['required', Rule::enum(CurrencyCode::class)],
             'category' => ['nullable', 'string'],
@@ -43,7 +43,6 @@ class ProfileRequest extends FormRequest
     {
         return new UserSettingsData(
             name: $this->validated('name'),
-            w9_status: W9Status::from($this->validated('w9_status')),
             payment_info: $this->validated('payment_info') ?? [],
             preferred_currency: CurrencyCode::from($this->validated('preferred_currency')),
             category: $this->validated('category'),

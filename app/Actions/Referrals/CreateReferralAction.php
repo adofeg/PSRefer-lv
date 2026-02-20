@@ -47,6 +47,7 @@ class CreateReferralAction
                 'status' => $data->status?->value ?? ReferralStatus::Prospect->value,
                 'metadata' => $metadata,
                 'notes' => $data->notes,
+                'consent_confirmed' => $data->consent_confirmed,
             ]);
         });
 
