@@ -23,6 +23,10 @@ class MailConfigServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! config('mail.dynamic_config', true)) {
+            return;
+        }
+
         try {
             // Check if table exists to avoid errors during initial migration
             if (! Schema::hasTable('system_settings')) {
