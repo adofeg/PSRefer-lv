@@ -6,7 +6,7 @@ use App\Http\Controllers\Private\Associate\OfferingController;
 use App\Http\Controllers\Private\Associate\ReferralController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'role:associate'])
+Route::middleware(['auth', 'verified', 'is_associate'])
     ->prefix('associate')
     ->name('associate.')
     ->group(function () {

@@ -2,7 +2,8 @@
 
 namespace App\Policies\Admin;
 
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Models\Commission;
 use App\Models\User;
 
@@ -15,9 +16,9 @@ class CommissionPolicy
     {
         // Admin, PSAdmin, and Associate can view commissions (filtered by controller)
         return $user->hasRole([
-            RoleName::Admin->value,
-            RoleName::PsAdmin->value,
-            RoleName::Associate->value,
+            EmployeeRole::ADMIN->value,
+            EmployeeRole::PSADMIN->value,
+            AssociateRole::ASSOCIATE->value,
         ]);
     }
 
@@ -26,7 +27,7 @@ class CommissionPolicy
      */
     public function view(User $user, Commission $commission): bool
     {
-        if ($user->hasRole([RoleName::Admin->value, RoleName::PsAdmin->value])) {
+        if ($user->hasRole([EmployeeRole::ADMIN->value, EmployeeRole::PSADMIN->value])) {
             return true;
         }
 
@@ -41,7 +42,7 @@ class CommissionPolicy
     {
         // Internal requirement: "No puede crear o modificar comisiones directamente" (PSAdmin)
         // Only Admin can create commissions.
-        return $user->hasRole(RoleName::Admin->value);
+        return $user->hasRole(EmployeeRole::ADMIN->value);
     }
 
     /**
@@ -50,7 +51,7 @@ class CommissionPolicy
     public function update(User $user, Commission $commission): bool
     {
         // Only Admin can update commissions.
-        return $user->hasRole(RoleName::Admin->value);
+        return $user->hasRole(EmployeeRole::ADMIN->value);
     }
 
     /**
@@ -59,6 +60,6 @@ class CommissionPolicy
     public function delete(User $user, Commission $commission): bool
     {
         // Only Admin can delete/void commissions.
-        return $user->hasRole(RoleName::Admin->value);
+        return $user->hasRole(EmployeeRole::ADMIN->value);
     }
 }

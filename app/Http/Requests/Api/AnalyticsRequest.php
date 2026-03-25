@@ -3,7 +3,8 @@
 namespace App\Http\Requests\Api;
 
 use App\Data\Analytics\RevenueStatsQueryData;
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AnalyticsRequest extends FormRequest
@@ -16,16 +17,16 @@ class AnalyticsRequest extends FormRequest
         }
 
         $canAccessAnalytics = $user->hasRole([
-            RoleName::Admin->value,
-            RoleName::PsAdmin->value,
-            RoleName::Associate->value,
+            EmployeeRole::ADMIN->value,
+            EmployeeRole::PSADMIN->value,
+            AssociateRole::ASSOCIATE->value,
         ]);
 
         if (! $canAccessAnalytics) {
             return false;
         }
 
-        if ($this->routeIs('api.analytics.revenue') && $user->hasRole(RoleName::Associate->value)) {
+        if ($this->routeIs('api.analytics.revenue') && $user->hasRole(AssociateRole::ASSOCIATE->value)) {
             $associateId = $user->associate?->id;
             $requestedId = $this->input('associate_id');
 

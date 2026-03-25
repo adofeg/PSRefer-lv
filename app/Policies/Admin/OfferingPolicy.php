@@ -2,7 +2,7 @@
 
 namespace App\Policies\Admin;
 
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
 use App\Models\Offering;
 use App\Models\User;
 
@@ -10,26 +10,26 @@ class OfferingPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(RoleName::adminOrAssociate());
+        return $user->isEmployee() || $user->isAssociate();
     }
 
     public function view(User $user, Offering $offering): bool
     {
-        return $user->hasRole(RoleName::adminOrAssociate());
+        return $user->isEmployee() || $user->isAssociate();
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(RoleName::adminRoles());
+        return $user->isAdmin() || $user->hasRole(EmployeeRole::PSADMIN->value);
     }
 
     public function update(User $user, Offering $offering): bool
     {
-        if ($user->hasRole(RoleName::Admin->value)) {
+        if ($user->isAdmin()) {
             return true;
         }
 
-        if ($user->hasRole(RoleName::PsAdmin->value)) {
+        if ($user->hasRole(EmployeeRole::PSADMIN->value)) {
             $employeeId = $user->employee?->id;
 
             return $employeeId !== null && $offering->owner_employee_id === $employeeId;
@@ -40,6 +40,6 @@ class OfferingPolicy
 
     public function delete(User $user, Offering $offering): bool
     {
-        return $user->hasRole(RoleName::Admin->value);
+        return $user->isAdmin();
     }
 }

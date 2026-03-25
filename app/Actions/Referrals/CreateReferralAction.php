@@ -4,7 +4,8 @@ namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralData;
 use App\Enums\ReferralStatus;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Mail\NewReferralAlertMail;
 use App\Models\Associate;
 use App\Models\Offering;
@@ -25,7 +26,7 @@ class CreateReferralAction
 
         // CONFLICT OF INTEREST VALIDATION (Parity with JS)
         // Associates cannot refer services in their own category
-        if ($user && $user->hasRole(RoleName::Associate->value) && $associate->category && $offering->category) {
+        if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value) && $associate->category && $offering->category) {
             if (strtolower($associate->category) === strtolower($offering->category->name)) {
                 throw ValidationException::withMessages([
                     'offering_id' => ["Conflicto de intereses: No puedes referir servicios de tu misma categoría ({$associate->category})."],
@@ -53,7 +54,7 @@ class CreateReferralAction
 
         // Notify Admins
         try {
-            $admins = User::role(RoleName::adminRoles())->get();
+            $admins = User::role(EmployeeRole::ADMIN->values())->get();
             if ($admins->isNotEmpty()) {
                 Mail::to($admins)->send(new NewReferralAlertMail($referral, $user ?? auth()->user()));
             }

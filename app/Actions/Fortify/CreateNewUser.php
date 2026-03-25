@@ -4,7 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Actions\Auth\CreateUserAction;
 use App\Data\Auth\UserData;
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -37,7 +37,7 @@ class CreateNewUser implements CreatesNewUsers
             name: $input['name'],
             email: $input['email'],
             password: $input['password'],
-            role: RoleName::Associate->value
+            role: AssociateRole::ASSOCIATE->value
         );
 
         return app(CreateUserAction::class)->execute($data);

@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
 use App\Http\Controllers\Private\Admin\AuditController;
 use App\Http\Controllers\Private\Admin\CategoryController;
 use App\Http\Controllers\Private\Admin\CommissionController;
@@ -13,7 +13,7 @@ use App\Http\Controllers\Private\Admin\SmtpSettingsController;
 use App\Http\Controllers\Private\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'role:'.implode('|', RoleName::adminOrPsAdmin())])
+Route::middleware(['auth', 'verified', 'employee'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

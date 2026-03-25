@@ -4,7 +4,8 @@ namespace App\Actions\Analytics;
 
 use App\Enums\CommissionStatus;
 use App\Enums\ReferralStatus;
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Models\Commission;
 use App\Models\Referral;
 use App\Models\User;
@@ -13,7 +14,7 @@ class GetRevenueStatsAction
 {
     public function execute(User $user, ?int $targetAssociateId): array
     {
-        if ($user->hasRole(RoleName::Associate->value)) {
+        if ($user->hasRole(AssociateRole::ASSOCIATE->value)) {
             $targetAssociateId = $user->associate?->id;
         }
 

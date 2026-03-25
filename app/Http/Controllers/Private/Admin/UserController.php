@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Private\Admin;
 use App\Actions\Auth\CreateUserAction;
 use App\Actions\Users\GetUsersAction;
 use App\Actions\Users\ToggleUserStatusAction;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\AuditService;
@@ -27,14 +28,14 @@ class UserController extends AdminController
         return Inertia::render('Private/Admin/Users/Index', [
             'users' => $action->execute($filters),
             'filters' => $filters,
-            'roles' => RoleName::cases(),
+            'roles' => array_merge(EmployeeRole::cases(), AssociateRole::cases()),
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Private/Admin/Users/Create', [
-            'roles' => RoleName::cases(),
+            'roles' => array_merge(EmployeeRole::cases(), AssociateRole::cases()),
         ]);
     }
 
@@ -54,7 +55,7 @@ class UserController extends AdminController
 
         return Inertia::render('Private/Admin/Users/Edit', [
             'user' => $user,
-            'roles' => RoleName::cases(),
+            'roles' => array_merge(EmployeeRole::cases(), AssociateRole::cases()),
         ]);
     }
 
@@ -91,7 +92,7 @@ class UserController extends AdminController
             if (isset($data['phone'])) {
                 $profileData['phone'] = $data['phone'];
             }
-            if (isset($data['category']) && $user->hasRole(RoleName::Associate->value)) {
+            if (isset($data['category']) && $user->isAdmin()) {
                 $profileData['category'] = $data['category'];
             }
 

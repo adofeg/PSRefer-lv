@@ -2,18 +2,18 @@
 
 namespace App\Actions\Dashboard;
 
-use App\Enums\RoleName;
+// Enum no longer needed here if using helpers
 use App\Models\User;
 
 class DetermineDashboardRedirectAction
 {
     public function execute(User $user): string
     {
-        if ($user->hasRole(RoleName::adminOrPsAdmin())) {
+        if ($user->isEmployee()) {
             return 'admin.dashboard';
         }
 
-        if ($user->hasRole(RoleName::associate())) {
+        if ($user->isAssociate()) {
             return 'associate.dashboard';
         }
 

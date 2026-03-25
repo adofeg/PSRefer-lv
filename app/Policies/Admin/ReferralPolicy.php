@@ -2,7 +2,8 @@
 
 namespace App\Policies\Admin;
 
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Models\Referral;
 use App\Models\User;
 
@@ -10,12 +11,12 @@ class ReferralPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(RoleName::adminOrAssociate());
+        return $user->isEmployee() || $user->isAssociate();
     }
 
     public function view(User $user, Referral $referral): bool
     {
-        if ($user->hasRole(RoleName::adminRoles())) {
+        if ($user->isAdmin() || $user->hasRole(EmployeeRole::PSADMIN->value)) {
             return true;
         }
 
@@ -24,16 +25,16 @@ class ReferralPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole([RoleName::Admin->value, RoleName::Associate->value]);
+        return $user->isAdmin() || $user->hasRole(AssociateRole::ASSOCIATE->value);
     }
 
     public function update(User $user, Referral $referral): bool
     {
-        if ($user->hasRole(RoleName::adminRoles())) {
+        if ($user->isAdmin() || $user->hasRole(EmployeeRole::PSADMIN->value)) {
             return true;
         }
 
-        if ($user->hasRole(RoleName::Associate->value)) {
+        if ($user->hasRole(AssociateRole::ASSOCIATE->value)) {
             return $user->associate?->id === $referral->associate_id;
         }
 
@@ -42,6 +43,6 @@ class ReferralPolicy
 
     public function delete(User $user, Referral $referral): bool
     {
-        return $user->hasRole(RoleName::Admin->value);
+        return $user->isAdmin();
     }
 }

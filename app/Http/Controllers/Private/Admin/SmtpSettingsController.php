@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Private\Admin;
 use App\Actions\Settings\GetSmtpSettingsAction;
 use App\Actions\Settings\TestSmtpConnectionAction;
 use App\Actions\Settings\UpdateSmtpSettingsAction;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
 use App\Http\Requests\Admin\SmtpSettingsRequest;
 use App\Models\User;
 use Inertia\Inertia;
@@ -45,7 +45,8 @@ class SmtpSettingsController extends AdminController
 
     protected function authorizeAdminOnly(?User $user): void
     {
-        if (! $user || ! $user->hasRole(RoleName::Admin->value)) {
+        if (! $user || ! $user->hasRole(EmployeeRole::ADMIN->value
+)) {
             abort(403, 'Solo administradores pueden gestionar SMTP.');
         }
     }

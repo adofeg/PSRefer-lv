@@ -28,5 +28,6 @@ Route::name('site.')->group(function () {
 // Dashboard redirect logic
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
+    Route::get('/assets/{fileAsset}/download', \App\Http\Controllers\Private\Shared\FileDownloadController::class)->name('assets.download');
 });
 

@@ -160,7 +160,7 @@ const destroy = () => {
                         <div v-if="commission.receipt" class="mb-3 p-3 bg-slate-50 border rounded-lg flex justify-between items-center text-sm">
                             <div class="flex items-center gap-2 text-slate-600">
                                 <span class="font-medium">Archivo actual:</span>
-                                <a :href="'/storage/' + commission.receipt.path" target="_blank" class="text-indigo-600 hover:underline">Ver Comprobante</a>
+                                <a :href="route('assets.download', commission.receipt.id)" target="_blank" class="text-indigo-600 hover:underline">Ver Comprobante</a>
                             </div>
                         </div>
 

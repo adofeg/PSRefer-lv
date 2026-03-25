@@ -5,7 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
 use App\Enums\ReferralStatus;
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
 use App\Models\Referral;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -80,7 +80,8 @@ class ReferralRequest extends FormRequest
             ];
 
             $user = $this->user();
-            if ($user && $user->hasRole(RoleName::Associate->value)) {
+            if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value
+)) {
                 $rules['status'] = ['prohibited'];
                 $rules['deal_value'] = ['prohibited'];
                 $rules['revenue_generated'] = ['prohibited'];

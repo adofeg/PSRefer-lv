@@ -75,7 +75,7 @@ class ReferralController extends AssociateController
 
         $message = $action->execute(
             $request->toStoreData($associate->id),
-            $request->input('form_data', [])
+            $request->all()['form_data'] ?? []
         );
 
         return redirect()->route('associate.referrals.index')->with('success', 'Referido creado exitosamente.');

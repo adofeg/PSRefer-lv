@@ -3,14 +3,15 @@
 namespace App\Http\Requests\Admin;
 
 use App\Data\Settings\SmtpSettingsData;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SmtpSettingsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole(RoleName::Admin->value) ?? false;
+        return $this->user()?->hasRole(EmployeeRole::ADMIN->value
+) ?? false;
     }
 
     public function rules(): array

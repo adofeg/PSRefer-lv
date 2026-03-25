@@ -2,6 +2,7 @@
 
 namespace App\Actions\Analytics;
 
+use App\Enums\EmployeeRole;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -9,7 +10,7 @@ class GetUserClickStatsAction
 {
     public function execute(User $user): array
     {
-        $isAdmin = $user->hasRole(\App\Enums\RoleName::adminRoles());
+        $isAdmin = $user->hasRole(EmployeeRole::ADMIN->values());
         $associateId = $user->associate?->id;
 
         $query = DB::table('referral_clicks');

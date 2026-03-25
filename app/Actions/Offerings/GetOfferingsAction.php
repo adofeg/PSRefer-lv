@@ -2,7 +2,8 @@
 
 namespace App\Actions\Offerings;
 
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Models\Offering;
 use App\Models\User;
 
@@ -26,7 +27,7 @@ class GetOfferingsAction
         });
 
         // Apply Status Filter (Only if user is allowed to see inactive)
-        $canSeeInactive = $includeInactive && $user->hasRole(\App\Enums\RoleName::adminRoles());
+        $canSeeInactive = $includeInactive && $user->hasRole(\App\Enums\EmployeeRole::ADMIN->values());
 
         if ($canSeeInactive) {
             $query->when(isset($filters['status']) && $filters['status'] !== 'all', function ($query) use ($filters) {
@@ -36,7 +37,7 @@ class GetOfferingsAction
             $query->active();
         }
 
-        if ($user->hasRole(RoleName::Associate->value)) {
+        if ($user->hasRole(AssociateRole::ASSOCIATE->value)) {
             $category = $user->category;
             if ($category) {
                 $query->excludeCategory($category);

@@ -2,7 +2,8 @@
 
 namespace App\Actions\Associates;
 
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -10,7 +11,8 @@ class GetAssociatesAction
 {
     public function execute(): Collection
     {
-        return User::role(RoleName::Associate->value)
+        return User::role(AssociateRole::ASSOCIATE->value
+)
             ->where('is_active', true)
             ->where('profileable_type', \App\Models\Associate::class)
             ->with('profileable')

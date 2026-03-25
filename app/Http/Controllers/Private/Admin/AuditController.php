@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Private\Admin;
 
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
 use App\Http\Requests\Admin\AuditRequest;
 use App\Models\AuditLog;
 use App\Models\User;
@@ -46,7 +46,8 @@ class AuditController extends AdminController
 
     protected function authorizeAdminOnly(?User $user): void
     {
-        if (! $user || ! $user->hasRole(RoleName::Admin->value)) {
+        if (! $user || ! $user->hasRole(EmployeeRole::ADMIN->value
+)) {
             abort(403, 'Solo administradores pueden ver los registros de auditoría.');
         }
     }

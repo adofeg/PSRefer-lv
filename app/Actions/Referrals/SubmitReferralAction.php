@@ -95,11 +95,11 @@ class SubmitReferralAction
 
         // Process Files
         foreach ($files as $field => $file) {
-            $path = $file->store('referrals/' . $referral->uuid, 'public');
+            $path = $file->store('referrals/' . $referral->uuid, 'local');
             
             $asset = $this->createFileAssetAction->execute(
                 new \App\Data\Files\FileAssetData(
-                    disk: 'public',
+                    disk: 'local',
                     path: $path,
                     original_name: $file->getClientOriginalName(),
                     mime_type: $file->getMimeType(),

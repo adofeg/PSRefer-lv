@@ -2,7 +2,7 @@
 
 namespace App\Actions\Marketing;
 
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
 use App\Models\Category;
 use App\Models\Offering;
 use App\Models\User;
@@ -12,7 +12,8 @@ class GetMarketingCenterDataAction
     public function execute(User $user): array
     {
         $offerings = Offering::where('is_active', true)
-            ->when($user->hasRole(RoleName::Associate->value) && $user->category, function ($query) use ($user) {
+            ->when($user->hasRole(AssociateRole::ASSOCIATE->value
+) && $user->category, function ($query) use ($user) {
                 $category = $user->category;
 
                 $query->where(function ($q) use ($category) {

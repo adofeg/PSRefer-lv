@@ -7,9 +7,11 @@ use App\Actions\Offerings\CreateOfferingAction;
 use App\Actions\Offerings\GetOfferingsAction;
 use App\Actions\Offerings\UpdateOfferingAction;
 use App\Data\Offerings\OfferingData;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Http\Requests\Admin\OfferingRequest;
 use App\Models\Offering;
+use App\Models\User;
 use App\Services\AuditService;
 use Inertia\Inertia;
 use Spatie\LaravelData\PaginatedDataCollection;
@@ -25,7 +27,7 @@ class OfferingController extends AdminController
     public function index(OfferingRequest $request, GetOfferingsAction $action, GetActiveCategoriesAction $categoriesAction)
     {
         $user = $request->user();
-        $includeInactive = $user?->hasRole(RoleName::adminRoles()) ?? false;
+        $includeInactive = $user?->isAdmin() ?? false;
 
         $filters = $request->only(['search', 'category', 'status']);
 
@@ -48,8 +50,8 @@ class OfferingController extends AdminController
     {
         return Inertia::render('Private/Admin/Offerings/Create', [
             'categories' => $categoriesAction->execute(),
-            'commissionable_roles' => [RoleName::Associate->value],
-            'all_associates' => \App\Models\User::role(RoleName::Associate->value)->get(['id', 'name', 'email']),
+            'commissionable_roles' => [AssociateRole::ASSOCIATE->value],
+            'all_associates' => User::role(AssociateRole::ASSOCIATE->value)->get(['id', 'name', 'email']),
         ]);
     }
 
@@ -70,8 +72,8 @@ class OfferingController extends AdminController
         return Inertia::render('Private/Admin/Offerings/Edit', [
             'offering' => OfferingData::fromModel($offering),
             'categories' => $categoriesAction->execute(),
-            'commissionable_roles' => [RoleName::Associate->value],
-            'all_associates' => \App\Models\User::role(RoleName::Associate->value)->get(['id', 'name', 'email']),
+            'commissionable_roles' => [AssociateRole::ASSOCIATE->value],
+            'all_associates' => User::role(AssociateRole::ASSOCIATE->value)->get(['id', 'name', 'email']),
         ]);
     }
 

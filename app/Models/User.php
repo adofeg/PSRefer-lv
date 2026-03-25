@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\EmployeeRole;
+use App\Models\Associate;
+use App\Models\Employee;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -128,5 +131,21 @@ class User extends Authenticatable
     public function getW9FileUrlAttribute()
     {
         return optional($this->profileable)->w9_file_url;
+    }
+
+    // RBAC Helpers
+    public function isEmployee(): bool
+    {
+        return $this->profileable_type === Employee::class;
+    }
+
+    public function isAssociate(): bool
+    {
+        return $this->profileable_type === Associate::class;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(EmployeeRole::ADMIN->value);
     }
 }

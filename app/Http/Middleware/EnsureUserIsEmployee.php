@@ -1,26 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
-use App\Enums\RoleName;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class EnsureUserIsEmployee
 {
     /**
      * Handle an incoming request.
+     * Solo verifica la relación polimórfica (que sea Employee).
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->hasRole(RoleName::adminRoles())) {
-            return $next($request);
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
 
-        return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
+        $user = auth()->user();
+
+        if (!$user->isEmployee()) {
+            abort(403, 'Acceso denegado. Solo empleados pueden acceder.');
+        }
+
+        return $next($request);
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Actions\Dashboard;
 
 use App\Enums\ReferralStatus;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\CommissionStatus;
 use App\Models\Referral;
 use App\Models\User;
+use App\Models\Commission;
 use Carbon\Carbon;
 
 class GetDashboardStatsAction
@@ -13,13 +15,13 @@ class GetDashboardStatsAction
     public function execute(User $user): array
     {
         // 1. Context: Admin vs Associate
-        if ($user->hasRole(RoleName::adminRoles())) {
+        if ($user->isAdmin() || $user->isEmployee()) {
             $referralsQuery = Referral::query();
             $closedReferralsQuery = Referral::where('status', ReferralStatus::Closed->value);
 
             // Admin Specific Stats
             $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('agency_fee') ?? 0;
-            $totalCommissionsPaid = \App\Models\Commission::where('status', \App\Enums\CommissionStatus::Paid->value)->sum('amount');
+            $totalCommissionsPaid = Commission::where('status', CommissionStatus::Paid->value)->sum('amount');
             $pendingReferralsCount = Referral::where('status', ReferralStatus::Prospect->value)->count();
             $totalUsers = User::count();
         } else {
@@ -27,12 +29,9 @@ class GetDashboardStatsAction
             $referralsQuery = Referral::where('associate_id', $associate?->id);
             $closedReferralsQuery = Referral::where('associate_id', $associate?->id)->where('status', ReferralStatus::Closed->value);
 
-            // Personal Revenue Contribution (For associates, maybe Deal Value or their Commission?)
-            // Keeping revenue_generated for Associate for now as it might mean something different,
-            // OR switching to agency_fee if that's what tracks their contribution.
-            // Actually, for associates 'Revenue' usually means the sales they generated. Let's use deal_value for associates.
+            // Personal Revenue Contribution
             $totalRevenue = $closedReferralsQuery->sum('deal_value') ?? 0;
-            $totalCommissionsPaid = 0; // Not used for associate view in same way
+            $totalCommissionsPaid = 0; 
             $pendingReferralsCount = 0;
             $totalUsers = 0;
         }
@@ -47,7 +46,7 @@ class GetDashboardStatsAction
             ->get();
 
         // 4. Chart Data (Monthly Revenue -> Agency Fee for Admin)
-        $chartColumn = $user->hasRole(RoleName::adminRoles()) ? 'agency_fee' : 'deal_value';
+        $chartColumn = ($user->isAdmin() || $user->isEmployee()) ? 'agency_fee' : 'deal_value';
 
         $chartData = $closedReferralsQuery->clone()
             ->whereYear('updated_at', date('Y'))
@@ -73,7 +72,7 @@ class GetDashboardStatsAction
                 'total_commissions_paid' => (float) $totalCommissionsPaid,
                 'pending_referrals' => $pendingReferralsCount,
                 'total_users' => $totalUsers,
-                'is_admin' => $user->hasRole(RoleName::adminRoles()),
+                'is_admin' => $user->isAdmin() || $user->isEmployee(),
             ],
             'recentReferrals' => $recentReferrals,
             'monthlyRevenue' => $revenueSeries,

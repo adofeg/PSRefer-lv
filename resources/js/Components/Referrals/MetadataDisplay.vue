@@ -62,7 +62,7 @@ const formatValue = (value, type = 'text') => {
             return {
                 is_file: true,
                 name: file.original_name,
-                url: `/storage/${file.path}`,
+                url: route('assets.download', file.id),
                 mime: file.mime_type,
                 size: file.size
             };

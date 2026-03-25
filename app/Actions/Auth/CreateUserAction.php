@@ -3,7 +3,8 @@
 namespace App\Actions\Auth;
 
 use App\Data\Auth\UserData;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Models\Associate;
 use App\Models\Employee;
 use App\Models\User;
@@ -19,7 +20,7 @@ class CreateUserAction
     public function execute(UserData $data): User
     {
         return DB::transaction(function () use ($data) {
-            if ($data->role === RoleName::Associate->value) {
+            if ($data->role === AssociateRole::ASSOCIATE->value) {
                 $associate = Associate::create([
                     'category' => $data->category,
                     'referrer_id' => $data->referrer_id,
@@ -33,7 +34,7 @@ class CreateUserAction
                     'is_active' => true,
                 ]);
 
-                $user->assignRole(RoleName::Associate->value);
+                $user->assignRole(AssociateRole::ASSOCIATE->value);
 
             } else {
                 $employee = Employee::create([]);

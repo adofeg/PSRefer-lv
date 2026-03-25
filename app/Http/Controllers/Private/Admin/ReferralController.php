@@ -12,7 +12,7 @@ use App\Actions\Referrals\UpdateReferralStatusAction;
 use App\Data\Offerings\OfferingData;
 use App\Data\Referrals\ReferralPipelineData;
 use App\Enums\ReferralStatus;
-use App\Enums\RoleName;
+// Enum no longer needed here
 use App\Http\Requests\Admin\ReferralRequest;
 use App\Models\Referral;
 use Inertia\Inertia;
@@ -51,13 +51,13 @@ class ReferralController extends AdminController
         return Inertia::render('Private/Admin/Referrals/Create', [
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
             'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false, [], false)),
-            'associates' => RoleName::isAdmin($request->user()) ? $getAssociatesAction->execute() : [],
+            'associates' => $request->user()->isAdmin() ? $getAssociatesAction->execute() : [],
         ]);
     }
 
     public function store(ReferralRequest $request, SubmitReferralAction $action)
     {
-        if (RoleName::isAdmin($request->user())) {
+        if ($request->user()->isAdmin()) {
             $associateId = $request->validated('associate_id');
         } else {
             $associate = $request->user()->associate;

@@ -3,7 +3,8 @@
 namespace Tests\Unit\Offerings;
 
 use App\Actions\Offerings\GetOfferingsAction;
-use App\Enums\RoleName;
+use App\Enums\EmployeeRole;
+use App\Enums\AssociateRole;
 use App\Models\Associate;
 use App\Models\Category;
 use App\Models\Offering;
@@ -38,7 +39,7 @@ class GetOfferingsActionTest extends TestCase
             'profileable_id' => $associate->id,
             'profileable_type' => Associate::class,
         ]);
-        $user->assignRole(RoleName::Associate->value);
+        $user->assignRole(AssociateRole::ASSOCIATE->value);
 
         // 4. Execute action
         $results = $this->action->execute($user, false, [], false);
@@ -65,7 +66,7 @@ class GetOfferingsActionTest extends TestCase
             'profileable_id' => $associate->id,
             'profileable_type' => Associate::class,
         ]);
-        $user->assignRole(RoleName::Associate->value);
+        $user->assignRole(AssociateRole::ASSOCIATE->value);
 
         // 4. Execute action
         $results = $this->action->execute($user, false, [], false);
@@ -85,7 +86,7 @@ class GetOfferingsActionTest extends TestCase
             'profileable_id' => $associate->id,
             'profileable_type' => Associate::class,
         ]);
-        $user->assignRole(RoleName::Associate->value);
+        $user->assignRole(AssociateRole::ASSOCIATE->value);
 
         $results = $this->action->execute($user, false, [], false);
 
@@ -99,7 +100,7 @@ class GetOfferingsActionTest extends TestCase
         $offering2 = Offering::factory()->create(['is_active' => false]);
 
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole(EmployeeRole::ADMIN->value);
 
         $results = $this->action->execute($admin, true, [], false);
 

@@ -2,7 +2,8 @@
 
 namespace App\Actions\Referrals;
 
-use App\Enums\RoleName;
+use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -13,7 +14,7 @@ class GetReferralsAction
     {
         $query = Referral::query();
 
-        if ($user->hasRole(RoleName::Associate->value)) {
+        if ($user->hasRole(AssociateRole::ASSOCIATE->value)) {
             $associate = $user->associate;
             if (! $associate) {
                 // Return empty if associate profile is missing
