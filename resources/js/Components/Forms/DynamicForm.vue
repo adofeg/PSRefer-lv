@@ -56,13 +56,16 @@ watch(() => [props.clientName, props.clientEmail, props.clientPhone], ([n, e, p]
 }, { immediate: true });
 
 const updateField = (fieldName, value) => {
+    // Update local state first
+    formData.value[fieldName] = value;
+    
+    // Emit specialized events for external sync if needed
     if (fieldName === 'client_name') emit('update:clientName', value);
-    else if (fieldName === 'client_email') emit('update:clientEmail', value);
-    else if (fieldName === 'client_phone') emit('update:clientPhone', value);
-    else {
-        formData.value[fieldName] = value;
-        emit('update:modelValue', formData.value);
-    }
+    if (fieldName === 'client_email') emit('update:clientEmail', value);
+    if (fieldName === 'client_phone') emit('update:clientPhone', value);
+    
+    // Always emit the full object for v-model
+    emit('update:modelValue', formData.value);
 };
 
 // Version & Wizard Detection

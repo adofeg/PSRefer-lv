@@ -3,18 +3,19 @@
 namespace App\Actions\Referrals;
 
 use App\Models\Referral;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class GetReferralPipelineAction
 {
-    public function execute(\App\Models\User $user): Collection
+    public function execute(User $user): Collection
     {
         $query = Referral::with([
             'offering:id,name',
             'associate.user:id,name,profileable_id,profileable_type',
         ])->latest();
 
-        if ($user->hasRole(AssociateRole::ASSOCIATE->value)) {
+        if ($user->isAssociate()) {
             $associate = $user->associate;
             if ($associate) {
                 $query->where('associate_id', $associate->id);

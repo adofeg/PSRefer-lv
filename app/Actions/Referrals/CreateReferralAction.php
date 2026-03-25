@@ -37,11 +37,6 @@ class CreateReferralAction
         $referral = DB::transaction(function () use ($data) {
             $metadata = $data->metadata ?? [];
             
-            // Ensure core fields are explicitly set in metadata for accessors
-            if ($data->client_name) $metadata['client_name'] = $data->client_name;
-            if ($data->client_email) $metadata['client_email'] = $data->client_email;
-            if ($data->client_phone) $metadata['client_phone'] = $data->client_phone;
-
             return Referral::create([
                 'associate_id' => $data->associate_id,
                 'offering_id' => $data->offering_id,

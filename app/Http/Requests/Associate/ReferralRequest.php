@@ -30,12 +30,13 @@ class ReferralRequest extends FormRequest
             'notes' => ['nullable', 'string'],
             'consent_confirmed' => ['boolean'],
             'form_data' => ['required', 'array'],
-            'client_name' => ['required', 'string', 'max:255'],
-            'client_email' => ['required', 'email', 'max:255'],
-            'client_phone' => ['required', 'string', 'max:50'],
         ];
     }
 
+    /**
+     * Map request to ReferralData object.
+     * Core client fields are extracted by the Action and stored in metadata.
+     */
     public function toStoreData(?int $associateId): \App\Data\Referrals\ReferralData
     {
         return new \App\Data\Referrals\ReferralData(
@@ -45,9 +46,6 @@ class ReferralRequest extends FormRequest
             notes: $this->validated('notes'),
             consent_confirmed: (bool) $this->validated('consent_confirmed'),
             associate_id: $associateId,
-            client_name: $this->validated('client_name'),
-            client_email: $this->validated('client_email'),
-            client_phone: $this->validated('client_phone'),
         );
     }
 }

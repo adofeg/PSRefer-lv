@@ -23,7 +23,7 @@ class SubmitReferralAction
         if (! empty($schema)) {
             // Flatten schema for validator (it expects list of fields)
             $flatSchema = $this->schemaService->flattenFields($schema);
-            
+
             // Validate to ensure schema compliance, but don't limit to schema fields
             $this->validator->validate(
                 $flatSchema,
@@ -33,13 +33,22 @@ class SubmitReferralAction
 
         // Use all formData, including orphans not in schema
         $allMetadata = array_merge($data->metadata ?? [], $formData);
-        
+
         // Inject Schema Version for historical tracking
         if (isset($schema['version'])) {
             $allMetadata['_schema_version'] = $schema['version'];
-        }        
-        // Shadow Sync: Extract core fields from dynamic data
+        }
+
+        // --- CORE FIELD EXTRACTION (Shadow Sync) ---
+        // We extract core identity fields from the dynamic form_data
+        // using terminology-based detection (name, email, phone).
         $extracted = $this->schemaService->extractCoreFields($schema, $allMetadata);
+        // Shadow Sync: Merge extracted core fields into metadata
+        $allMetadata = array_merge($allMetadata, array_filter([
+            'client_name' => $extracted['client_name'] ?? null,
+            'client_email' => $extracted['client_email'] ?? null,
+            'client_phone' => $extracted['client_phone'] ?? null,
+        ]));
 
         $selectedServices = $allMetadata['Servicios de Interés'] ?? null;
         if ($offering->name === 'Referencia General' && is_array($selectedServices) && ! empty($selectedServices)) {
@@ -51,13 +60,10 @@ class SubmitReferralAction
                     offering_id: $targetOffering->id,
                     metadata: array_merge($allMetadata, [
                         'origen' => 'Referencia General',
-                        'client_name' => $extracted['client_name'] ?? null,
-                        'client_email' => $extracted['client_email'] ?? null,
-                        'client_phone' => $extracted['client_phone'] ?? null,
                     ]),
                     notes: '[Ref. General] '.($data->notes ?? ''),
                     consent_confirmed: $data->consent_confirmed,
-                    associate_id: $data->associate_id
+                    associate_id: $data->associate_id,
                 );
 
                 $this->createReferralAction->execute($referralData);
@@ -73,8 +79,7 @@ class SubmitReferralAction
         foreach ($allMetadata as $key => $value) {
             if ($value instanceof \Illuminate\Http\UploadedFile) {
                 $files[$key] = $value;
-                // Store placeholder in metadata or remove? Removing better for JSON size.
-                $scalars[$key] = null; 
+                $scalars[$key] = null;
             } else {
                 $scalars[$key] = $value;
             }
@@ -86,17 +91,14 @@ class SubmitReferralAction
             notes: $data->notes,
             consent_confirmed: $data->consent_confirmed,
             associate_id: $data->associate_id,
-            client_name: $data->client_name,
-            client_email: $data->client_email,
-            client_phone: $data->client_phone,
         );
 
         $referral = $this->createReferralAction->execute($referralData);
 
         // Process Files
         foreach ($files as $field => $file) {
-            $path = $file->store('referrals/' . $referral->uuid, 'local');
-            
+            $path = $file->store('referrals/'.$referral->uuid, 'local');
+
             $asset = $this->createFileAssetAction->execute(
                 new \App\Data\Files\FileAssetData(
                     disk: 'local',
@@ -116,7 +118,7 @@ class SubmitReferralAction
             $scalars[$field] = $asset->uuid;
         }
 
-        if (!empty($files)) {
+        if (! empty($files)) {
             $referral->update(['metadata' => $scalars]);
         }
 
