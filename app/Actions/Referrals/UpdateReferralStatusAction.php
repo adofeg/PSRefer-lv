@@ -4,7 +4,6 @@ namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralStatusUpdateData;
 use App\Enums\ReferralStatus;
-use App\Enums\CommissionStatus;
 use App\Mail\ReferralStatusUpdatedMail;
 use App\Models\Referral;
 use App\Services\AuditService;
@@ -30,8 +29,8 @@ class UpdateReferralStatusAction
 
         return DB::transaction(function () use ($referral, $status, $actor, $data, $oldStatus) {
             $contractId = $data->contract_id ?? $referral->contract_id;
-            if (!$contractId && $status === ReferralStatus::Closed->value) {
-                $contractId = 'CTR-' . now()->format('Ym') . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+            if (! $contractId && $status === ReferralStatus::Closed->value) {
+                $contractId = 'CTR-'.now()->format('Ym').'-'.str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
             }
 
             $referral->update([
@@ -84,15 +83,8 @@ class UpdateReferralStatusAction
             return;
         }
 
-        // Check for User Override
-        $override = DB::table('commission_overrides')
-            ->where('associate_id', $referral->associate_id)
-            ->where('offering_id', $referral->offering_id)
-            ->where('is_active', true)
-            ->first();
-
         // Create commissions (default status: Pending)
-        $commissions = $this->commissionService->createAllCommissions($referral, $offering, $override);
+        $this->commissionService->createAllCommissions($referral, $offering);
 
         // NOTE: Auto-pay logic removed. Commissions are now always created as Pending.
         // Admin must manually approve comissions and upload receipt.

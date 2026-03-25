@@ -177,19 +177,32 @@ class Referral extends Model
 
     public function getEstimatedCommissionAttribute(): string
     {
-        if ($this->revenue_generated > 0) {
-            return '$'.number_format($this->revenue_generated, 2);
+        // If closed, get the ACTUAL commission from the relationship
+        if ($this->status === 'Cerrado' || $this->status === 'Pagado') {
+            $total = $this->commissions()->sum('amount');
+            if ($total > 0) {
+                return '$'.number_format($total, 2);
+            }
         }
 
+        // If not closed, calculate the ESTIMATE
         $offering = $this->offering;
         if (! $offering) {
-            return '-';
+            return ($this->revenue_generated > 0) ? '$'.number_format($this->revenue_generated, 2).' (Rev)' : '-';
         }
 
         if ($offering->base_commission > 0) {
             if ($offering->commission_type === 'fixed') {
                 return '$'.number_format($offering->base_commission, 2);
             }
+
+            // If we have revenue_generated but NO commission record yet (e.g. pending calculation)
+            if ($this->revenue_generated > 0) {
+                $estimated = ($this->revenue_generated * $offering->base_commission) / 100;
+
+                return '$'.number_format($estimated, 2);
+            }
+
             return $offering->base_commission.'% del valor';
         }
 

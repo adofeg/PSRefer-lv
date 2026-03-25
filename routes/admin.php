@@ -1,10 +1,8 @@
 <?php
 
-use App\Enums\EmployeeRole;
 use App\Http\Controllers\Private\Admin\AuditController;
 use App\Http\Controllers\Private\Admin\CategoryController;
 use App\Http\Controllers\Private\Admin\CommissionController;
-use App\Http\Controllers\Private\Admin\CommissionOverrideController;
 use App\Http\Controllers\Private\Admin\DashboardController;
 use App\Http\Controllers\Private\Admin\MarketingController;
 use App\Http\Controllers\Private\Admin\OfferingController;
@@ -47,9 +45,6 @@ Route::middleware(['auth', 'verified', 'employee'])
         Route::get('/commissions/{commission}/edit', [CommissionController::class, 'edit'])->name('commissions.edit');
         Route::put('/commissions/{commission}', [CommissionController::class, 'update'])->name('commissions.update');
         Route::delete('/commissions/{commission}', [CommissionController::class, 'destroy'])->name('commissions.destroy');
-        Route::get('/commissions/overrides', [CommissionOverrideController::class, 'index'])->name('commissions.overrides.index');
-        Route::post('/commissions/overrides', [CommissionOverrideController::class, 'store'])->name('commissions.overrides.store');
-        Route::delete('/commissions/overrides/{override}', [CommissionOverrideController::class, 'destroy'])->name('commissions.overrides.destroy');
 
         // Categories
         Route::resource('categories', CategoryController::class);

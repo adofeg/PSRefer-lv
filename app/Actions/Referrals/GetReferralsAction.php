@@ -3,7 +3,6 @@
 namespace App\Actions\Referrals;
 
 use App\Enums\AssociateRole;
-use App\Enums\EmployeeRole;
 use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -35,7 +34,7 @@ class GetReferralsAction
             }
         });
 
-        return $query->with(['offering:id,name,base_commission', 'associate.user', 'commissions'])
+        return $query->with(['offering:id,name,base_commission,commission_type', 'associate.user', 'commissions'])
             ->latest()
             ->paginate(10)
             ->withQueryString();

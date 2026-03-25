@@ -23,16 +23,20 @@ const form = useForm({
 });
 
 const commissionTypes = [
-    { value: 'manual', label: 'Manual' },
+    { value: 'percentage', label: 'Porcentaje (Venta)' },
+    { value: 'fixed', label: 'Monto Fijo' },
+    { value: 'monthly', label: 'Mensual / Recurrente' },
+    { value: 'override', label: 'Regla Especial (Override)' },
+    { value: 'manual', label: 'Entrada Manual' },
     { value: 'bonus', label: 'Bono / Incentivo' },
-    { value: 'adjustment', label: 'Ajuste' },
-    { value: 'override', label: 'Override' },
-    { value: 'direct', label: 'Directa (Estándar)' },
+    { value: 'adjustment', label: 'Ajuste / Corrección' },
 ];
 
 const submit = () => {
-    form.post(route('admin.commissions.update', commission.id), {
+    form.transform((data) => ({
+        ...data,
         _method: 'put',
+    })).post(route('admin.commissions.update', commission.id), {
         forceFormData: true,
     });
 };

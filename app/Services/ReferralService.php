@@ -75,13 +75,8 @@ class ReferralService
             return;
         }
 
-        // Check for User Override
-        $override = DB::table('associate_offering_commissions')
-            ->where('associate_id', $referral->associate_id)
-            ->where('offering_id', $referral->offering_id)
-            ->first();
-
-        $commissions = $this->commissionService->createAllCommissions($referral, $offering, $override);
+        // Create commissions (default status: Pending)
+        $this->commissionService->createAllCommissions($referral, $offering);
 
         // Update User Balance if needed (usually handled when commission is PAID, but node code did it on creation? No, node code says "Commission created ... await UserRepository.incrementBalance")
         // Node code Line 190: await UserRepository.incrementBalance(referral.user_id, amount);

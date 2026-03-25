@@ -45,7 +45,6 @@ const navigationGroups = [
         items: [
              { name: 'Comisiones', href: route('admin.commissions.index'), icon: ArrowRightLeft, match: ['admin.commissions.index'], roles: adminRoles },
              { name: 'Reportes', href: route('admin.commissions.report'), icon: BarChart3, match: ['admin.commissions.report'], roles: adminRoles },
-             { name: 'Reglas y Ajustes', href: route('admin.commissions.overrides.index'), icon: Settings, match: ['admin.commissions.overrides.index'], roles: adminRoles },
              { name: 'Mis Comisiones', href: route('associate.commissions'), icon: DollarSign, match: ['associate.commissions'], roles: associateRoles },
         ]
     },
