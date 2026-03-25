@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
     {
         try {
             // Allow disabling dynamic config via .env
-            if (! env('MAIL_DYNAMIC_CONFIG', true)) {
+            if (! config('mail.dynamic_config', true)) {
                 return;
             }
 
