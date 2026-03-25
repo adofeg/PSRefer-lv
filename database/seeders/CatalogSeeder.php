@@ -63,6 +63,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'percentage',
                 'base_commission' => 30.00,
                 'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_extra',
@@ -88,6 +89,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00, 
                 'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_extra',
@@ -113,6 +115,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00, 
                 'is_active' => true,
+                'notification_emails' => ['pnc@psbusinesssolutions.com', 'info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_general',
@@ -173,6 +176,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'fixed',
                 'base_commission' => 50.00, 
                 'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_business',
@@ -201,6 +205,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'percentage',
                 'base_commission' => 10.00,
                 'is_active' => true,
+                'notification_emails' => ['pnc@psbusinesssolutions.com', 'info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_entity',
@@ -271,6 +276,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00, 
                 'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_extra',
@@ -296,6 +302,7 @@ class CatalogSeeder extends Seeder
                 'commission_type' => 'fixed',
                 'base_commission' => 50.00, 
                 'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
                     [
                         'id' => 'group_biz',
@@ -321,6 +328,7 @@ class CatalogSeeder extends Seeder
                 'description' => 'Servicio para clientes existentes.',
                 'base_commission' => 0.00,
                 'is_active' => false,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => ['version' => 2, 'groups' => []]
             ]
         );

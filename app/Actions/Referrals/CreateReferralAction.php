@@ -47,11 +47,16 @@ class CreateReferralAction
             ]);
         });
 
-        // Notify Admins
+        // Notify Admins and specific offering emails
         try {
-            $admins = User::role(EmployeeRole::ADMIN->values())->get();
-            if ($admins->isNotEmpty()) {
-                Mail::to($admins)->send(new NewReferralAlertMail($referral, $user ?? auth()->user()));
+            $recipients = User::role(EmployeeRole::ADMIN->values())->pluck('email')->toArray();
+            
+            if (! empty($offering->notification_emails)) {
+                $recipients = array_unique(array_merge($recipients, $offering->notification_emails));
+            }
+
+            if (! empty($recipients)) {
+                Mail::to($recipients)->send(new NewReferralAlertMail($referral, $user ?? auth()->user()));
             }
         } catch (\Exception $e) {
             Log::error('Failed to send new referral alert: '.$e->getMessage());
