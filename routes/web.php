@@ -5,7 +5,9 @@ use App\Http\Controllers\Public\PublicApiController;
 use App\Http\Controllers\Public\PublicController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PublicController::class, 'home'])->name('home');
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+})->name('home');
 
 Route::name('site.')->group(function () {
     Route::get('/users/{id}', [PublicApiController::class, 'userInfo'])->name('users.show');
