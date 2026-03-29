@@ -3,7 +3,6 @@
 namespace App\Actions\Auth;
 
 use App\Data\Auth\UserData;
-use App\Enums\EmployeeRole;
 use App\Enums\AssociateRole;
 use App\Models\Associate;
 use App\Models\Employee;
@@ -23,6 +22,7 @@ class CreateUserAction
             if ($data->role === AssociateRole::ASSOCIATE->value) {
                 $associate = Associate::create([
                     'category' => $data->category,
+                    'payment_phone' => $data->payment_phone,
                     'referrer_id' => $data->referrer_id,
                 ]);
 

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Private\Admin;
 use App\Actions\Auth\CreateUserAction;
 use App\Actions\Users\GetUsersAction;
 use App\Actions\Users\ToggleUserStatusAction;
-use App\Enums\EmployeeRole;
 use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\AuditService;
@@ -92,8 +92,11 @@ class UserController extends AdminController
             if (isset($data['phone'])) {
                 $profileData['phone'] = $data['phone'];
             }
-            if (isset($data['category']) && $user->isAdmin()) {
+            if (isset($data['category'])) {
                 $profileData['category'] = $data['category'];
+            }
+            if (isset($data['payment_phone'])) {
+                $profileData['payment_phone'] = $data['payment_phone'];
             }
 
             if (! empty($profileData)) {

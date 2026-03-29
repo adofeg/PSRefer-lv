@@ -16,6 +16,7 @@ class ReferralPipelineData extends Data
         public ?string $created_at,
         public ?array $offering,
         public ?array $user,
+        public ?string $reminder_date = null,
     ) {}
 
     public static function fromModel(Referral $referral): self
@@ -37,6 +38,7 @@ class ReferralPipelineData extends Data
                 'id' => (int) $associateUser->id,
                 'name' => $associateUser->name,
             ] : null,
+            reminder_date: $referral->reminder_date?->toDateString(),
         );
     }
 }

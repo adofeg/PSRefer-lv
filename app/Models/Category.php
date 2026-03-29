@@ -28,4 +28,9 @@ class Category extends Model
     {
         return $this->hasMany(Offering::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

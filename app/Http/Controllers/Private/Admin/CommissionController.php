@@ -23,7 +23,7 @@ class CommissionController extends AdminController
 
     public function index(CommissionRequest $request, GetAllCommissionsAction $action): Response
     {
-        $filters = $request->only(['search', 'status', 'associate_id']);
+        $filters = $request->only(['search', 'status', 'associate_id', 'date_from', 'date_to']);
 
         return Inertia::render('Private/Admin/Commissions/Index', [
             'commissions' => $action->execute($filters),

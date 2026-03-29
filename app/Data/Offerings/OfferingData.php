@@ -2,6 +2,7 @@
 
 namespace App\Data\Offerings;
 
+use App\Enums\CommissionType;
 use App\Models\Offering;
 use Spatie\LaravelData\Data;
 
@@ -20,7 +21,7 @@ class OfferingData extends Data
         public ?array $commission_rules = [],
         public ?array $notification_emails = [],
         public ?string $share_url = null,
-        public string $commission_type = 'percentage',
+        public CommissionType|string $commission_type = CommissionType::Percentage,
     ) {}
 
     public static function fromModel(Offering $offering, ?\App\Models\User $user = null): self

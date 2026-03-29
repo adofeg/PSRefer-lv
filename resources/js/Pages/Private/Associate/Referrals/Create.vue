@@ -9,6 +9,7 @@ import DynamicForm from '@/Components/Forms/DynamicForm.vue';
 const props = defineProps({
     offerings: Array,
     selectedOffering: Object, 
+    sectors: Array,
 });
 
 const offeringsList = computed(() => normalizeCollection(props.offerings));
@@ -19,6 +20,7 @@ const form = useForm({
     client_name: '',
     client_email: '',
     client_phone: '',
+    sector_id: '',
     form_data: {},
     notes: '',
     consent_confirmed: false
@@ -86,6 +88,21 @@ const formatCurrency = (amount) => {
                         </div>
                         <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1"><AlertCircle class="w-3 h-3" /> {{ form.errors.offering_id }}</div>
                         <p class="text-xs text-slate-500 mt-2 ml-1">Selecciona el servicio que le interesa al cliente para desbloquear el formulario.</p>
+
+                        <!-- Sector Selection -->
+                        <div class="mt-6 border-t border-slate-200 pt-6">
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                                <Briefcase class="w-4 h-4 text-slate-400" />
+                                Sector de Servicio
+                            </h2>
+                            <select v-model="form.sector_id" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-white" required>
+                                <option value="" disabled>Selecciona el sector del referido...</option>
+                                <option v-for="sector in sectors" :key="sector.id" :value="sector.id">
+                                    {{ sector.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1"><AlertCircle class="w-3 h-3" /> {{ form.errors.sector_id }}</div>
+                        </div>
                     </div>
 
                     <div v-if="currentOffering">

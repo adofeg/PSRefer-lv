@@ -8,10 +8,10 @@ use Illuminate\Support\Collection;
 
 class GetReferralPipelineAction
 {
-    public function execute(User $user): Collection
+    public function execute(User $user, array $filters = []): Collection
     {
         $query = Referral::with([
-            'offering:id,name',
+            'offering.category:id,name',
             'associate.user:id,name,profileable_id,profileable_type',
         ])->latest();
 
@@ -22,6 +22,18 @@ class GetReferralPipelineAction
             } else {
                 return collect(); // Return empty if no associate profile
             }
+        }
+
+        // Apply Category Filter
+        if (! empty($filters['category_id'])) {
+            $query->whereHas('offering', function ($q) use ($filters) {
+                $q->where('category_id', $filters['category_id']);
+            });
+        }
+
+        // Apply Sector Filter
+        if (! empty($filters['sector_id'])) {
+            $query->where('sector_id', $filters['sector_id']);
         }
 
         return $query->get();

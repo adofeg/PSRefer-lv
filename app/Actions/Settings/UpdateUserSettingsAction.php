@@ -5,7 +5,6 @@ namespace App\Actions\Settings;
 use App\Data\Settings\UserSettingsData;
 use App\Models\Associate;
 use App\Models\User;
-use App\Models\FileAsset;
 use Illuminate\Support\Str;
 
 class UpdateUserSettingsAction
@@ -23,7 +22,7 @@ class UpdateUserSettingsAction
             if ($user->logo) {
                 // Only delete file if it's local (disk=public) and not a shared asset
                 if ($user->logo->disk === 'public') {
-                     \Illuminate\Support\Facades\Storage::disk('public')->delete($user->logo->path);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->logo->path);
                 }
                 $user->logo->delete();
             }
@@ -59,13 +58,17 @@ class UpdateUserSettingsAction
                 }
             }
 
+            if ($data->payment_phone) {
+                $profileData['payment_phone'] = $data->payment_phone;
+            }
+
             $profile->update($profileData);
 
             if ($data->w9_file) {
-                 // Remove old W9 if exists
+                // Remove old W9 if exists
                 if ($profile->w9) {
                     if ($profile->w9->disk === 'public') {
-                         \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->w9->path);
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->w9->path);
                     }
                     $profile->w9->delete();
                 }

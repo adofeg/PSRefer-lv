@@ -208,14 +208,17 @@ const submit = () => {
                                 <div class="space-y-2">
                                     <label class="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">Tipo de Comisión</label>
                                     <select v-model="form.commission_type" class="w-full border-slate-200 rounded-2xl p-4 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all font-bold">
+                                        <option value="fixed">Fijo ($)</option>
                                         <option value="percentage">Porcentaje (%)</option>
-                                        <option value="fixed">Monto Fijo ($)</option>
+                                        <option value="manual">Manual (Negociado)</option>
+                                        <option value="variable">Variable (Según servicio)</option>
                                     </select>
                                 </div>
 
                                 <div class="space-y-2">
                                     <label class="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">
                                         {{ form.commission_type === 'percentage' ? 'Comisión Base (%)' : 'Comisión Base ($)' }}
+                                        <span v-if="['manual', 'variable'].includes(form.commission_type)" class="text-indigo-400 italic">(Opcional/Ref)</span>
                                     </label>
                                     <div class="relative">
                                         <input v-model="form.base_commission" type="number" step="0.01" class="w-full border-slate-200 rounded-2xl p-4 text-sm font-black text-indigo-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all pl-10" />

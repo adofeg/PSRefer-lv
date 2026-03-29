@@ -3,9 +3,9 @@
 namespace App\Actions\Referrals;
 
 use App\Data\Referrals\ReferralData;
-use App\Enums\ReferralStatus;
-use App\Enums\EmployeeRole;
 use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
+use App\Enums\ReferralStatus;
 use App\Mail\NewReferralAlertMail;
 use App\Models\Associate;
 use App\Models\Offering;
@@ -36,10 +36,11 @@ class CreateReferralAction
 
         $referral = DB::transaction(function () use ($data) {
             $metadata = $data->metadata ?? [];
-            
+
             return Referral::create([
                 'associate_id' => $data->associate_id,
                 'offering_id' => $data->offering_id,
+                'sector_id' => $data->sector_id,
                 'status' => $data->status?->value ?? ReferralStatus::Prospect->value,
                 'metadata' => $metadata,
                 'notes' => $data->notes,
@@ -50,7 +51,7 @@ class CreateReferralAction
         // Notify Admins and specific offering emails
         try {
             $recipients = User::role(EmployeeRole::ADMIN->values())->pluck('email')->toArray();
-            
+
             if (! empty($offering->notification_emails)) {
                 $recipients = array_unique(array_merge($recipients, $offering->notification_emails));
             }

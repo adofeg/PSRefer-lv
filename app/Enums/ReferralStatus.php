@@ -10,6 +10,7 @@ enum ReferralStatus: string
     case Closed = 'Cerrado';
     case Lost = 'Perdido';
     case Paid = 'Pagado';
+    case ContactLater = 'Contactar más tarde';
 
     public static function commissionEligible(): array
     {

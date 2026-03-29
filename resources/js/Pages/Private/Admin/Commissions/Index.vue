@@ -4,7 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import Card from '@/Components/UI/Card.vue';
 import Badge from '@/Components/UI/Badge.vue'; // Assuming Badge handles generic status or I need to update it
-import { Search, Filter, X, DollarSign, User, FileText, Calendar, Plus } from 'lucide-vue-next';
+import { Search, Filter, X, DollarSign, User, FileText, Calendar, Plus, Check, RefreshCw } from 'lucide-vue-next';
 import { useFormatters } from '@/Composables/useFormatters';
 import { normalizePaginated } from '@/Utils/inertia';
 
@@ -14,13 +14,15 @@ const props = defineProps({
     statuses: Array
 });
 
-const commissionsResource = computed(() => normalizePaginated(props.commissions));
+const commissionsResource = computed(() => normalizePaginated(props.commissions.data));
 
 const { formatCurrency, formatShortDate } = useFormatters();
 
 // Filter State
 const searchTerm = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || 'all');
+const dateFrom = ref(props.filters?.date_from || '');
+const dateTo = ref(props.filters?.date_to || '');
 
 const debounce = (fn, delay) => {
     let timeoutId;
@@ -35,7 +37,9 @@ const applyFilters = debounce(() => {
         route('admin.commissions.index'),
         { 
             search: searchTerm.value,
-            status: statusFilter.value 
+            status: statusFilter.value,
+            date_from: dateFrom.value,
+            date_to: dateTo.value
         },
         { 
             preserveState: true,
@@ -48,9 +52,11 @@ const applyFilters = debounce(() => {
 const clearFilters = () => {
     searchTerm.value = '';
     statusFilter.value = 'all';
+    dateFrom.value = '';
+    dateTo.value = '';
 };
 
-watch([searchTerm, statusFilter], () => {
+watch([searchTerm, statusFilter, dateFrom, dateTo], () => {
     applyFilters();
 });
 
@@ -92,6 +98,37 @@ const getStatusColor = (status) => {
                 </div>
             </div>
 
+            <!-- Summary Widgets -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                    <div class="bg-indigo-100 p-3 rounded-xl text-indigo-600">
+                        <DollarSign :size="24" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Comisiones</p>
+                        <h4 class="text-2xl font-black text-slate-800">{{ commissions.total_amount_formatted || '---' }}</h4>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-4">
+                    <div class="bg-emerald-100 p-3 rounded-xl text-emerald-600">
+                        <Check :size="24" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Pagadas</p>
+                        <h4 class="text-2xl font-black text-slate-800">{{ commissions.paid_amount_formatted || '---' }}</h4>
+                    </div>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-2xl shadow-sm border border-amber-100 flex items-center gap-4">
+                    <div class="bg-amber-100 p-3 rounded-xl text-amber-600">
+                        <RefreshCw :size="24" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-amber-600 font-bold uppercase tracking-wider mb-1">Pendientes</p>
+                        <h4 class="text-2xl font-black text-slate-800">{{ commissions.pending_amount_formatted || '---' }}</h4>
+                    </div>
+                </div>
+            </div>
+
             <!-- Professional Filter Bar -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 items-center justify-between">
                 <!-- Search -->
@@ -117,6 +154,18 @@ const getStatusColor = (status) => {
                             <option v-for="status in statuses" :key="status" :value="status" class="capitalize">{{ status }}</option>
                         </select>
                         <Filter :size="14" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1">
+                        <div class="flex items-center gap-2">
+                             <Calendar :size="14" class="text-slate-400" />
+                             <input v-model="dateFrom" type="date" class="bg-transparent border-none text-xs font-medium text-slate-700 focus:ring-0 p-1" title="Desde" />
+                        </div>
+                        <span class="text-slate-300">-</span>
+                        <div class="flex items-center gap-2">
+                             <input v-model="dateTo" type="date" class="bg-transparent border-none text-xs font-medium text-slate-700 focus:ring-0 p-1" title="Hasta" />
+                        </div>
                     </div>
 
                     <!-- Reset -->

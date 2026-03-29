@@ -30,6 +30,7 @@ class ReferralRequest extends FormRequest
             'notes' => ['nullable', 'string'],
             'consent_confirmed' => ['boolean'],
             'form_data' => ['required', 'array'],
+            'sector_id' => ['required', 'integer', 'exists:sectors,id'],
         ];
     }
 
@@ -46,6 +47,7 @@ class ReferralRequest extends FormRequest
             notes: $this->validated('notes'),
             consent_confirmed: (bool) $this->validated('consent_confirmed'),
             associate_id: $associateId,
+            sector_id: (int) $this->validated('sector_id'),
         );
     }
 }

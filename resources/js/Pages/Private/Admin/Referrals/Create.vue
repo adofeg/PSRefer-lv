@@ -10,7 +10,8 @@ import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 const props = defineProps({
     offering: Object, // Optional pre-selected offering
     offerings: Array, // List for dropdown if needed
-    associates: Array // List of associates for Admin selection
+    associates: Array, // List of associates for Admin selection
+    sectors: Array, // List of service sectors
 });
 
 const selectedOffering = computed(() => normalizeResource(props.offering, null));
@@ -20,6 +21,7 @@ const associatesList = computed(() => normalizeCollection(props.associates));
 const form = useForm({
     offering_id: selectedOffering.value?.id || '',
     associate_id: '',
+    sector_id: '',
     client_name: '',
     client_email: '',
     client_phone: '',
@@ -102,8 +104,25 @@ const submit = () => {
                                     {{ assoc.name }}
                                 </option>
                             </select>
-                            <div v-if="form.errors.associate_id" class="text-red-500 text-xs mt-1">
-                                {{ form.errors.associate_id }}
+                        </div>
+
+                        <!-- Sector Selector -->
+                        <div>
+                            <label class="block text-xs font-black uppercase text-slate-400 tracking-widest mb-2">
+                                Sector de Servicio <span class="text-red-500">*</span>
+                            </label>
+                            <select 
+                                v-model="form.sector_id" 
+                                required
+                                class="w-full border-slate-200 rounded-2xl p-4 text-base font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all cursor-pointer"
+                            >
+                                <option value="">Seleccionar Sector...</option>
+                                <option v-for="sector in sectors" :key="sector.id" :value="sector.id">
+                                    {{ sector.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-1">
+                                {{ form.errors.sector_id }}
                             </div>
                         </div>
                     </div>

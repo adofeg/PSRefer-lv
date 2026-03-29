@@ -60,6 +60,12 @@ const formatDate = (dateString) => {
                 <Calendar :size="12" />
                 {{ formatDate(referral.created_at) }}
             </div>
+
+            <!-- Reminder Date -->
+            <div v-if="referral.reminder_date" class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-[10px] font-bold flex items-center gap-1">
+                <Calendar :size="10" />
+                Llamar: {{ formatDate(referral.reminder_date) }}
+            </div>
             
             <div class="flex gap-2">
                 <Link 

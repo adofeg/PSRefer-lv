@@ -6,5 +6,4 @@ enum CommissionStatus: string
 {
     case Pending = 'pending';
     case Paid = 'paid';
-    case Void = 'void';
 }

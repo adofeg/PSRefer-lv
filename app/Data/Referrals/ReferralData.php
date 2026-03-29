@@ -14,5 +14,6 @@ class ReferralData extends Data
         public readonly ?string $notes = null,
         public readonly bool $consent_confirmed = false,
         public readonly ?int $associate_id = null,
+        public readonly ?int $sector_id = null,
     ) {}
 }

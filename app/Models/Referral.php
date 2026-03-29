@@ -28,6 +28,8 @@ class Referral extends Model
         'metadata',
         'closed_at',
         'paid_at',
+        'reminder_date',
+        'sector_id',
     ];
 
     protected $appends = ['client_name', 'client_contact', 'client_email', 'client_phone', 'estimated_commission'];
@@ -43,12 +45,18 @@ class Referral extends Model
             'consent_confirmed' => 'boolean',
             'closed_at' => 'datetime',
             'paid_at' => 'datetime',
+            'reminder_date' => 'date',
         ];
     }
 
     public function associate(): BelongsTo
     {
         return $this->belongsTo(Associate::class);
+    }
+
+    public function sector(): BelongsTo
+    {
+        return $this->belongsTo(Sector::class);
     }
 
     public function offering(): BelongsTo

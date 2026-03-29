@@ -59,7 +59,7 @@ class OfferingRequest extends FormRequest
             'category' => ['nullable', 'string', 'max:1000'],
             'description' => ['nullable', 'string'],
             'base_commission' => ['nullable', 'numeric'],
-            'commission_type' => ['sometimes', 'string', Rule::in(['fixed', 'percentage'])],
+            'commission_type' => ['sometimes', 'string', Rule::in(['fixed', 'percentage', 'manual', 'variable'])],
             'form_schema' => ['nullable', 'array'],
             'commission_config' => ['nullable', 'array'],
             'commission_rules' => ['nullable', 'array'],

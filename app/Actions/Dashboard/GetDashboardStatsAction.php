@@ -2,12 +2,11 @@
 
 namespace App\Actions\Dashboard;
 
-use App\Enums\ReferralStatus;
-use App\Enums\EmployeeRole;
 use App\Enums\CommissionStatus;
+use App\Enums\ReferralStatus;
+use App\Models\Commission;
 use App\Models\Referral;
 use App\Models\User;
-use App\Models\Commission;
 use Carbon\Carbon;
 
 class GetDashboardStatsAction
@@ -22,7 +21,12 @@ class GetDashboardStatsAction
             // Admin Specific Stats
             $totalRevenue = Referral::where('status', ReferralStatus::Closed->value)->sum('agency_fee') ?? 0;
             $totalCommissionsPaid = Commission::where('status', CommissionStatus::Paid->value)->sum('amount');
-            $pendingReferralsCount = Referral::where('status', ReferralStatus::Prospect->value)->count();
+            $pendingReferralsCount = Referral::whereIn('status', [
+                ReferralStatus::Prospect->value,
+                ReferralStatus::Contacted->value,
+                ReferralStatus::InProcess->value,
+                ReferralStatus::ContactLater->value,
+            ])->count();
             $totalUsers = User::count();
         } else {
             $associate = $user->associate;
@@ -31,7 +35,7 @@ class GetDashboardStatsAction
 
             // Personal Revenue Contribution
             $totalRevenue = $closedReferralsQuery->sum('deal_value') ?? 0;
-            $totalCommissionsPaid = 0; 
+            $totalCommissionsPaid = 0;
             $pendingReferralsCount = 0;
             $totalUsers = 0;
         }

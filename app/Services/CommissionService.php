@@ -80,21 +80,6 @@ class CommissionService
             }
         }
 
-        // 4. Monthly Recurring
-        if (isset($config['monthly']) && ($config['monthly']['amount'] ?? 0) > 0) {
-            $duration = $config['monthly']['duration_months'] ?? null;
-            $endDate = $duration ? now()->addMonths($duration) : null;
-
-            $commissions[] = [
-                'type' => 'monthly',
-                'amount' => floatval($config['monthly']['amount']),
-                'percentage' => 0,
-                'recurrence_type' => 'recurring',
-                'recurrence_interval' => 'monthly',
-                'recurrence_end_date' => $endDate,
-            ];
-        }
-
         return $commissions;
     }
 

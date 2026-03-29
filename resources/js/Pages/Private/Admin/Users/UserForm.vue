@@ -17,6 +17,7 @@ const form = useForm({
     phone: user?.phone || '',
     role: user?.role || 'associate', // Default to associate
     category: user?.category || '',
+    payment_phone: user?.payment_phone || '',
     is_active: user?.is_active ?? true,
 });
 
@@ -76,6 +77,13 @@ const submit = () => {
                 <label class="block text-sm font-medium text-slate-700 mb-1">Categoría Profesional</label>
                 <input v-model="form.category" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ej: Realtor, Abogado" />
                  <div v-if="form.errors.category" class="text-red-500 text-xs mt-1">{{ form.errors.category }}</div>
+            </div>
+
+            <!-- Payment Phone (Associate Only) -->
+            <div v-if="form.role === 'associate'">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Usuario de Cel / Número para pago</label>
+                <input v-model="form.payment_phone" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ej: 987654321 (Yape)" />
+                 <div v-if="form.errors.payment_phone" class="text-red-500 text-xs mt-1">{{ form.errors.payment_phone }}</div>
             </div>
 
              <!-- Status -->

@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Data\Auth\UserData;
-use App\Enums\EmployeeRole;
 use App\Enums\AssociateRole;
+use App\Enums\EmployeeRole;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -57,6 +57,7 @@ class UserRequest extends FormRequest
                 'phone' => ['nullable', 'string', 'max:50'],
                 'role' => ['nullable', 'string', Rule::in($allRoleValues)],
                 'category' => ['nullable', 'string', 'max:255'],
+                'payment_phone' => ['nullable', 'string', 'max:50'],
                 'referrer_id' => ['nullable', 'integer', 'exists:associates,id'],
                 'offering_id' => ['nullable', 'integer', 'exists:offerings,id'],
             ];
@@ -75,6 +76,7 @@ class UserRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'role' => ['required', 'string', Rule::in($allRoleValues)],
             'category' => ['nullable', 'string', 'max:255'],
+            'payment_phone' => ['nullable', 'string', 'max:50'],
             'is_active' => ['boolean'],
         ];
     }
@@ -88,6 +90,7 @@ class UserRequest extends FormRequest
             phone: $this->validated('phone'),
             role: $this->validated('role') ?? AssociateRole::ASSOCIATE->value,
             category: $this->validated('category'),
+            payment_phone: $this->validated('payment_phone'),
             referrer_id: $this->validated('referrer_id'),
             offering_id: $this->validated('offering_id')
         );

@@ -17,9 +17,11 @@ class CommissionRequest extends FormRequest
     {
         if ($this->routeIs('admin.commissions.index')) {
             return [
-                'search' => ['nullable', 'string', 'max:120'],
-                'status' => ['nullable', Rule::in(array_merge(['all'], array_column(CommissionStatus::cases(), 'value')))],
+                'search' => ['nullable', 'string', 'max:255'],
+                'status' => ['nullable', 'string'],
                 'associate_id' => ['nullable', 'integer', 'exists:associates,id'],
+                'date_from' => ['nullable', 'date'],
+                'date_to' => ['nullable', 'date'],
             ];
         }
 

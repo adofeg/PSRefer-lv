@@ -41,6 +41,7 @@ class UpdateReferralStatusAction
                 'payment_method' => $data->payment_method ?? $referral->payment_method,
                 'down_payment' => $data->down_payment ?? $referral->down_payment,
                 'agency_fee' => $data->agency_fee ?? $referral->agency_fee,
+                'reminder_date' => $data->reminder_date ?? $referral->reminder_date,
             ]);
 
             // Removed Agency Fee Validation ("Loss Prevention") as per business request.

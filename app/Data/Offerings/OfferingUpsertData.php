@@ -2,6 +2,7 @@
 
 namespace App\Data\Offerings;
 
+use App\Enums\CommissionType;
 use Spatie\LaravelData\Data;
 
 class OfferingUpsertData extends Data
@@ -17,7 +18,7 @@ class OfferingUpsertData extends Data
         public ?array $commission_config,
         public ?array $commission_rules,
         public ?array $notification_emails,
-        public ?string $commission_type = 'percentage',
+        public CommissionType|string|null $commission_type = CommissionType::Percentage,
         public ?bool $is_active = null,
     ) {}
 }

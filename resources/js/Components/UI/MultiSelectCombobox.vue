@@ -8,12 +8,12 @@ import {
     ComboboxOption,
     TransitionRoot,
 } from '@headlessui/vue';
-import { Check, ChevronsUpDown, X } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, X, ChevronDown } from 'lucide-vue-next';
 
 const props = defineProps({
     modelValue: {
-        type: Array,
-        default: () => [],
+        type: [Array, String, Number, Object],
+        default: null,
     },
     options: {
         type: Array,
@@ -53,108 +53,146 @@ const selectedItems = computed({
 });
 
 const removeItem = (id) => {
-    selectedItems.value = selectedItems.value.filter((itemId) => itemId !== id);
+    if (props.multiple && Array.isArray(selectedItems.value)) {
+        selectedItems.value = selectedItems.value.filter((itemId) => itemId !== id);
+    } else {
+        selectedItems.value = null;
+    }
 };
 
 const getLabel = (id) => {
-    const option = props.options.find((opt) => opt.id === id || opt.value === id);
-    return option ? (option.name || option.label) : id;
+    if (id === null || id === undefined) {
+        return '';
+    }
+    const option = props.options.find((opt) => String(opt.id) === String(id) || String(opt.value) === String(id));
+    return option ? (option.name || option.label) : (id === 'all' ? '' : id);
 };
 </script>
 
 <template>
     <div class="w-full">
-        <Combobox v-model="selectedItems" :multiple="multiple" :disabled="disabled">
-            <div class="relative mt-1">
+        <Combobox v-model="selectedItems" :multiple="multiple" :disabled="disabled" nullable v-slot="{ open }">
+            <div class="relative">
                 <div
-                    class="relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left border border-slate-200 focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all sm:text-sm"
+                    class="relative w-full cursor-default overflow-hidden rounded-xl bg-white text-left border transition-all duration-300 sm:text-sm hover:border-slate-300"
+                    :class="[
+                        (!multiple && selectedItems) || (multiple && Array.isArray(selectedItems) && selectedItems.length > 0) 
+                            ? 'border-indigo-200 bg-indigo-50/20' 
+                            : 'border-slate-200 shadow-sm'
+                    ]"
                 >
-                    <div class="flex flex-wrap gap-1.5 p-2 min-h-[52px] items-center">
-                        <span
-                            v-for="id in (multiple ? selectedItems : (selectedItems ? [selectedItems] : []))"
-                            :key="id"
-                            class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-black uppercase tracking-tight border border-indigo-100"
-                        >
-                            {{ getLabel(id) }}
-                            <button
-                                v-if="!disabled"
-                                type="button"
-                                @click.stop="removeItem(id)"
-                                class="hover:text-indigo-900 transition-colors"
+                    <div class="flex items-center min-h-[36px] group">
+                        <!-- Multi-select Chips -->
+                        <div v-if="multiple && Array.isArray(selectedItems) && selectedItems.length > 0" class="flex flex-wrap gap-1 p-1 border-r border-slate-100 mr-2 bg-white/50 backdrop-blur-sm">
+                            <span
+                                v-for="id in selectedItems"
+                                :key="id"
+                                class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50/50 text-indigo-600 rounded-md text-[10px] font-bold uppercase tracking-tight border border-indigo-100/50"
                             >
-                                <X :size="14" />
-                            </button>
-                        </span>
+                                {{ getLabel(id) }}
+                                <button
+                                    v-if="!disabled"
+                                    type="button"
+                                    @click.stop="removeItem(id)"
+                                    class="hover:text-indigo-800 transition-colors"
+                                >
+                                    <X :size="10" />
+                                </button>
+                            </span>
+                        </div>
                         
-                        <ComboboxInput
-                            class="flex-1 border-none py-2 pl-3 pr-10 text-sm leading-5 text-slate-900 focus:ring-0 bg-transparent min-w-[120px]"
-                            :displayValue="(val) => query"
-                            @change="query = $event.target.value"
-                            :placeholder="selectedItems.length === 0 ? placeholder : ''"
-                        />
+                        <ComboboxButton as="div" class="flex-1 flex items-center">
+                            <ComboboxInput
+                                class="flex-1 border-none py-2 px-4 text-xs leading-5 text-slate-600 placeholder:text-slate-400 focus:ring-0 bg-transparent w-full cursor-default transition-all truncate"
+                                :displayValue="(val) => (multiple ? query : getLabel(val))"
+                                @change="query = $event.target.value"
+                                @focus="$event.target.select()"
+                                :placeholder="(multiple ? (!selectedItems || selectedItems.length === 0) : !selectedItems) ? placeholder : ''"
+                                autocomplete="off"
+                                data-lpignore="true"
+                                spellcheck="false"
+                            />
+
+                            <!-- Clear Button (Single Select) -->
+                            <Transition
+                                enter-active-class="transition-all duration-200"
+                                enter-from-class="opacity-0 scale-95"
+                                enter-to-class="opacity-100 scale-100"
+                                leave-active-class="transition-all duration-150"
+                                leave-from-class="opacity-100 scale-100"
+                                leave-to-class="opacity-0 scale-95"
+                            >
+                                <button
+                                    v-if="!multiple && selectedItems && !disabled"
+                                    type="button"
+                                    @click.stop="selectedItems = null"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-all z-20"
+                                    title="Limpiar selección"
+                                >
+                                    <X :size="14" stroke-width="2.5" />
+                                </button>
+                            </Transition>
+                        </ComboboxButton>
                     </div>
-                    
-                    <ComboboxButton
-                        class="absolute inset-y-0 right-0 flex items-center pr-2"
-                    >
-                        <ChevronsUpDown
-                            class="h-5 w-5 text-slate-400"
-                            aria-hidden="true"
-                        />
-                    </ComboboxButton>
                 </div>
                 
                 <TransitionRoot
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+                    enter="transition duration-200 ease-out"
+                    enterFrom="opacity-0 translate-y-1"
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition duration-150 ease-in"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo="opacity-0 translate-y-1"
                     @after-leave="query = ''"
                 >
                     <ComboboxOptions
-                        class="absolute mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-white py-1 text-base shadow-2xl ring-1 ring-black/5 focus:outline-none sm:text-sm z-50 border border-slate-100"
+                        class="absolute mt-1.5 max-h-72 w-full overflow-auto rounded-2xl bg-white py-2 text-base shadow-2xl ring-1 ring-slate-900/5 focus:outline-none sm:text-sm z-50 border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent animate-in fade-in zoom-in duration-200"
                     >
+                        <!-- Phantom null option to prevent auto-select on blur -->
+                        <ComboboxOption v-if="!multiple" :value="null" class="hidden" />
+                        
                         <div
                             v-if="filteredOptions.length === 0 && query !== ''"
-                            class="relative cursor-default select-none py-4 px-4 text-slate-500 italic"
+                            class="relative cursor-default select-none py-6 px-4 text-center"
                         >
-                            No se encontraron resultados.
+                            <div class="mb-2 flex justify-center text-slate-200">
+                                <Search :size="24" />
+                            </div>
+                            <span class="text-xs text-slate-400 font-medium italic">No se hallaron coincidencias.</span>
                         </div>
 
                         <ComboboxOption
                             v-for="option in filteredOptions"
-                            :key="option.id || option.value"
-                            :value="option.id || option.value"
                             as="template"
-                            v-slot="{ selected, active }"
+                            :key="option.id"
+                            :value="option.id"
+                            v-slot="{ active, selected }"
                         >
                             <li
-                                class="relative cursor-default select-none py-3 pl-10 pr-4 transition-colors"
+                                class="relative cursor-default select-none mx-2 py-2.5 pl-10 pr-4 rounded-xl transition-all duration-200 group"
                                 :class="{
-                                    'bg-indigo-600 text-white': active,
-                                    'text-slate-900': !active,
+                                    'bg-indigo-50/70 text-indigo-700': active,
+                                    'text-slate-600': !active,
+                                    'bg-indigo-50/20': selected && !active,
                                 }"
                             >
                                 <div class="flex flex-col">
                                     <span
-                                        class="block truncate font-bold"
-                                        :class="{ 'font-black': selected, 'font-medium': !selected }"
+                                        class="block truncate text-xs font-semibold"
+                                        :class="{ 'text-indigo-700': selected || active, 'text-slate-700': !selected && !active }"
                                     >
                                         {{ option.name || option.label }}
                                     </span>
-                                    <span 
-                                        v-if="option.email" 
-                                        class="block truncate text-xs"
-                                        :class="active ? 'text-indigo-100' : 'text-slate-400'"
-                                    >
-                                        {{ option.email }}
+                                    <span v-if="option.sublabel || option.email" class="block truncate text-[10px] text-slate-400 mt-0.5 opacity-80 group-hover:opacity-100">
+                                        {{ option.sublabel || option.email }}
                                     </span>
                                 </div>
+
                                 <span
                                     v-if="selected"
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3"
-                                    :class="{ 'text-white': active, 'text-indigo-600': !active }"
+                                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-500"
                                 >
-                                    <Check class="h-5 w-5" aria-hidden="true" />
+                                    <Check :size="14" stroke-width="3" />
                                 </span>
                             </li>
                         </ComboboxOption>

@@ -16,5 +16,6 @@ class ReferralStatusUpdateData extends Data
         public ?float $down_payment = null,
         public ?float $agency_fee = null,
         public ?string $notes = null,
+        public ?string $reminder_date = null,
     ) {}
 }

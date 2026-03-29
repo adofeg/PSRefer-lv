@@ -15,6 +15,7 @@ const statusOptions = [
     { value: 'Prospecto', label: 'Prospecto', color: 'bg-slate-100 text-slate-700' },
     { value: 'Contactado', label: 'Contactado', color: 'bg-blue-100 text-blue-700' },
     { value: 'En Proceso', label: 'En Proceso', color: 'bg-yellow-100 text-yellow-700' },
+    { value: 'Contactar más tarde', label: 'Contactar Luego', color: 'bg-purple-100 text-purple-700' },
     { value: 'Cerrado', label: 'Cerrado (Ganado)', color: 'bg-green-100 text-green-700' },
     { value: 'Perdido', label: 'Perdido', color: 'bg-red-100 text-red-700' }
 ];
@@ -22,11 +23,7 @@ const statusOptions = [
 const form = useForm({
     status: '',
     notes: '',
-    deal_value: null,
-    contract_id: '',
-    payment_method: '',
-    down_payment: null,
-    agency_fee: null,
+    reminder_date: '',
 });
 
 const selectedStatusLabel = computed(() => {
@@ -112,7 +109,7 @@ const closeModal = () => {
                             <!-- Comment (Required) -->
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-2">
-                                    Comentario del Cambio *
+                                    Comentarios *
                                     <span class="text-xs text-slate-500 font-normal">(Obligatorio)</span>
                                 </label>
                                 <textarea
@@ -125,71 +122,19 @@ const closeModal = () => {
                                 <p class="text-xs text-slate-500 mt-1">Este comentario quedará registrado en la bitácora</p>
                             </div>
 
-                            <!-- Financial Details (Visible for Closed) -->
-                            <div v-if="form.status === 'Cerrado'" class="space-y-4 pt-4 border-t border-slate-100">
-                                <h4 class="font-semibold text-slate-800 text-sm">Detalles Financieros</h4>
-                                
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Método de Pago</label>
-                                        <select
-                                            v-model="form.payment_method"
-                                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                        >
-                                            <option value="">Seleccionar...</option>
-                                            <option value="ACH">Transferencia ACH</option>
-                                            <option value="T. Crédito">Tarj. Crédito</option>
-                                            <option value="Efectivo">Efectivo</option>
-                                        </select>
-                                        <div v-if="form.errors.payment_method" class="text-red-500 text-xs mt-1">
-                                            {{ form.errors.payment_method }}
-                                        </div>
-                                    </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Valor Total de la Venta (Deal Value)</label>
-                                        <input
-                                            v-model="form.deal_value"
-                                            type="number"
-                                            step="0.01"
-                                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                            placeholder="0.00"
-                                        />
-                                        <div v-if="form.errors.deal_value" class="text-red-500 text-xs mt-1">
-                                            {{ form.errors.deal_value }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Anticipo Recibido (Down Payment)</label>
-                                        <input
-                                            v-model="form.down_payment"
-                                            type="number"
-                                            step="0.01"
-                                            :max="form.deal_value"
-                                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                            :class="{'border-red-300 focus:ring-red-500': form.down_payment > form.deal_value}"
-                                            placeholder="0.00"
-                                        />
-                                        <div v-if="form.errors.down_payment" class="text-red-500 text-xs mt-1">
-                                            {{ form.errors.down_payment }}
-                                        </div>
-                                        <div v-if="form.down_payment > form.deal_value" class="text-red-500 text-xs mt-1 font-bold">
-                                            El anticipo no puede ser mayor al total.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Payment Status Feedback -->
-                                <div v-if="form.deal_value > 0" class="p-3 rounded-lg text-sm border transition-all"
-                                    :class="form.down_payment >= form.deal_value ? 'bg-green-50 border-green-200 text-green-700' : 'bg-amber-50 border-amber-200 text-amber-700'">
-                                    <div class="flex items-center gap-2 font-bold">
-                                        <span v-if="form.down_payment >= form.deal_value">✓ COMISIÓN GENERADA (PENDIENTE DE APROBACIÓN)</span>
-                                        <span v-else>⚠ COMISIÓN QUEDARÁ PENDIENTE</span>
-                                    </div>
-                                    <p class="text-xs mt-1 opacity-90">
-                                        <span v-if="form.down_payment >= form.deal_value">El pago está completo. La comisión ha sido registrada y está pendiente de aprobación por administración.</span>
-                                        <span v-else>Solo hay un anticipo. La comisión se registrará pero no se procesará hasta completar el pago.</span>
-                                    </p>
+                            <!-- Reminder Date (Visible for ContactLater) -->
+                            <div v-if="form.status === 'Contactar más tarde'" class="space-y-4 pt-4 border-t border-slate-100">
+                                <h4 class="font-semibold text-slate-800 text-sm">Programar Recordatorio</h4>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">¿Cuándo volver a contactar? *</label>
+                                    <input
+                                        v-model="form.reminder_date"
+                                        type="date"
+                                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        required
+                                        :min="new Date().toISOString().split('T')[0]"
+                                    />
+                                    <p class="text-xs text-slate-500 mt-1">Este referido aparecerá en tu agenda para esta fecha.</p>
                                 </div>
                             </div>
                         </div>
@@ -201,7 +146,7 @@ const closeModal = () => {
                             </button>
                             <button
                                 @click="submitStatusChange"
-                                :disabled="!form.status || !form.notes.trim() || form.processing || (Number(form.down_payment) > Number(form.deal_value) && form.deal_value > 0)"
+                                :disabled="!form.status || !form.notes.trim() || form.processing || (form.status === 'Contactar más tarde' && !form.reminder_date)"
                                 class="flex-1 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {{ form.processing ? 'Guardando...' : 'Confirmar Cambio' }}

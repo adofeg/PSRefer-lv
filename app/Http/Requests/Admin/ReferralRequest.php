@@ -4,8 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
-use App\Enums\ReferralStatus;
 use App\Enums\AssociateRole;
+use App\Enums\ReferralStatus;
 use App\Models\Referral;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,6 +33,9 @@ class ReferralRequest extends FormRequest
             return [
                 'search' => ['nullable', 'string', 'max:120'],
                 'status' => ['nullable', 'string', 'max:50'],
+                'offering_id' => ['nullable', 'integer', 'exists:offerings,id'],
+                'associate_id' => ['nullable', 'integer', 'exists:associates,id'],
+                'sector_id' => ['nullable', 'integer', 'exists:sectors,id'],
             ];
         }
 
@@ -48,14 +51,12 @@ class ReferralRequest extends FormRequest
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
             'consent_confirmed' => 'boolean',
-            'client_name' => 'required|string|max:255',
-            'client_email' => 'required|email|max:255',
-            'client_phone' => 'required|string|max:50',
             'associate_id' => [
                 'nullable',
                 'integer',
                 'exists:associates,id',
             ],
+            'sector_id' => 'required|integer|exists:sectors,id',
         ];
 
         // Update context
@@ -81,7 +82,7 @@ class ReferralRequest extends FormRequest
 
             $user = $this->user();
             if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value
-)) {
+            )) {
                 $rules['status'] = ['prohibited'];
                 $rules['deal_value'] = ['prohibited'];
                 $rules['revenue_generated'] = ['prohibited'];
@@ -104,9 +105,7 @@ class ReferralRequest extends FormRequest
             notes: $this->validated('notes'),
             consent_confirmed: (bool) $this->validated('consent_confirmed'),
             associate_id: $associateId,
-            client_name: $this->validated('client_name'),
-            client_email: $this->validated('client_email'),
-            client_phone: $this->validated('client_phone'),
+            sector_id: (int) $this->validated('sector_id'),
         );
     }
 

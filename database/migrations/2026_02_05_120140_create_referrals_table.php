@@ -14,6 +14,7 @@ return new class extends Migration
             // Core
             $table->foreignId('associate_id')->nullable()->constrained('associates')->nullOnDelete();
             $table->foreignId('offering_id')->constrained('offerings');
+            $table->foreignId('sector_id')->nullable()->constrained('sectors')->nullOnDelete();
             $table->string('status')->default('Prospecto'); // Prospecto, Contactado, Negociación, Cerrado
 
             // Financial Details (Merged from add_total_payment_to_referrals_table)
@@ -30,6 +31,7 @@ return new class extends Migration
             $table->jsonb('metadata')->nullable();
 
             $table->timestamp('closed_at')->nullable();
+            $table->date('reminder_date')->nullable();
             $table->timestamp('paid_at')->nullable();
 
             $table->timestamps();

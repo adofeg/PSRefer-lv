@@ -34,6 +34,21 @@ class GetReferralsAction
             }
         });
 
+        // Apply Offering Filter
+        $query->when($filters['offering_id'] ?? null, function ($query, $offeringId) {
+            $query->where('offering_id', $offeringId);
+        });
+
+        // Apply Associate Filter
+        $query->when($filters['associate_id'] ?? null, function ($query, $associateId) {
+            $query->where('associate_id', $associateId);
+        });
+
+        // Apply Sector Filter
+        $query->when($filters['sector_id'] ?? null, function ($query, $sectorId) {
+            $query->where('sector_id', $sectorId);
+        });
+
         return $query->with(['offering:id,name,base_commission,commission_type', 'associate.user', 'commissions'])
             ->latest()
             ->paginate(10)

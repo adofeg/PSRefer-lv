@@ -13,6 +13,9 @@ class CommissionRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
+        ];
     }
 }
