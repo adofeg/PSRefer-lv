@@ -144,7 +144,6 @@ const hasPaidCommission = (referral) => {
                                 v-model="offeringFilter"
                                 :options="offerings"
                                 placeholder="Ofertas"
-                                :multiple="false"
                             />
                         </div>
 
@@ -154,7 +153,6 @@ const hasPaidCommission = (referral) => {
                                 v-model="associateFilter"
                                 :options="associates"
                                 placeholder="Asociados"
-                                :multiple="false"
                             />
                         </div>
 

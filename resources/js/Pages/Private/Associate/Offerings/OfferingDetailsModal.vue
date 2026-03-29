@@ -1,15 +1,17 @@
 <script setup>
 import Modal from '@/Components/UI/Modal.vue';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
-import { CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, MapPin, FileText, AlertCircle, Briefcase } from 'lucide-vue-next';
+import { X, CheckCircle, Share2, Download, Loader, ImageIcon, User, Mail, Phone, MapPin, FileText, AlertCircle, Briefcase } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
 import { copyText } from '@/Utils/clipboard';
 import { normalizeResource } from '@/Utils/inertia';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
+import MultiSelectCombobox from '@/Components/UI/MultiSelectCombobox.vue';
 
 const props = defineProps({
     show: Boolean,
     offering: Object,
+    sectors: Array,
 });
 
 const emit = defineEmits(['close']);
@@ -24,6 +26,7 @@ const isFormFinalStep = ref(true);
 
 const form = useForm({
     offering_id: '',
+    sector_id: '',
     form_data: {},
     notes: '',
     consent_confirmed: false,
@@ -35,8 +38,17 @@ watch(() => props.offering, (newVal) => {
         activeTab.value = 'details';
         form.reset();
         form.offering_id = offeringResource.value?.id || '';
+        form.sector_id = '';
         isFormFinalStep.value = true;
     }
+});
+
+const formattedSectors = computed(() => {
+    if (!props.sectors) return [];
+    return props.sectors.map(s => ({
+        id: s.id,
+        name: s.name,
+    }));
 });
 
 const submitReferral = () => {
@@ -251,34 +263,37 @@ const copyLink = async () => {
                 <X class="w-5 h-5" />
             </button>
 
-            <!-- Header -->
-            <div class="px-8 pt-8 pb-4 border-b border-slate-100 bg-white flex-shrink-0">
-                <div class="flex flex-col md:flex-row justify-between items-start gap-4 pr-10">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                             <span class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide uppercase">
+            <!-- Header with Glassmorphism -->
+            <div class="px-10 pt-10 pb-4 border-b border-slate-100 bg-white/50 backdrop-blur-xl flex-shrink-0 relative">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-6 pr-14">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                             <span class="bg-indigo-600/10 text-indigo-700 border border-indigo-200/50 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">
                                 {{ offering.category?.name || offering.category || 'Servicio' }}
                             </span>
                         </div>
-                        <h2 class="text-2xl md:text-3xl font-black text-slate-800 leading-tight tracking-tight">{{ offering.name }}</h2>
+                        <h2 class="text-3xl md:text-4xl font-black text-slate-800 leading-none tracking-tight">{{ offering.name }}</h2>
                     </div>
                 </div>
 
                 <!-- Tabs -->
-                <div class="flex items-center gap-6 mt-6 border-b border-white">
+                <div class="flex items-center gap-8 mt-10">
                     <button 
                         @click="activeTab = 'details'"
-                        class="pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors duration-200"
+                        class="pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all duration-300 relative group"
                         :class="activeTab === 'details' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'"
                     >
                         Detalles
+                        <div v-if="activeTab === 'details'" class="absolute -bottom-0.5 left-0 w-full h-0.5 bg-indigo-600 shadow-lg shadow-indigo-200"></div>
                     </button>
                     <button 
                         @click="activeTab = 'register'"
-                        class="pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors duration-200 flex items-center gap-2"
+                        class="pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all duration-300 flex items-center gap-2 relative group"
                         :class="activeTab === 'register' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'"
                     >
+                        <User :size="14" class="inline" />
                         Registrar Referido
+                        <div v-if="activeTab === 'register'" class="absolute -bottom-0.5 left-0 w-full h-0.5 bg-indigo-600 shadow-lg shadow-indigo-200"></div>
                     </button>
                 </div>
             </div>
@@ -376,9 +391,27 @@ const copyLink = async () => {
 
                 <!-- TAB 2: REGISTER -->
                 <div v-else-if="activeTab === 'register'" class="space-y-6">
-                    <form @submit.prevent="submitReferral" class="space-y-6">
+                    <form @submit.prevent="submitReferral" class="space-y-8">
                         
-                        <!-- Dynamic Form (Catalog-Driven) -->
+                        <!-- Sector Selection (If applicable) -->
+                        <div v-if="sectors && sectors.length" class="rounded-xl p-6 border-2 border-slate-200 hover:border-indigo-200 transition-colors bg-white">
+                            <label class="block text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2 mb-4">
+                                <Briefcase class="w-4 h-4 text-indigo-500" />
+                                Sector de Servicio
+                            </label>
+                            <p class="text-xs text-slate-500 mb-4">Selecciona el sector al que pertenece la empresa.</p>
+                            <div class="relative z-20">
+                                <MultiSelectCombobox 
+                                    v-model="form.sector_id"
+                                    :options="formattedSectors"
+                                    placeholder="Buscar sector..."
+                                />
+                            </div>
+                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-2 font-medium">
+                                {{ form.errors.sector_id }}
+                            </div>
+                        </div>
+
                         <!-- Dynamic Form (Catalog-Driven) -->
                         <div v-if="offeringResource?.form_schema">
                             <!-- Legacy Flat Schema Wrapper -->

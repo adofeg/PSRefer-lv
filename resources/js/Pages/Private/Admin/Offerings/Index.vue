@@ -205,8 +205,16 @@ const executeToggle = () => {
                        <div class="space-y-2 mb-4">
                            <div class="flex justify-between text-sm">
                                <span class="text-slate-500">Comisión Base:</span>
-                               <span class="font-semibold text-green-600">
-                                    {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
+                               <span class="font-semibold" :class="{
+                                   'text-green-600': !['manual', 'variable'].includes(offering.commission_type),
+                                   'text-indigo-600': offering.commission_type === 'manual',
+                                   'text-blue-600': offering.commission_type === 'variable'
+                               }">
+                                    <template v-if="offering.commission_type === 'manual'">A Negociar</template>
+                                    <template v-else-if="offering.commission_type === 'variable'">Variable</template>
+                                    <template v-else>
+                                        {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
+                                    </template>
                                </span>
                            </div>
                        </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import MultiSelectCombobox from '@/Components/UI/MultiSelectCombobox.vue';
 
 const props = defineProps({
     field: {
@@ -40,6 +41,17 @@ const parsedOptions = computed(() => {
     }
     
     return [];
+});
+const formattedOptions = computed(() => {
+    return parsedOptions.value.map(opt => {
+        if (typeof opt === 'object' && opt !== null) {
+            return {
+                id: opt.id || opt.value,
+                name: opt.name || opt.label || opt.id || opt.value
+            };
+        }
+        return { id: opt, name: opt };
+    });
 });
 </script>
 
@@ -109,22 +121,15 @@ const parsedOptions = computed(() => {
             :class="inputClass"
         >
 
-        <select 
+        <MultiSelectCombobox 
             v-if="field.type === 'select'"
             :id="field.name"
             v-model="inputValue"
+            :options="formattedOptions"
+            :placeholder="field.placeholder || 'Seleccionar...'"
             :required="field.required"
-            :class="inputClass"
-        >
-            <option value="">{{ field.placeholder || 'Seleccionar...' }}</option>
-            <option 
-                v-for="option in parsedOptions" 
-                :key="option" 
-                :value="option"
-            >
-                {{ option }}
-            </option>
-        </select>
+            class="mt-2"
+        />
 
         <!-- Textarea -->
         <textarea 

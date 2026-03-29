@@ -1,10 +1,11 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Briefcase, FileText, CheckCircle, AlertCircle } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { ArrowLeft, Briefcase, FileText, CheckCircle, AlertCircle, LayoutGrid, Loader } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
+import MultiSelectCombobox from '@/Components/UI/MultiSelectCombobox.vue';
 
 const props = defineProps({
     offerings: Array,
@@ -24,6 +25,18 @@ const form = useForm({
     form_data: {},
     notes: '',
     consent_confirmed: false
+});
+
+const formattedSectors = computed(() => {
+    return (props.sectors || []).map(s => ({ id: s.id, name: s.name }));
+});
+
+const formattedOfferings = computed(() => {
+    return offeringsList.value.map(o => ({ 
+        id: o.id, 
+        name: o.name,
+        sublabel: `Comisión: ${o.commission_type === 'percentage' ? `${o.base_commission}%` : formatCurrency(o.base_commission)}`
+    }));
 });
 
 const isFormFinalStep = ref(true);
@@ -69,39 +82,46 @@ const formatCurrency = (amount) => {
                 </div>
             </div>
 
-            <!-- Form Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <form @submit.prevent="submit">
-                    <!-- Section 0: Offering Selection -->
-                    <div class="p-6 md:p-8 border-b border-slate-100 bg-slate-50/50">
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
-                             <Briefcase class="w-4 h-4 text-slate-400" />
-                            Servicio de Interés
-                        </h2>
-                        <div class="relative">
-                            <select v-model="form.offering_id" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-white" required>
-                                <option value="" disabled>Selecciona un servicio del catálogo...</option>
-                                <option v-for="offering in offeringsList" :key="offering.id" :value="offering.id">
-                                    {{ offering.name }} — Comisión: {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
-                                </option>
-                            </select>
-                        </div>
-                        <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1"><AlertCircle class="w-3 h-3" /> {{ form.errors.offering_id }}</div>
-                        <p class="text-xs text-slate-500 mt-2 ml-1">Selecciona el servicio que le interesa al cliente para desbloquear el formulario.</p>
+            <!-- Form Card with Refined Styling -->
+            <div class="bg-white/70 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/60">
+                <form @submit.prevent="submit" class="rounded-3xl">
+                    <!-- Section 0: Offering & Sector Selection -->
+                    <div class="p-10 border-b border-slate-100 bg-slate-50/30 relative z-20">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <!-- Offering Selection -->
+                            <div>
+                                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                     <LayoutGrid class="w-3.5 h-3.5 text-indigo-500" />
+                                    Servicio de Interés
+                                </h2>
+                                <MultiSelectCombobox 
+                                    v-model="form.offering_id"
+                                    :options="formattedOfferings"
+                                    placeholder="Buscar servicio..."
+                                    required
+                                />
+                                <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-2 font-medium flex items-center gap-1">
+                                    <AlertCircle class="w-3 h-3" /> {{ form.errors.offering_id }}
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-3 ml-1 font-medium italic">Selecciona el servicio para habilitar los campos específicos.</p>
+                            </div>
 
-                        <!-- Sector Selection -->
-                        <div class="mt-6 border-t border-slate-200 pt-6">
-                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
-                                <Briefcase class="w-4 h-4 text-slate-400" />
-                                Sector de Servicio
-                            </h2>
-                            <select v-model="form.sector_id" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4 transition shadow-sm bg-white" required>
-                                <option value="" disabled>Selecciona el sector del referido...</option>
-                                <option v-for="sector in sectors" :key="sector.id" :value="sector.id">
-                                    {{ sector.name }}
-                                </option>
-                            </select>
-                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1"><AlertCircle class="w-3 h-3" /> {{ form.errors.sector_id }}</div>
+                            <!-- Sector Selection -->
+                            <div>
+                                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Briefcase class="w-3.5 h-3.5 text-indigo-500" />
+                                    Sector de Servicio
+                                </h2>
+                                <MultiSelectCombobox 
+                                    v-model="form.sector_id"
+                                    :options="formattedSectors"
+                                    placeholder="Seleccionar sector..."
+                                    required
+                                />
+                                <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-2 font-medium flex items-center gap-1">
+                                    <AlertCircle class="w-3 h-3" /> {{ form.errors.sector_id }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -149,14 +169,14 @@ const formatCurrency = (amount) => {
                     </div>
 
                     <!-- Actions -->
-                    <div class="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 items-center">
-                         <Link :href="route('associate.referrals.index')" class="px-5 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg font-medium text-sm transition">
-                            Cancelar
+                    <div class="p-10 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-6 items-center">
+                         <Link :href="route('associate.referrals.index')" class="px-6 py-3 text-slate-400 hover:text-slate-600 font-black text-xs uppercase tracking-widest transition">
+                            CANCELAR
                         </Link>
-                        <button v-if="isFormFinalStep" type="submit" :disabled="form.processing || !isFormValid" class="flex items-center gap-2 bg-indigo-600 text-white px-8 py-2.5 rounded-xl hover:bg-indigo-700 transition font-bold text-sm shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transform active:scale-95 animate-fade-in">
-                            <CheckCircle v-if="!form.processing" class="w-4 h-4" />
-                            <span v-else class="animate-pulse">Guardando...</span>
-                            {{ form.processing ? '' : 'Crear Referido' }}
+                        <button v-if="isFormFinalStep" type="submit" :disabled="form.processing || !isFormValid" class="flex items-center gap-3 bg-indigo-600 text-white px-12 py-4 rounded-2xl hover:bg-indigo-700 transition font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transform active:scale-95 animate-fade-in group">
+                            <Loader v-if="form.processing" class="animate-spin w-4 h-4" />
+                            <CheckCircle v-else class="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span>{{ form.processing ? 'Guardando...' : 'Crear Referido' }}</span>
                         </button>
                     </div>
                 </form>

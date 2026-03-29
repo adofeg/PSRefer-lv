@@ -8,7 +8,7 @@ import {
     ComboboxOption,
     TransitionRoot,
 } from '@headlessui/vue';
-import { Check, ChevronsUpDown, X, ChevronDown } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, X, ChevronDown, Search } from 'lucide-vue-next';
 
 const props = defineProps({
     modelValue: {
@@ -30,7 +30,7 @@ const props = defineProps({
     },
     multiple: {
         type: Boolean,
-        default: true,
+        default: false,
     }
 });
 
@@ -146,7 +146,7 @@ const getLabel = (id) => {
                     @after-leave="query = ''"
                 >
                     <ComboboxOptions
-                        class="absolute mt-1.5 max-h-72 w-full overflow-auto rounded-2xl bg-white py-2 text-base shadow-2xl ring-1 ring-slate-900/5 focus:outline-none sm:text-sm z-50 border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent animate-in fade-in zoom-in duration-200"
+                        class="absolute mt-1.5 max-h-60 w-full overflow-auto rounded-2xl bg-white py-2 text-base shadow-2xl ring-1 ring-slate-900/5 focus:outline-none sm:text-sm z-50 border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent animate-in fade-in zoom-in duration-200"
                     >
                         <!-- Phantom null option to prevent auto-select on blur -->
                         <ComboboxOption v-if="!multiple" :value="null" class="hidden" />

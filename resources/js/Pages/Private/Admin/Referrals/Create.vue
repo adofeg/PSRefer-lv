@@ -4,6 +4,8 @@ import { Head, useForm } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
 import Modal from '@/Components/UI/Modal.vue';
 import DynamicForm from '@/Components/Forms/DynamicForm.vue';
+import MultiSelectCombobox from '@/Components/UI/MultiSelectCombobox.vue';
+import { Briefcase, User, LayoutGrid, CheckCircle, ArrowLeft, Loader } from 'lucide-vue-next';
 import { computed, watch, ref } from 'vue';
 import { normalizeCollection, normalizeResource } from '@/Utils/inertia';
 
@@ -28,6 +30,26 @@ const form = useForm({
     form_data: {},
     notes: '',
     consent_confirmed: false
+});
+
+const formattedSectors = computed(() => {
+    return (props.sectors || []).map(s => ({ id: s.id, name: s.name }));
+});
+
+const formattedOfferings = computed(() => {
+    return offeringsList.value.map(o => ({ 
+        id: o.id, 
+        name: o.name,
+        sublabel: `Comisión: ${o.commission_type === 'percentage' ? `${o.base_commission}%` : `$${o.base_commission}`}`
+    }));
+});
+
+const formattedAssociates = computed(() => {
+    return associatesList.value.map(a => ({ 
+        id: a.id, 
+        name: a.name,
+        sublabel: a.email
+    }));
 });
 
 const isFormFinalStep = ref(true);
@@ -68,60 +90,52 @@ const submit = () => {
 
             <Card clazz="p-8 shadow-xl border-slate-200/50 bg-white/50 backdrop-blur-sm rounded-3xl">
                 <!-- Change submit to open modal if valid -->
-                <form @submit.prevent="showConfirmModal = true" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Offering Selector (if not pre-selected) -->
+                <!-- Section 0: Selectors -->
+                <form @submit.prevent="showConfirmModal = true" class="space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 bg-slate-50/30 p-8 rounded-3xl border border-slate-100 relative z-30">
+                        <!-- Offering Selector -->
                         <div v-if="!selectedOffering && offeringsList.length">
-                            <label class="block text-xs font-black uppercase text-slate-400 tracking-widest mb-2">
+                            <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                                <LayoutGrid class="w-3.5 h-3.5 text-indigo-500" />
                                 Selecciona la Oferta <span class="text-red-500">*</span>
                             </label>
-                            <select 
-                                v-model="form.offering_id" 
+                            <MultiSelectCombobox 
+                                v-model="form.offering_id"
+                                :options="formattedOfferings"
+                                placeholder="Buscar oferta..."
                                 required
-                                class="w-full border-slate-200 rounded-2xl p-4 text-base font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all cursor-pointer"
-                            >
-                                <option value="">Seleccionar...</option>
-                                <option v-for="off in offeringsList" :key="off.id" :value="off.id">
-                                    {{ off.name }} - {{ off.commission_type === 'percentage' ? `${off.base_commission}%` : `$${off.base_commission}` }} comisión
-                                </option>
-                            </select>
-                            <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-1">
+                            />
+                            <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-2 font-medium">
                                 {{ form.errors.offering_id }}
                             </div>
                         </div>
 
-                        <!-- Associate Selector (Admin Only) -->
+                        <!-- Associate Selector -->
                         <div v-if="associatesList.length">
-                            <label class="block text-xs font-black uppercase text-slate-400 tracking-widest mb-2">
-                                Asignar a Asociado (Opcional)
+                            <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                                <User class="w-3.5 h-3.5 text-indigo-500" />
+                                Asignar a Asociado
                             </label>
-                            <select 
-                                v-model="form.associate_id" 
-                                class="w-full border-slate-200 rounded-2xl p-4 text-base font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all cursor-pointer"
-                            >
-                                <option value="">Seleccionar Asociado...</option>
-                                <option v-for="assoc in associatesList" :key="assoc.id" :value="assoc.id">
-                                    {{ assoc.name }}
-                                </option>
-                            </select>
+                            <MultiSelectCombobox 
+                                v-model="form.associate_id"
+                                :options="formattedAssociates"
+                                placeholder="Buscar asociado..."
+                            />
                         </div>
 
                         <!-- Sector Selector -->
                         <div>
-                            <label class="block text-xs font-black uppercase text-slate-400 tracking-widest mb-2">
+                            <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                                <Briefcase class="w-3.5 h-3.5 text-indigo-500" />
                                 Sector de Servicio <span class="text-red-500">*</span>
                             </label>
-                            <select 
-                                v-model="form.sector_id" 
+                            <MultiSelectCombobox 
+                                v-model="form.sector_id"
+                                :options="formattedSectors"
+                                placeholder="Seleccionar sector..."
                                 required
-                                class="w-full border-slate-200 rounded-2xl p-4 text-base font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all cursor-pointer"
-                            >
-                                <option value="">Seleccionar Sector...</option>
-                                <option v-for="sector in sectors" :key="sector.id" :value="sector.id">
-                                    {{ sector.name }}
-                                </option>
-                            </select>
-                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-1">
+                            />
+                            <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-2 font-medium">
                                 {{ form.errors.sector_id }}
                             </div>
                         </div>
@@ -158,21 +172,22 @@ const submit = () => {
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-4 pt-10 border-t border-slate-100">
+                    <div class="flex justify-end gap-6 pt-10 border-t border-slate-100">
                         <button 
                             type="button" 
                             @click="$inertia.visit(route('admin.referrals.index'))" 
-                            class="px-8 py-4 text-sm font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition"
+                            class="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition"
                         >
                             CANCELAR
                         </button>
                         <button 
                             v-if="isFormFinalStep"
                             type="submit" 
-                            class="bg-indigo-600 text-white px-10 py-4 rounded-2xl hover:bg-indigo-700 font-black text-sm uppercase tracking-widest transition shadow-xl shadow-indigo-200 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed animate-fade-in" 
+                            class="bg-indigo-600 text-white px-12 py-4 rounded-2xl hover:bg-indigo-700 font-black text-xs uppercase tracking-widest transition shadow-xl shadow-indigo-200 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group flex items-center gap-3 animate-fade-in" 
                             :disabled="form.processing || !isFormValid"
                         >
-                            {{ form.processing ? 'Procesando...' : 'Siguiente Paso' }}
+                            {{ form.processing ? 'PROCESANDO...' : 'SIGUIENTE PASO' }}
+                            <CheckCircle v-if="!form.processing" :size="16" class="group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </form>
@@ -182,8 +197,11 @@ const submit = () => {
         <!-- Confirmation Modal -->
         <Modal :show="showConfirmModal" @close="showConfirmModal = false" maxWidth="lg">
             <div class="p-8">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-2">Confirmar Referido</h2>
-                <p class="text-slate-500 text-sm mb-8">Por favor, añade cualquier nota adicional y confirma el consentimiento del cliente antes de registrar el referido.</p>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-2 flex items-center gap-3">
+                    <CheckCircle class="text-indigo-600" />
+                    Confirmar Referido
+                </h2>
+                <p class="text-slate-500 text-sm mb-10 leading-relaxed font-medium">Por favor, añade cualquier nota adicional y confirma el consentimiento del cliente antes de registrar el referido.</p>
 
                 <div class="space-y-6">
                     <!-- Notes -->

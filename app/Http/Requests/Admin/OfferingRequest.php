@@ -77,14 +77,17 @@ class OfferingRequest extends FormRequest
 
     public function toData(): OfferingUpsertData
     {
+        $commissionType = $this->validated('commission_type', 'percentage');
+        $baseCommission = in_array($commissionType, ['manual', 'variable']) ? 0.00 : ($this->validated('base_commission') ?? 0.00);
+
         return new OfferingUpsertData(
             name: $this->validated('name', $this->route('offering')?->name),
             category_id: $this->validated('category_id'),
             category: $this->validated('category'),
             type: $this->validated('type'),
             description: $this->validated('description'),
-            base_commission: $this->validated('base_commission'),
-            commission_type: $this->validated('commission_type', 'percentage'),
+            base_commission: $baseCommission,
+            commission_type: $commissionType,
             form_schema: $this->validated('form_schema'),
             commission_config: $this->validated('commission_config'),
             commission_rules: $this->validated('commission_rules'),

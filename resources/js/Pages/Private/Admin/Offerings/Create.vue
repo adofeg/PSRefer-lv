@@ -215,10 +215,9 @@ const submit = () => {
                                     </select>
                                 </div>
 
-                                <div class="space-y-2">
+                                <div v-if="!['manual', 'variable'].includes(form.commission_type)" class="space-y-2 animate-fade-in">
                                     <label class="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">
                                         {{ form.commission_type === 'percentage' ? 'Comisión Base (%)' : 'Comisión Base ($)' }}
-                                        <span v-if="['manual', 'variable'].includes(form.commission_type)" class="text-indigo-400 italic">(Opcional/Ref)</span>
                                     </label>
                                     <div class="relative">
                                         <input v-model="form.base_commission" type="number" step="0.01" class="w-full border-slate-200 rounded-2xl p-4 text-sm font-black text-indigo-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all pl-10" />
@@ -245,7 +244,12 @@ const submit = () => {
                         <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                             <Info :size="20" class="text-blue-600" />
                         </div>
-                        <p class="text-sm text-blue-700 font-medium">Se aplicará la comisión base de <strong class="text-blue-900">{{ form.base_commission }}{{ form.commission_type === 'percentage' ? '%' : '$' }}</strong> para todos los referidos si no hay reglas adicionales.</p>
+                        <p v-if="['manual', 'variable'].includes(form.commission_type)" class="text-sm text-blue-700 font-medium">
+                            La comisión será ingresada manualmente (<strong class="text-blue-900">Negociada</strong>) en el momento de cerrar cada referido.
+                        </p>
+                        <p v-else class="text-sm text-blue-700 font-medium">
+                            Se aplicará la comisión base de <strong class="text-blue-900">{{ form.base_commission }}{{ form.commission_type === 'percentage' ? '%' : '$' }}</strong> para todos los referidos si no hay reglas adicionales.
+                        </p>
                     </div>
 
                     <div v-else class="space-y-6">
@@ -285,6 +289,7 @@ const submit = () => {
                                             :options="commissionable_roles.map(r => ({ id: r, name: r }))"
                                             placeholder="Seleccionar roles..."
                                             :disabled="commissionable_roles.length === 1"
+                                            multiple
                                         />
                                         <p v-if="commissionable_roles.length === 1" class="text-[9px] text-slate-400 font-medium italic">
                                             Rol '{{ commissionable_roles[0] }}' seleccionado automáticamente (único rol comisionable).
@@ -296,6 +301,7 @@ const submit = () => {
                                             v-model="rule.user_ids" 
                                             :options="all_associates"
                                             placeholder="Buscar por nombre o email..."
+                                            multiple
                                         />
                                         <p class="text-[9px] text-slate-400 font-medium">Si seleccionas usuarios, la regla solo aplicará a ellos.</p>
                                     </div>

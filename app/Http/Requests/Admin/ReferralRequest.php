@@ -75,6 +75,7 @@ class ReferralRequest extends FormRequest
                 'down_payment' => 'nullable|numeric|min:0|lte:deal_value',
                 'agency_fee' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
+                'reminder_date' => 'nullable|date',
                 // Client data usually editable too? If so, merge.
                 // But specifically for Referral Status Updates, often fields change.
                 // Let's keep it comprehensive.
@@ -123,7 +124,8 @@ class ReferralRequest extends FormRequest
             payment_method: $this->validated('payment_method'),
             down_payment: $this->validated('down_payment'),
             agency_fee: $this->validated('agency_fee'),
-            notes: $this->validated('notes')
+            notes: $this->validated('notes'),
+            reminder_date: $this->validated('reminder_date')
         );
     }
 }

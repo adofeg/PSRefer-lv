@@ -25,6 +25,7 @@ class OfferingController extends AssociateController
         return Inertia::render('Private/Associate/Offerings/Index', [
             'offerings' => $offerings,
             'filters' => $request->only(['search']),
+            'sectors' => \App\Models\Sector::all(['id', 'name']),
         ]);
     }
 

@@ -4,17 +4,17 @@ Este documento detalla los pasos para verificar las nuevas funcionalidades imple
 
 ## 1. Categorías de Referidos (Sectores de Servicio)
 - [x] **Creación (Admin):** Ir a *Referencias > Nuevo*. Verificar que aparezca el dropdown "Sector de Servicio" con opciones como "Realtor", "Contador", "Agente de seguros".
-- [ ] **Creación (Asociado):** Iniciar sesión como asociado. Ir a *Nueva Referencia*. Verificar que el campo "Sector de Servicio" sea obligatorio y funcione correctamente.
-- [ ] **Filtrado en Pipeline:** Ir al Pipeline de Admin. Verificar los nuevos filtros por "Servicio" y "Sector". Filtrar por un sector específico y confirmar que solo aparezcan esos referidos.
-- [ ] **Visualización:** Confirmar que los datos de contacto (Nombre, Email, Teléfono) del cliente se guardan correctamente en los campos del modelo, no solo en metadata.
+- [x] **Creación (Asociado):** Iniciar sesión como asociado. Ir a *Nueva Referencia*. Verificar que el campo "Sector de Servicio" sea obligatorio y funcione correctamente.
+- [x] **Filtrado en Pipeline:** Ir al Pipeline de Admin. Verificar los nuevos filtros por "Servicio" y "Sector". Filtrar por un sector específico y confirmar que solo aparezcan esos referidos.
+- [x] **Visualización:** Confirmar que los datos de contacto (Nombre, Email, Teléfono) del cliente se guardan correctamente en los campos del modelo, no solo en metadata.
 
 ## 2. Agenda y "Contactar más tarde"
-- [ ] **Programación:** Cambiar el estado de un referido a "Contactar más tarde". Verificar que pida una fecha de recordatorio.
-- [ ] **UI:** Verificar que en el modal de cambio de estado ahora diga "Comentarios" en lugar de "Comentario del cambio".
-- [ ] **Automatización:** (Prueba técnica) Ejecutar `php artisan app:process-referral-reminders`. Confirmar que los referidos cuya fecha de recordatorio sea hoy o anterior pasen automáticamente a estado "Prospecto".
+- [x] **Programación:** Cambiar el estado de un referido a "Contactar más tarde". Verificar que pida una fecha de recordatorio.
+- [x] **UI:** Verificar que en el modal de cambio de estado ahora diga "Comentarios" en lugar de "Comentario del cambio".
+- [x] **Automatización:** (Prueba técnica) Ejecutar `php artisan app:process-referral-reminders`. Confirmar que los referidos cuya fecha de recordatorio sea hoy o anterior pasen automáticamente a estado "Prospecto".
 
 ## 3. Limpieza de Comisiones
-- [ ] **Tipos de Comisión:** Ir a la edición de una Oferta en Admin. Verificar que el dropdown de tipos de comisión incluya: "Fijo ($)", "Porcentaje (%)", "Manual (Negociado)" y "Variable (Según servicio)".
+- [x] **Tipos de Comisión:** Ir a la edición de una Oferta en Admin. Verificar que el dropdown de tipos de comisión incluya: "Fijo ($)", "Porcentaje (%)", "Manual (Negociado)" y "Variable (Según servicio)".
 - [ ] **Estados:** Verificar en el listado de comisiones que ya no aparezca la opción de estado "Anulada" (Void).
 - [ ] **Dashboard:** Confirmar que el widget "Resumen del Sistema" muestre correctamente el conteo de todos los "Pendientes" (incluyendo Contactados, En Proceso y Contactar Luego).
 
