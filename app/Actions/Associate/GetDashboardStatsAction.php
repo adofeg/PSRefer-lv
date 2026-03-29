@@ -40,17 +40,15 @@ class GetDashboardStatsAction
         // Actually, for the chart we need a specific query to filter by date.
 
         // 1. Calculate KPIs (Global Context)
-        $totalEarned = $referrals->where('status', ReferralStatus::Paid->value)->sum('revenue_generated');
+        $totalEarned = Commission::where('associate_id', $associate->id)
+            ->where('status', \App\Enums\CommissionStatus::Paid->value)
+            ->sum('amount');
 
-        $pendingReferrals = $referrals->filter(function ($r) {
-            return in_array($r->status, [ReferralStatus::Closed->value, ReferralStatus::InProcess->value])
-                   && $r->status !== ReferralStatus::Paid->value;
-        });
-        $pendingEarned = $pendingReferrals->sum(fn ($r) => $this->calculatePotential($r));
+        $pendingEarned = Commission::where('associate_id', $associate->id)
+            ->where('status', \App\Enums\CommissionStatus::Pending->value)
+            ->sum('amount');
 
-        $lostReferrals = $referrals->where('status', ReferralStatus::Lost->value);
-        $lostPotential = $lostReferrals->sum(fn ($r) => $this->calculatePotential($r));
-
+        $lostCount = $referrals->where('status', ReferralStatus::Lost->value)->count();
         $totalCount = $referrals->count();
         $wonCount = $referrals->whereIn('status', [ReferralStatus::Closed->value, ReferralStatus::Paid->value])->count();
         $conversionRate = $totalCount > 0 ? round(($wonCount / $totalCount) * 100, 1) : 0;
@@ -63,7 +61,7 @@ class GetDashboardStatsAction
                 'offering_name' => $r->offering?->name ?? 'N/A',
                 'status' => $r->status,
                 'date' => $r->created_at->format('d/m/Y'),
-                'amount' => $r->revenue_generated > 0 ? $r->revenue_generated : $this->calculatePotential($r),
+                'amount' => $r->commissions->sum('amount'),
             ];
         });
 
@@ -81,10 +79,7 @@ class GetDashboardStatsAction
             $values = [];
 
             foreach ($labels as $day) {
-                // Count referrals for this day
-                $count = $filteredReferrals->filter(function ($r) use ($day) {
-                    return $r->created_at->day == $day;
-                })->count();
+                $count = $filteredReferrals->filter(fn ($r) => $r->created_at->day == $day)->count();
                 $values[] = $count;
             }
         } else {
@@ -94,9 +89,7 @@ class GetDashboardStatsAction
             $values = [];
 
             foreach (range(1, 12) as $m) {
-                $count = $filteredReferrals->filter(function ($r) use ($m) {
-                    return $r->created_at->month == $m;
-                })->count();
+                $count = $filteredReferrals->filter(fn ($r) => $r->created_at->month == $m)->count();
                 $values[] = $count;
             }
         }
@@ -104,7 +97,7 @@ class GetDashboardStatsAction
         return [
             'total_earned' => $totalEarned,
             'pending_earned' => $pendingEarned,
-            'lost_potential' => $lostPotential,
+            'lost_referrals' => $lostCount,
             'total_referrals' => $totalCount,
             'conversion_rate' => $conversionRate,
             'recent_activity' => $recentActivity,
@@ -140,37 +133,6 @@ class GetDashboardStatsAction
 
     private function calculatePotential(Referral $referral): float
     {
-        // If already has revenue generated (e.g. partial payment or closed), use it
-        if ($referral->revenue_generated > 0) {
-            return $referral->revenue_generated;
-        }
-
-        $offering = $referral->offering;
-        if (! $offering) {
-            return 0.0;
-        }
-
-        $config = $offering->commission_config ?? [];
-
-        // Fixed Amount
-        if (isset($config['fixed_amount']) && $config['fixed_amount'] > 0) {
-            return (float) $config['fixed_amount'];
-        }
-
-        // Percentage
-        // We need a deal deal_value to calc percentage.
-        // If lost, we might not have it. If In Process, we might.
-        if (isset($config['percentage']) && $config['percentage'] > 0) {
-            $value = $referral->deal_value ?? 0; // If deal_value is null, potential is 0
-
-            return ($value * $config['percentage']) / 100;
-        }
-
-        // Fallback to legacy fields if config missing
-        if ($offering->base_commission > 0) {
-            return $offering->base_commission;
-        }
-
-        return 0.0;
+        return $referral->commissions()->where('status', \App\Enums\CommissionStatus::Pending->value)->sum('amount');
     }
 }

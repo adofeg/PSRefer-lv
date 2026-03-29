@@ -200,8 +200,8 @@ const submit = () => {
                     <div class="bg-indigo-50/30 p-8 rounded-3xl border border-indigo-100/50 shadow-sm mb-8">
                         <div class="flex flex-col lg:flex-row lg:items-center gap-8">
                             <div class="lg:w-1/3">
-                                <h4 class="text-sm font-black uppercase text-indigo-600 tracking-widest mb-1">Comisión Base</h4>
-                                <p class="text-xs text-slate-500 font-medium">Define la tasa por defecto si no se cumplen reglas específicas.</p>
+                                <h4 class="text-sm font-black uppercase text-indigo-600 tracking-widest mb-1">Cálculo de Comisión (Informativo)</h4>
+                                <p class="text-xs text-slate-500 font-medium">Define los valores base para la generación automática de la comisión al cerrar el referido.</p>
                             </div>
                             
                             <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,12 +210,11 @@ const submit = () => {
                                     <select v-model="form.commission_type" class="w-full border-slate-200 rounded-2xl p-4 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white transition-all font-bold">
                                         <option value="fixed">Fijo ($)</option>
                                         <option value="percentage">Porcentaje (%)</option>
-                                        <option value="manual">Manual (Negociado)</option>
-                                        <option value="variable">Variable (Según servicio)</option>
+                                        <option value="variable">Variable (Manual)</option>
                                     </select>
                                 </div>
 
-                                <div v-if="!['manual', 'variable'].includes(form.commission_type)" class="space-y-2 animate-fade-in">
+                                <div v-if="form.commission_type === 'fixed' || form.commission_type === 'percentage'" class="space-y-2 animate-fade-in">
                                     <label class="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">
                                         {{ form.commission_type === 'percentage' ? 'Comisión Base (%)' : 'Comisión Base ($)' }}
                                     </label>
@@ -245,10 +244,10 @@ const submit = () => {
                             <Info :size="20" class="text-blue-600" />
                         </div>
                         <p v-if="['manual', 'variable'].includes(form.commission_type)" class="text-sm text-blue-700 font-medium">
-                            La comisión será ingresada manualmente (<strong class="text-blue-900">Negociada</strong>) en el momento de cerrar cada referido.
+                            La comisión se generará como <strong class="text-blue-900">Pendiente ($0)</strong> al cerrar el referido, y podrá ser editada manualmente en el panel de comisiones.
                         </p>
                         <p v-else class="text-sm text-blue-700 font-medium">
-                            Se aplicará la comisión base de <strong class="text-blue-900">{{ form.base_commission }}{{ form.commission_type === 'percentage' ? '%' : '$' }}</strong> para todos los referidos si no hay reglas adicionales.
+                            Se generará una comisión <strong class="text-blue-900">Pendiente</strong> basada en el cálculo de <strong class="text-blue-900">{{ form.base_commission }}{{ form.commission_type === 'percentage' ? '%' : '$' }}</strong>, que podrá ser ajustada antes de pagar.
                         </p>
                     </div>
 

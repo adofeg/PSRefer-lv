@@ -123,27 +123,29 @@ const hasPaidCommission = (referral) => {
             </div>
 
             <!-- Professional Filter Bar -->
-            <div class="bg-slate-50/50 p-3 rounded-2xl border border-slate-200/60 backdrop-blur-sm flex flex-col md:flex-row gap-4 items-center justify-between relative z-30">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 items-center justify-between relative z-30">
                 <!-- Search -->
                 <div class="relative w-full md:w-96 group">
-                    <Search :size="16" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-400 transition-colors" />
+                    <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500" />
                     <input 
                         v-model="searchTerm"
                         type="text" 
                         placeholder="Buscar por cliente o contacto..." 
-                        class="pl-11 pr-4 py-2 w-full bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all text-xs"
+                        class="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                     >
                 </div>
 
                 <!-- Filters Group -->
-                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                    <div class="flex flex-row flex-wrap gap-2 items-center">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div class="flex flex-row flex-wrap gap-3 items-center">
                         <!-- Ofrecimiento Filter -->
                         <div class="relative w-full sm:w-auto sm:min-w-[150px] sm:max-w-[220px]">
                             <MultiSelectCombobox 
                                 v-model="offeringFilter"
                                 :options="offerings"
                                 placeholder="Ofertas"
+                                wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-700"
                             />
                         </div>
 
@@ -153,6 +155,8 @@ const hasPaidCommission = (referral) => {
                                 v-model="associateFilter"
                                 :options="associates"
                                 placeholder="Asociados"
+                                wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-700"
                             />
                         </div>
 
@@ -163,6 +167,8 @@ const hasPaidCommission = (referral) => {
                                 :options="sectors"
                                 placeholder="Sectores"
                                 :multiple="false"
+                                wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-700"
                             />
                         </div>
 
@@ -172,7 +178,10 @@ const hasPaidCommission = (referral) => {
                                 v-model="statusFilter"
                                 :options="statuses"
                                 placeholder="Estados"
+                                align="right"
                                 :multiple="false"
+                                wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-700"
                             />
                         </div>
 
@@ -252,9 +261,6 @@ const hasPaidCommission = (referral) => {
                                 <td class="px-6 py-4 text-right font-mono text-[12px]">
                                     <span v-if="referral.estimated_commission && referral.estimated_commission !== '-'" class="text-emerald-600 font-black">
                                         {{ referral.estimated_commission }}
-                                    </span>
-                                    <span v-else-if="referral.offering?.base_commission" class="text-emerald-600 font-black">
-                                        {{ formatCurrency(referral.offering.base_commission) }}
                                     </span>
                                     <span v-else class="text-slate-300">-</span>
                                     

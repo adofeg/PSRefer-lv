@@ -15,7 +15,7 @@ Este documento detalla los pasos para verificar las nuevas funcionalidades imple
 
 ## 3. Limpieza de Comisiones
 - [x] **Tipos de Comisión:** Ir a la edición de una Oferta en Admin. Verificar que el dropdown de tipos de comisión incluya: "Fijo ($)", "Porcentaje (%)", "Manual (Negociado)" y "Variable (Según servicio)".
-- [ ] **Estados:** Verificar en el listado de comisiones que ya no aparezca la opción de estado "Anulada" (Void).
+- [x] **Estados:** Verificar en el listado de comisiones que ya no aparezca la opción de estado "Anulada" (Void).
 - [ ] **Dashboard:** Confirmar que el widget "Resumen del Sistema" muestre correctamente el conteo de todos los "Pendientes" (incluyendo Contactados, En Proceso y Contactar Luego).
 
 ## 4. Datos del Asociado

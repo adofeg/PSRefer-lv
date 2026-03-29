@@ -103,6 +103,8 @@ const submit = () => {
                                 v-model="form.offering_id"
                                 :options="formattedOfferings"
                                 placeholder="Buscar oferta..."
+                                wrapperClass="bg-white border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-400"
                                 required
                             />
                             <div v-if="form.errors.offering_id" class="text-red-500 text-xs mt-2 font-medium">
@@ -120,6 +122,8 @@ const submit = () => {
                                 v-model="form.associate_id"
                                 :options="formattedAssociates"
                                 placeholder="Buscar asociado..."
+                                wrapperClass="bg-white border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-400"
                             />
                         </div>
 
@@ -133,6 +137,8 @@ const submit = () => {
                                 v-model="form.sector_id"
                                 :options="formattedSectors"
                                 placeholder="Seleccionar sector..."
+                                wrapperClass="bg-white border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-400"
                                 required
                             />
                             <div v-if="form.errors.sector_id" class="text-red-500 text-xs mt-2 font-medium">

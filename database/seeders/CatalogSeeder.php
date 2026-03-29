@@ -65,9 +65,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $health->id,
                 'type' => 'service',
-                'description' => 'Cobertura médica integral. Comisión del 30%.',
-                'commission_type' => 'percentage',
-                'base_commission' => 30.00,
+                'description' => 'Seguros de salud (Contadores, Realtors) - $25 una sola vez.',
+                'commission_type' => 'fixed',
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -91,7 +91,7 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $life->id,
                 'type' => 'service',
-                'description' => 'Protección financiera. Comisión fija de $25.',
+                'description' => 'Seguros de vida (Contadores, Realtors) - $25 una sola vez.',
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00,
                 'is_active' => true,
@@ -117,7 +117,7 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $property->id,
                 'type' => 'service',
-                'description' => 'Seguros de auto (Personal/Comercial) y hogar. Comisión fija de $25.',
+                'description' => 'Seguros de carro y casa (Contadores, Realtors, Agentes de seguro) - $25 una vez.',
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00,
                 'is_active' => true,
@@ -178,7 +178,7 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Seguros colectivos comerciales. Comisión fija de $50.',
+                'description' => 'Group Insurance (5 empleados o mas) - Contadores, Realtors, Agentes de seguro - $50 una sola vez.',
                 'commission_type' => 'fixed',
                 'base_commission' => 50.00,
                 'is_active' => true,
@@ -207,9 +207,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Seguros empresariales (GL, WC, E&O). Comisión del 10%.',
-                'commission_type' => 'percentage',
-                'base_commission' => 10.00,
+                'description' => "Business liability o Worker's Comp - Contadores, Realtors, Agentes de seguro - $25 una sola vez.",
+                'commission_type' => 'fixed',
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['pnc@psbusinesssolutions.com', 'info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -278,7 +278,7 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $personal->id,
                 'type' => 'service',
-                'description' => 'Preparación de impuestos personales. Comisión fija de $25.',
+                'description' => 'Taxes personales - Realtors, Agentes de seguro - $25 una sola vez.',
                 'commission_type' => 'fixed',
                 'base_commission' => 25.00,
                 'is_active' => true,
@@ -304,7 +304,7 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Impuestos para empresas. Comisión fija de $50.',
+                'description' => 'Taxes corporativos - Realtors, Agentes de seguro - $50 una sola vez.',
                 'commission_type' => 'fixed',
                 'base_commission' => 50.00,
                 'is_active' => true,
@@ -323,7 +323,7 @@ class CatalogSeeder extends Seeder
         );
 
         // --- 8. CDI ---
-        // Production ID: 8 (Name: "Solicitud de Certificado (CDI)" in DB, updated to Seeder name)
+        // Production ID: 8
         Offering::updateOrCreate(
             ['id' => 8],
             [
@@ -336,6 +336,32 @@ class CatalogSeeder extends Seeder
                 'is_active' => false,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => ['version' => 2, 'groups' => []],
+            ]
+        );
+
+        // --- 9. ANUALIDADES ---
+        // Production ID: 9
+        Offering::updateOrCreate(
+            ['id' => 9],
+            [
+                'name' => 'Anualidades/ planes de jubilacion',
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $life->id,
+                'type' => 'service',
+                'description' => 'Anualidades/ planes de jubilacion - Varia depende del servicio.',
+                'commission_type' => 'variable',
+                'base_commission' => 0.00,
+                'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_extra',
+                        'title' => 'Datos del Servicio',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                        ],
+                    ],
+                ]),
             ]
         );
     }

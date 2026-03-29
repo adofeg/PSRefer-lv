@@ -6,6 +6,7 @@ import { Search, Plus, Filter, X, Trash, Edit } from 'lucide-vue-next';
 import { Switch } from '@headlessui/vue';
 import { computed, ref, watch } from 'vue';
 import ConfirmModal from '@/Components/UI/ConfirmModal.vue';
+import MultiSelectCombobox from '@/Components/UI/MultiSelectCombobox.vue';
 import { normalizePaginated } from '@/Utils/inertia';
 
 const props = defineProps({
@@ -18,8 +19,8 @@ const props = defineProps({
 const offeringsResource = computed(() => normalizePaginated(props.offerings));
 
 const searchTerm = ref(props.filters?.search || '');
-const categoryFilter = ref(props.filters?.category || '');
-const statusFilter = ref(props.filters?.status || 'all');
+const categoryFilter = ref(props.filters?.category || null);
+const statusFilter = ref(props.filters?.status || null);
 
 const confirmDeleteModal = ref(false);
 const confirmToggleModal = ref(false);
@@ -56,8 +57,8 @@ watch([searchTerm, categoryFilter, statusFilter], () => {
 
 const clearFilters = () => {
     searchTerm.value = '';
-    categoryFilter.value = '';
-    statusFilter.value = 'all';
+    categoryFilter.value = null;
+    statusFilter.value = null;
 };
 
 const formatCurrency = (amount) => {
@@ -134,45 +135,44 @@ const executeToggle = () => {
                 </div>
 
                 <!-- Filters Group -->
-                <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                    <!-- Category Filter -->
-                    <div class="relative min-w-[140px]">
-                        <select 
-                            v-model="categoryFilter" 
-                            class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm cursor-pointer"
-                        >
-                            <option value="">Todas las Categorías</option>
-                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                        </select>
-                         <Filter :size="14" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                    </div>
-
-                    <!-- Status Filter -->
-                    <div class="relative min-w-[140px]">
-                        <select 
-                            v-model="statusFilter" 
-                            class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm cursor-pointer"
-                        >
-                            <option value="all">Todos los Estados</option>
-                            <option value="true">Activos</option>
-                            <option value="false">Inactivos</option>
-                        </select>
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <span v-if="statusFilter === 'true'" class="w-2 h-2 rounded-full bg-green-500 block"></span>
-                            <span v-else-if="statusFilter === 'false'" class="w-2 h-2 rounded-full bg-slate-300 block"></span>
-                            <Filter v-else :size="14" class="text-slate-400" />
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div class="flex flex-row flex-wrap gap-3 items-center">
+                        <!-- Category Filter -->
+                        <div class="relative w-full sm:w-auto sm:min-w-[150px] sm:max-w-[220px]">
+                             <MultiSelectCombobox
+                                  v-model="categoryFilter"
+                                  :options="categories"
+                                  placeholder="Categorías"
+                                  wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                  inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-400 font-medium"
+                             />
                         </div>
-                    </div>
 
-                    <!-- Reset -->
-                     <button 
-                        v-if="searchTerm || statusFilter !== 'all'"
-                        @click="clearFilters"
-                        class="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                        title="Limpiar Filtros"
-                    >
-                        <X :size="18" />
-                    </button>
+                        <!-- Status Filter -->
+                        <div class="relative w-full sm:w-auto sm:min-w-[130px] sm:max-w-[180px]">
+                             <MultiSelectCombobox
+                                  v-model="statusFilter"
+                                  :options="[
+                                      { id: 'true', name: 'Activos' },
+                                      { id: 'false', name: 'Inactivos' }
+                                  ]"
+                                  placeholder="Estados"
+                                  align="right"
+                                  wrapperClass="bg-slate-50 border-slate-200 rounded-lg shadow-none hover:border-indigo-300 transition-all cursor-pointer"
+                                  inputClass="py-2.5 px-4 text-sm text-slate-700 bg-transparent placeholder-slate-400 font-medium"
+                             />
+                        </div>
+
+                        <!-- Reset -->
+                         <button 
+                            v-if="searchTerm || statusFilter !== null || categoryFilter !== null"
+                            @click="clearFilters"
+                            class="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Limpiar Filtros"
+                        >
+                            <X :size="18" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -204,14 +204,12 @@ const executeToggle = () => {
 
                        <div class="space-y-2 mb-4">
                            <div class="flex justify-between text-sm">
-                               <span class="text-slate-500">Comisión Base:</span>
+                               <span class="text-slate-500">Comisión Base (Informativo):</span>
                                <span class="font-semibold" :class="{
-                                   'text-green-600': !['manual', 'variable'].includes(offering.commission_type),
-                                   'text-indigo-600': offering.commission_type === 'manual',
-                                   'text-blue-600': offering.commission_type === 'variable'
+                                   'text-green-600': ['fixed', 'percentage'].includes(offering.commission_type),
+                                   'text-indigo-600': offering.commission_type === 'variable'
                                }">
-                                    <template v-if="offering.commission_type === 'manual'">A Negociar</template>
-                                    <template v-else-if="offering.commission_type === 'variable'">Variable</template>
+                                    <template v-if="offering.commission_type === 'variable'">Variable (Manual)</template>
                                     <template v-else>
                                         {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
                                     </template>

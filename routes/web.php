@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Private\DashboardRedirectController;
+use App\Http\Controllers\Private\Shared\NotificationController;
 use App\Http\Controllers\Public\PublicApiController;
 use App\Http\Controllers\Public\PublicController;
 use Illuminate\Support\Facades\Route;
@@ -31,5 +32,11 @@ Route::name('site.')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::get('/assets/{fileAsset}/download', \App\Http\Controllers\Private\Shared\FileDownloadController::class)->name('assets.download');
-});
 
+    // Notifications API
+    Route::prefix('api')->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+    });
+});

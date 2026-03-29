@@ -32,7 +32,6 @@ class ReferralFactory extends Factory
                 'client_contact' => "{$email} / {$phone}",
             ],
             'notes' => $this->faker->sentence(),
-            'revenue_generated' => 0,
         ];
     }
 }

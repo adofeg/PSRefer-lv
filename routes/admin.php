@@ -53,4 +53,5 @@ Route::middleware(['auth', 'verified', 'employee'])
         Route::resource('offerings', OfferingController::class);
         Route::post('/offerings/{offering}/status', [OfferingController::class, 'toggleStatus'])->name('offerings.toggle-status');
         Route::resource('referrals', ReferralController::class);
+
     });

@@ -31,6 +31,18 @@ const props = defineProps({
     multiple: {
         type: Boolean,
         default: false,
+    },
+    wrapperClass: {
+        type: String,
+        default: 'rounded-xl bg-white border-slate-200 shadow-sm hover:border-slate-300'
+    },
+    inputClass: {
+        type: String,
+        default: 'py-2 px-4 text-xs'
+    },
+    align: {
+        type: String,
+        default: 'left' // 'left' or 'right'
     }
 });
 
@@ -74,11 +86,11 @@ const getLabel = (id) => {
         <Combobox v-model="selectedItems" :multiple="multiple" :disabled="disabled" nullable v-slot="{ open }">
             <div class="relative">
                 <div
-                    class="relative w-full cursor-default overflow-hidden rounded-xl bg-white text-left border transition-all duration-300 sm:text-sm hover:border-slate-300"
+                    class="relative w-full cursor-default overflow-hidden text-left border transition-all duration-300 sm:text-sm"
                     :class="[
                         (!multiple && selectedItems) || (multiple && Array.isArray(selectedItems) && selectedItems.length > 0) 
-                            ? 'border-indigo-200 bg-indigo-50/20' 
-                            : 'border-slate-200 shadow-sm'
+                            ? 'border-indigo-200 bg-indigo-50/20 ' + wrapperClass.replace('bg-', '')
+                            : wrapperClass
                     ]"
                 >
                     <div class="flex items-center min-h-[36px] group">
@@ -101,9 +113,10 @@ const getLabel = (id) => {
                             </span>
                         </div>
                         
-                        <ComboboxButton as="div" class="flex-1 flex items-center">
+                        <ComboboxButton as="div" class="flex-1 flex items-center relative cursor-text">
                             <ComboboxInput
-                                class="flex-1 border-none py-2 px-4 text-xs leading-5 text-slate-600 placeholder:text-slate-400 focus:ring-0 bg-transparent w-full cursor-default transition-all truncate"
+                                class="flex-1 border-none placeholder:text-slate-400 focus:ring-0 w-full cursor-text transition-all truncate pr-10"
+                                :class="inputClass"
                                 :displayValue="(val) => (multiple ? query : getLabel(val))"
                                 @change="query = $event.target.value"
                                 @focus="$event.target.select()"
@@ -113,25 +126,29 @@ const getLabel = (id) => {
                                 spellcheck="false"
                             />
 
-                            <!-- Clear Button (Single Select) -->
-                            <Transition
-                                enter-active-class="transition-all duration-200"
-                                enter-from-class="opacity-0 scale-95"
-                                enter-to-class="opacity-100 scale-100"
-                                leave-active-class="transition-all duration-150"
-                                leave-from-class="opacity-100 scale-100"
-                                leave-to-class="opacity-0 scale-95"
-                            >
-                                <button
-                                    v-if="!multiple && selectedItems && !disabled"
-                                    type="button"
-                                    @click.stop="selectedItems = null"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-all z-20"
-                                    title="Limpiar selección"
+                            <!-- Icons Container -->
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+                                <!-- Clear Button (Single Select) -->
+                                <Transition
+                                    enter-active-class="transition-all duration-200"
+                                    enter-from-class="opacity-0 scale-95"
+                                    enter-to-class="opacity-100 scale-100"
+                                    leave-active-class="transition-all duration-150"
+                                    leave-from-class="opacity-100 scale-100"
+                                    leave-to-class="opacity-0 scale-95"
                                 >
-                                    <X :size="14" stroke-width="2.5" />
-                                </button>
-                            </Transition>
+                                    <button
+                                        v-if="!multiple && selectedItems && !disabled"
+                                        type="button"
+                                        @click.stop="selectedItems = null"
+                                        class="p-1 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-all"
+                                        title="Limpiar selección"
+                                    >
+                                        <X :size="14" stroke-width="2.5" />
+                                    </button>
+                                </Transition>
+                                <ChevronDown :size="16" class="text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none" stroke-width="2.5" />
+                            </div>
                         </ComboboxButton>
                     </div>
                 </div>
@@ -147,6 +164,7 @@ const getLabel = (id) => {
                 >
                     <ComboboxOptions
                         class="absolute mt-1.5 max-h-60 w-full overflow-auto rounded-2xl bg-white py-2 text-base shadow-2xl ring-1 ring-slate-900/5 focus:outline-none sm:text-sm z-50 border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent animate-in fade-in zoom-in duration-200"
+                        :class="align === 'right' ? 'right-0' : 'left-0'"
                     >
                         <!-- Phantom null option to prevent auto-select on blur -->
                         <ComboboxOption v-if="!multiple" :value="null" class="hidden" />
@@ -169,7 +187,7 @@ const getLabel = (id) => {
                             v-slot="{ active, selected }"
                         >
                             <li
-                                class="relative cursor-default select-none mx-2 py-2.5 pl-10 pr-4 rounded-xl transition-all duration-200 group"
+                                class="relative cursor-default select-none mx-2 py-2.5 pl-3 pr-4 mb-0.5 rounded-xl transition-all duration-200 group"
                                 :class="{
                                     'bg-indigo-50/70 text-indigo-700': active,
                                     'text-slate-600': !active,
@@ -178,12 +196,12 @@ const getLabel = (id) => {
                             >
                                 <div class="flex flex-col">
                                     <span
-                                        class="block truncate text-xs font-semibold"
+                                        class="block text-xs font-semibold"
                                         :class="{ 'text-indigo-700': selected || active, 'text-slate-700': !selected && !active }"
                                     >
                                         {{ option.name || option.label }}
                                     </span>
-                                    <span v-if="option.sublabel || option.email" class="block truncate text-[10px] text-slate-400 mt-0.5 opacity-80 group-hover:opacity-100">
+                                    <span v-if="option.sublabel || option.email" class="block text-[10px] text-slate-400 mt-0.5 opacity-80 group-hover:opacity-100">
                                         {{ option.sublabel || option.email }}
                                     </span>
                                 </div>

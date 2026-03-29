@@ -25,14 +25,29 @@ class ProcessReferralReminders extends Command
      */
     public function handle(): void
     {
-        $count = \App\Models\Referral::query()
+        $referrals = \App\Models\Referral::query()
             ->where('status', 'Contactar más tarde')
             ->whereDate('reminder_date', '<=', now())
-            ->update([
+            ->get();
+
+        foreach ($referrals as $referral) {
+            $referral->update([
                 'status' => 'Prospecto',
                 'reminder_date' => null,
             ]);
 
-        $this->info("Processed {$count} referral reminders.");
+            // Notify Associate
+            if ($referral->user_id) {
+                $referral->user->notify(new \App\Notifications\ReferralReminderNotification($referral));
+            }
+
+            // Notify Admins
+            $admins = \App\Models\User::whereIn('role', ['admin', 'psadmin'])->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\ReferralReminderNotification($referral));
+            }
+        }
+
+        $this->info("Processed {$referrals->count()} referral reminders.");
     }
 }

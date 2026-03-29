@@ -68,29 +68,15 @@ class ReferralRequest extends FormRequest
 
             $rules = [
                 'status' => ['sometimes', Rule::enum(ReferralStatus::class)],
-                'deal_value' => 'nullable|numeric|min:0',
-                'revenue_generated' => 'nullable|numeric|min:0',
                 'contract_id' => 'nullable|string|max:255',
-                'payment_method' => 'nullable|string|max:255',
-                'down_payment' => 'nullable|numeric|min:0|lte:deal_value',
-                'agency_fee' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
                 'reminder_date' => 'nullable|date',
-                // Client data usually editable too? If so, merge.
-                // But specifically for Referral Status Updates, often fields change.
-                // Let's keep it comprehensive.
             ];
 
             $user = $this->user();
-            if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value
-            )) {
+            if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value)) {
                 $rules['status'] = ['prohibited'];
-                $rules['deal_value'] = ['prohibited'];
-                $rules['revenue_generated'] = ['prohibited'];
                 $rules['contract_id'] = ['prohibited'];
-                $rules['payment_method'] = ['prohibited'];
-                $rules['down_payment'] = ['prohibited'];
-                $rules['agency_fee'] = ['prohibited'];
             }
         }
 
@@ -118,12 +104,7 @@ class ReferralRequest extends FormRequest
 
         return new ReferralStatusUpdateData(
             status: $status,
-            deal_value: $this->validated('deal_value'),
-            revenue_generated: $this->validated('revenue_generated'),
             contract_id: $this->validated('contract_id'),
-            payment_method: $this->validated('payment_method'),
-            down_payment: $this->validated('down_payment'),
-            agency_fee: $this->validated('agency_fee'),
             notes: $this->validated('notes'),
             reminder_date: $this->validated('reminder_date')
         );

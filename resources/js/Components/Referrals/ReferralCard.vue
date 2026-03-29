@@ -34,9 +34,6 @@ const formatDate = (dateString) => {
             <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                 {{ referral.offering?.name || 'General' }}
             </span>
-            <span v-if="referral.revenue_generated" class="text-xs font-bold text-green-600">
-                {{ formatCurrency(referral.revenue_generated) }}
-            </span>
         </div>
 
         <!-- Client Info -->
