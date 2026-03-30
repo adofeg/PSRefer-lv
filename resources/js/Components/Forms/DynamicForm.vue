@@ -234,7 +234,7 @@ const getIcon = (name) => iconMap[name] || FileText;
             <div 
                 v-for="(group, index) in (isWizard ? [currentGroup] : effectiveSchema.groups)" 
                 :key="group.id" 
-                class="bg-white/50 rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all hover:border-slate-300 animate-fade-in"
+                class="bg-white/50 rounded-2xl border border-slate-200/60 shadow-sm transition-all hover:border-slate-300 animate-fade-in"
             >
                 <!-- Group Header -->
                 <div class="bg-slate-50/50 px-8 py-5 border-b border-slate-100/60 flex items-center justify-between">

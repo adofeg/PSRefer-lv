@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('balance', 10, 2)->default(0);
             $table->string('category')->nullable();
+            $table->string('payment_phone')->nullable();
             $table->jsonb('payment_info')->nullable();
             $table->foreignId('referrer_id')->nullable()->constrained('associates');
             $table->timestamps();

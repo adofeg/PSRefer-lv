@@ -12,10 +12,10 @@ class ReferralPipelineData extends Data
         public string $status,
         public string $client_name,
         public ?string $client_contact,
-        public ?float $revenue_generated,
         public ?string $created_at,
         public ?array $offering,
         public ?array $user,
+        public ?string $reminder_date = null,
     ) {}
 
     public static function fromModel(Referral $referral): self
@@ -27,7 +27,6 @@ class ReferralPipelineData extends Data
             status: (string) $referral->status,
             client_name: (string) $referral->client_name,
             client_contact: $referral->client_contact,
-            revenue_generated: $referral->revenue_generated !== null ? (float) $referral->revenue_generated : null,
             created_at: $referral->created_at?->toISOString(),
             offering: $referral->offering ? [
                 'id' => (int) $referral->offering->id,
@@ -37,6 +36,7 @@ class ReferralPipelineData extends Data
                 'id' => (int) $associateUser->id,
                 'name' => $associateUser->name,
             ] : null,
+            reminder_date: $referral->reminder_date?->toDateString(),
         );
     }
 }

@@ -2,6 +2,7 @@
 import { Menu, X, ChevronDown, LogOut, User } from 'lucide-vue-next';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import NotificationBell from '@/Components/Layout/AppLayout/NotificationBell.vue';
 
 const props = defineProps({
     user: Object,
@@ -48,6 +49,9 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="flex items-center gap-3">
+            <!-- Notification Bell -->
+            <NotificationBell />
+
             <div class="relative" data-user-menu>
                 <button
                     type="button"

@@ -17,6 +17,7 @@ const form = useForm({
     preferred_currency: props.user.preferred_currency || 'USD',
     category: props.user.category || '',
     phone: props.user.phone || '',
+    payment_phone: props.user.profileable?.payment_phone || '',
     logo_file: null,
     w9_file: null,
     _method: 'PUT'
@@ -233,9 +234,22 @@ const currencies = [
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
                             <!-- Payment Details Section -->
-                            <div class="md:col-span-7 space-y-4">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Método de Pago y Detalles de Transferencia</label>
-                                <textarea v-model="form.payment_info.details" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none" placeholder="Nombre del Banco, Zelle (email/tel), PayPal, o detalles SWIFT..."></textarea>
+                            <div class="md:col-span-7 space-y-6">
+                                <div class="space-y-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Método de Pago y Detalles de Transferencia</label>
+                                    <textarea v-model="form.payment_info.details" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none" placeholder="Nombre del Banco, Zelle (email/tel), PayPal, o detalles SWIFT..."></textarea>
+                                </div>
+
+                                <div class="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Celular para Pagos (Yape / Otros)</label>
+                                    <div class="mt-2 flex items-center gap-4">
+                                        <div class="p-3 bg-white text-indigo-600 rounded-2xl shadow-sm border border-slate-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+                                        </div>
+                                        <input v-model="form.payment_phone" type="text" class="flex-1 h-12 bg-white border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Ej: 987654321" />
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-2 italic">* Este número se usará para envíos rápidos de comisiones.</p>
+                                </div>
                             </div>
 
                             <!-- W-9 Column -->

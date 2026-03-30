@@ -44,4 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return redirect()->route('dashboard')->with('error', $flashMessage);
         });
+    })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        $schedule->command('app:process-referral-reminders')->daily();
     })->create();

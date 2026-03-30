@@ -21,7 +21,8 @@ const colorClasses = {
     blue: 'bg-blue-50 border-blue-200',
     yellow: 'bg-yellow-50 border-yellow-200',
     green: 'bg-green-50 border-green-200',
-    red: 'bg-red-50 border-red-200'
+    red: 'bg-red-50 border-red-200',
+    purple: 'bg-purple-50 border-purple-200'
 };
 
 const headerColors = {
@@ -29,7 +30,8 @@ const headerColors = {
     blue: 'text-blue-700',
     yellow: 'text-yellow-700',
     green: 'text-green-700',
-    red: 'text-red-700'
+    red: 'text-red-700',
+    purple: 'text-purple-700'
 };
 </script>
 

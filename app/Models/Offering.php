@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CommissionType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Offering extends Model
 {
     use HasFactory, SoftDeletes;
-
 
     protected $fillable = [
         'owner_employee_id',
@@ -35,7 +35,7 @@ class Offering extends Model
     {
         return [
             'base_commission' => 'decimal:2',
-            'commission_type' => 'string',
+            'commission_type' => CommissionType::class,
             'form_schema' => 'array',
             'commission_config' => 'array',
             'commission_rules' => 'array',

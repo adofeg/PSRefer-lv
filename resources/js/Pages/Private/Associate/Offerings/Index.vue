@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Card from '@/Components/UI/Card.vue';
-import { Search, Filter, ImageIcon } from 'lucide-vue-next';
+import { Search, Filter, ImageIcon, ArrowRight } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import OfferingDetailsModal from './OfferingDetailsModal.vue'; // Import Modal
 import { normalizePaginated } from '@/Utils/inertia';
@@ -11,7 +11,8 @@ const props = defineProps({
     offerings: Object,
     filters: Object,
     auth: Object,
-    categories: Array
+    categories: Array,
+    sectors: Array
 });
 
 const offeringsResource = computed(() => normalizePaginated(props.offerings));
@@ -92,42 +93,51 @@ const formatCurrency = (amount) => {
             </div>
 
             <!-- Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div 
                     v-for="offering in offeringsResource.data" 
                     :key="offering.id"
-                    class="block h-full cursor-pointer"
+                    class="group relative"
                     @click="openModal(offering)"
                 >
-                    <Card class="flex flex-col h-full hover:shadow-md transition-all duration-300 group border border-slate-200 hover:-translate-y-1">
-                       <div class="flex-1 p-6">
-                           <div class="flex justify-between items-start mb-4">
-                               <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                                   <!-- Dynamic Icon based on category or generic default -->
-                                   <ImageIcon v-if="offering.category === 'Marketing'" :size="24" />
-                                   <Search v-else-if="offering.category === 'Investigación'" :size="24" />
-                                   <Filter v-else :size="24" />
-                               </div>
-                               <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">{{ offering.category || 'General' }}</span>
-                           </div>
+                    <!-- Card with Glassmorphism -->
+                    <div class="h-full bg-white/70 backdrop-blur-md border border-slate-200/60 rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-2 flex flex-col relative overflow-hidden group-hover:border-indigo-200/50">
+                        <!-- Decorative background element -->
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl group-hover:bg-indigo-100/50 transition-colors duration-500"></div>
 
-                           <h3 class="font-bold text-lg text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">{{ offering.name }}</h3>
-                           <p class="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed">{{ offering.description }}</p>
+                        <div class="flex-1 relative z-10">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="p-4 bg-indigo-50/80 text-indigo-600 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 transform group-hover:rotate-6">
+                                    <ImageIcon v-if="offering.category === 'Marketing'" :size="28" />
+                                    <Search v-else-if="offering.category === 'Investigación'" :size="28" />
+                                    <Filter v-else :size="28" />
+                                </div>
+                                <span class="bg-slate-100/80 backdrop-blur-sm text-slate-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200/50">
+                                    {{ offering.category || 'General' }}
+                                </span>
+                            </div>
 
-                           <div class="flex items-center gap-2 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
-                               <span class="text-slate-400 font-medium text-xs uppercase tracking-wider flex-1">Comisión</span>
-                               <span class="font-black text-slate-700">
-                                   {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
-                               </span>
-                           </div>
-                       </div>
-                       
-                       <div class="px-6 pb-6 pt-0">
-                            <span class="block w-full text-center bg-white border border-slate-200 text-slate-600 py-2.5 rounded-xl text-sm font-bold group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all">
-                                Ver Detalles
-                            </span>
-                       </div>
-                    </Card>
+                            <h3 class="font-black text-xl text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors tracking-tight leading-tight">
+                                {{ offering.name }}
+                            </h3>
+                            <p class="text-slate-500 text-sm mb-8 line-clamp-3 leading-relaxed font-medium">
+                                {{ offering.description }}
+                            </p>
+
+                            <!-- Commission Glass Detail -->
+                            <div class="flex items-center gap-3 bg-indigo-50/30 backdrop-blur-sm p-4 rounded-2xl border border-indigo-100/30 group-hover:border-indigo-200/50 transition-all">
+                                <div class="flex-1">
+                                    <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Comisión Estimada</p>
+                                    <p class="text-lg font-black text-slate-700">
+                                        {{ offering.commission_type === 'percentage' ? `${offering.base_commission}%` : formatCurrency(offering.base_commission) }}
+                                    </p>
+                                </div>
+                                <div class="bg-indigo-600 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+                                    <ArrowRight :size="16" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -135,6 +145,7 @@ const formatCurrency = (amount) => {
             <OfferingDetailsModal 
                 :show="isModalOpen" 
                 :offering="selectedOffering" 
+                :sectors="sectors"
                 @close="closeModal" 
             />
 

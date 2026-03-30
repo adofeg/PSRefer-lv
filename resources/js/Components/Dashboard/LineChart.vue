@@ -51,12 +51,17 @@ const chartData = computed(() => {
                 pointBorderColor: '#6366f1',
                 pointHoverBackgroundColor: '#6366f1',
                 pointHoverBorderColor: '#ffffff',
-                borderWidth: 2,
-                pointRadius: 4,
+                borderWidth: 3,
+                pointRadius: 0,
+                pointHitRadius: 10,
                 pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#6366f1',
+                pointHoverBorderColor: '#ffffff',
+                pointHoverBorderWidth: 2,
                 data: props.values,
                 fill: true,
-                tension: 0.4
+                tension: 0.4,
+                cubicInterpolationMode: 'monotone'
             }
         ]
     };
@@ -81,7 +86,10 @@ const chartOptions = {
                         label += ': ';
                     }
                     if (context.parsed.y !== null) {
-                        label += context.parsed.y;
+                        label += new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        }).format(context.parsed.y);
                     }
                     return label;
                 }

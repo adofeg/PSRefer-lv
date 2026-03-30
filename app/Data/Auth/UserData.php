@@ -14,6 +14,7 @@ class UserData extends Data
         public readonly ?string $phone = null,
         public readonly string $role = AssociateRole::ASSOCIATE->value,
         public readonly ?string $category = null,
+        public readonly ?string $payment_phone = null,
         public readonly ?int $referrer_id = null,
         public readonly ?int $offering_id = null, // Logic specific: auto-subscribe
     ) {}

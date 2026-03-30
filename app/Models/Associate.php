@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\FileAsset;
 
 class Associate extends Model
 {
@@ -17,6 +17,7 @@ class Associate extends Model
         'balance',
         'category',
         'payment_info',
+        'payment_phone',
         'referrer_id',
     ];
 
@@ -40,6 +41,16 @@ class Associate extends Model
         return $this->belongsTo(Associate::class, 'referrer_id');
     }
 
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class);
+    }
+
+    public function commissions(): HasMany
+    {
+        return $this->hasMany(Commission::class);
+    }
+
     // Associate-specific logic that used to be on User
 
     public function w9(): MorphOne
@@ -49,6 +60,6 @@ class Associate extends Model
 
     public function getW9FileUrlAttribute()
     {
-        return $this->w9?->path ? '/storage/' . $this->w9->path : null;
+        return $this->w9?->path ? '/storage/'.$this->w9->path : null;
     }
 }

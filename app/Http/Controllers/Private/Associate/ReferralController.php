@@ -61,6 +61,7 @@ class ReferralController extends AssociateController
         return Inertia::render('Private/Associate/Referrals/Create', [
             'offerings' => $offerings,
             'selectedOffering' => $selectedOffering,
+            'sectors' => \App\Models\Sector::all(['id', 'name']),
         ]);
     }
 

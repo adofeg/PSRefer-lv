@@ -9,6 +9,7 @@ use App\Models\Referral;
 use App\Services\AuditService;
 use App\Services\CommissionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class UpdateReferralStatusAction
@@ -24,6 +25,7 @@ class UpdateReferralStatusAction
         $status = $data->status->value;
 
         if ($oldStatus === $status) {
+
             return $referral;
         }
 
@@ -35,12 +37,9 @@ class UpdateReferralStatusAction
 
             $referral->update([
                 'status' => $status,
-                'deal_value' => $data->deal_value ?? $referral->deal_value,
-                'revenue_generated' => $data->revenue_generated ?? $data->deal_value ?? $referral->revenue_generated,
                 'contract_id' => $contractId,
-                'payment_method' => $data->payment_method ?? $referral->payment_method,
-                'down_payment' => $data->down_payment ?? $referral->down_payment,
-                'agency_fee' => $data->agency_fee ?? $referral->agency_fee,
+                'reminder_date' => $data->reminder_date ?? $referral->reminder_date,
+                'closed_at' => $status === ReferralStatus::Closed->value ? now() : $referral->closed_at,
             ]);
 
             // Removed Agency Fee Validation ("Loss Prevention") as per business request.
@@ -79,6 +78,7 @@ class UpdateReferralStatusAction
     protected function handleClosedReferral(Referral $referral)
     {
         $offering = $referral->offering;
+
         if (! $offering || ! $referral->associate_id) {
             return;
         }

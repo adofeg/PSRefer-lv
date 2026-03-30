@@ -12,7 +12,7 @@ const form = useForm({
     associate_id: '',
     referral_id: null,
     amount: '',
-    commission_type: 'manual', // manual, bonus, adjustment
+    commission_type: 'variable',
     status: 'pending',
     notes: ''
 });
@@ -20,11 +20,7 @@ const form = useForm({
 const commissionTypes = [
     { value: 'percentage', label: 'Porcentaje (Venta)' },
     { value: 'fixed', label: 'Monto Fijo' },
-    { value: 'monthly', label: 'Mensual / Recurrente' },
-    { value: 'override', label: 'Regla Especial (Override)' },
-    { value: 'manual', label: 'Entrada Manual' },
-    { value: 'bonus', label: 'Bono / Incentivo' },
-    { value: 'adjustment', label: 'Ajuste / Corrección' },
+    { value: 'variable', label: 'Variable (Manual)' },
 ];
 
 const submit = () => {

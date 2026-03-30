@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Offering;
+use App\Models\Sector;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -25,8 +26,13 @@ class CatalogSeeder extends Seeder
         $personal = Category::firstOrCreate(['name' => 'Personal']);
         $administrative = Category::firstOrCreate(['name' => 'Administrativo']);
 
+        // Sectors
+        Sector::firstOrCreate(['name' => 'Realtor']);
+        Sector::firstOrCreate(['name' => 'Contador']);
+        Sector::firstOrCreate(['name' => 'Agente de seguros']);
+
         // Helper to prepend identity fields to a schema
-        $withIdentity = function($groups) {
+        $withIdentity = function ($groups) {
             $systemFields = [
                 ['name' => 'client_name', 'label' => 'Nombre Completo', 'type' => 'text', 'required' => true, 'is_system' => true],
                 ['name' => 'client_email', 'label' => 'Correo Electrónico', 'type' => 'email', 'required' => true, 'is_system' => true],
@@ -37,7 +43,7 @@ class CatalogSeeder extends Seeder
                 $groups = [[
                     'id' => 'group_identity',
                     'title' => 'Datos Personales',
-                    'fields' => $systemFields
+                    'fields' => $systemFields,
                 ]];
             } else {
                 $groups[0]['fields'] = array_merge($systemFields, $groups[0]['fields']);
@@ -59,9 +65,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $health->id,
                 'type' => 'service',
-                'description' => 'Cobertura médica integral. Comisión del 30% mensual.',
-                'commission_type' => 'percentage',
-                'base_commission' => 30.00,
+                'description' => 'Seguros de salud (Contadores, Realtors) - $25 una sola vez.',
+                'commission_type' => 'fixed',
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -70,8 +76,8 @@ class CatalogSeeder extends Seeder
                         'title' => 'Datos del Servicio',
                         'fields' => [
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -79,15 +85,15 @@ class CatalogSeeder extends Seeder
         // --- 2. SEGUROS DE VIDA ---
         // Production ID: 2
         Offering::updateOrCreate(
-            ['id' => 2], 
+            ['id' => 2],
             [
                 'name' => 'Seguros de Vida',
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $life->id,
                 'type' => 'service',
-                'description' => 'Protección financiera. Comisión fija de $25.',
+                'description' => 'Seguros de vida (Contadores, Realtors) - $25 una sola vez.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -96,8 +102,8 @@ class CatalogSeeder extends Seeder
                         'title' => 'Datos del Servicio',
                         'fields' => [
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -111,9 +117,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $property->id,
                 'type' => 'service',
-                'description' => 'Seguros de auto (Personal/Comercial) y hogar. Comisión fija de $25.',
+                'description' => 'Seguros de carro y casa (Contadores, Realtors, Agentes de seguro) - $25 una vez.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['pnc@psbusinesssolutions.com', 'info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -124,7 +130,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
                             ['name' => 'coverage_type', 'label' => 'Tipo de Seguro Requerido', 'type' => 'select', 'options' => 'Auto Personal, Auto Comercial, Casa, Múltiple', 'required' => true],
                             ['name' => 'current_address', 'label' => 'Dirección Actual Completa', 'type' => 'textarea', 'required' => true],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_auto',
@@ -139,7 +145,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'out_of_state', 'label' => '¿Se transporta fuera del estado?', 'type' => 'select', 'options' => 'Si, No, No Aplica', 'required' => false],
                             ['name' => 'claims_36m', 'label' => '¿Reclamos PIP o Accidentes (últimos 36 meses)?', 'type' => 'text', 'required' => false],
                             ['name' => 'coverage_details', 'label' => 'Tipo de Cobertura Necesaria / ¿Financiado?', 'type' => 'textarea', 'required' => false],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_house',
@@ -148,7 +154,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'house_address', 'label' => 'Dirección de la Propiedad (Si es distinta)', 'type' => 'text', 'required' => false],
                             ['name' => 'construction_year', 'label' => 'Año de Construcción', 'type' => 'number', 'required' => false],
                             ['name' => 'roof_year', 'label' => 'Año del Techo', 'type' => 'number', 'required' => false],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_documents',
@@ -157,8 +163,8 @@ class CatalogSeeder extends Seeder
                             ['name' => 'declaration_page', 'label' => 'Declaration Page Vigente', 'type' => 'file', 'required' => false],
                             ['name' => 'driver_licenses', 'label' => 'Licencia de conducir de todos los conductores', 'type' => 'file', 'required' => false],
                             ['name' => 'car_photos_or_reg', 'label' => 'Fotos Millas/Lados O Matrícula/Registración', 'type' => 'file', 'required' => false],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -172,9 +178,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Seguros colectivos comerciales. Comisión fija de $50.',
+                'description' => 'Group Insurance (5 empleados o mas) - Contadores, Realtors, Agentes de seguro - $50 una sola vez.',
                 'commission_type' => 'fixed',
-                'base_commission' => 50.00, 
+                'base_commission' => 50.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -186,8 +192,8 @@ class CatalogSeeder extends Seeder
                             ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
                             ['name' => 'employee_count', 'label' => 'Número de Empleados', 'type' => 'number', 'required' => true, 'min' => 5],
                             ['name' => 'census_file', 'label' => 'Censo de Empleados (PDF/Excel)', 'type' => 'file', 'required' => false],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -201,9 +207,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Seguros empresariales (GL, WC, E&O). Comisión del 10%.',
-                'commission_type' => 'percentage',
-                'base_commission' => 10.00,
+                'description' => "Business liability o Worker's Comp - Contadores, Realtors, Agentes de seguro - $25 una sola vez.",
+                'commission_type' => 'fixed',
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['pnc@psbusinesssolutions.com', 'info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -217,7 +223,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'entity_type', 'label' => 'Tipo de Entidad', 'type' => 'select', 'options' => 'Individual, L.L.C, Otra', 'required' => true],
                             ['name' => 'business_address', 'label' => 'Dirección, Ciudad, Zip Code', 'type' => 'textarea', 'required' => true],
                             ['name' => 'business_contact_info', 'label' => 'Teléfono y Email de la Empresa (Adicional)', 'type' => 'text', 'required' => false],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_owners',
@@ -226,7 +232,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'owner_count', 'label' => 'Cuantos Dueños', 'type' => 'number', 'required' => true],
                             ['name' => 'owner_names', 'label' => 'Nombre de los Dueño(s)', 'type' => 'textarea', 'required' => true],
                             ['name' => 'owner_dob', 'label' => 'Fecha de Nacimiento de Dueño(s)', 'type' => 'text', 'required' => true],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_general_biz',
@@ -238,7 +244,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'employee_count', 'label' => 'Número de Empleados', 'type' => 'number', 'required' => true],
                             ['name' => 'has_other_branches', 'label' => '¿Tiene otras sucursales?', 'type' => 'select', 'options' => 'Si, No', 'required' => false],
                             ['name' => 'partner_count', 'label' => 'Número de Socios', 'type' => 'number', 'required' => false],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_eo_details',
@@ -248,7 +254,7 @@ class CatalogSeeder extends Seeder
                             ['name' => 'has_current_eo', 'label' => '¿Tiene ahora un E&O?', 'type' => 'select', 'options' => 'Si, No', 'required' => false],
                             ['name' => 'effective_date', 'label' => 'Fecha de Efectividad deseada', 'type' => 'date', 'required' => false],
                             ['name' => 'sunbiz_registration', 'label' => 'Copia del EIN o Registro SunBiz (Archivo)', 'type' => 'file', 'required' => false],
-                        ]
+                        ],
                     ],
                     [
                         'id' => 'group_payment',
@@ -257,8 +263,8 @@ class CatalogSeeder extends Seeder
                             ['name' => 'card_name', 'label' => 'Nombre en Tarjeta', 'type' => 'text', 'required' => false],
                             ['name' => 'card_number', 'label' => 'Número de Tarjeta', 'type' => 'text', 'required' => false],
                             ['name' => 'card_exp_cvc', 'label' => 'Exp / CVC', 'type' => 'text', 'required' => false],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -272,9 +278,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $personal->id,
                 'type' => 'service',
-                'description' => 'Preparación de impuestos personales. Comisión fija de $25.',
+                'description' => 'Taxes personales - Realtors, Agentes de seguro - $25 una sola vez.',
                 'commission_type' => 'fixed',
-                'base_commission' => 25.00, 
+                'base_commission' => 25.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -283,8 +289,8 @@ class CatalogSeeder extends Seeder
                         'title' => 'Datos del Servicio',
                         'fields' => [
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
@@ -298,9 +304,9 @@ class CatalogSeeder extends Seeder
                 'owner_employee_id' => $ownerEmployeeId,
                 'category_id' => $business->id,
                 'type' => 'service',
-                'description' => 'Impuestos para empresas. Comisión fija de $50.',
+                'description' => 'Taxes corporativos - Realtors, Agentes de seguro - $50 una sola vez.',
                 'commission_type' => 'fixed',
-                'base_commission' => 50.00, 
+                'base_commission' => 50.00,
                 'is_active' => true,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
                 'form_schema' => $withIdentity([
@@ -310,14 +316,14 @@ class CatalogSeeder extends Seeder
                         'fields' => [
                             ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
                             ['name' => 'business_name', 'label' => 'Nombre de la Empresa', 'type' => 'text', 'required' => true],
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
             ]
         );
 
         // --- 8. CDI ---
-        // Production ID: 8 (Name: "Solicitud de Certificado (CDI)" in DB, updated to Seeder name)
+        // Production ID: 8
         Offering::updateOrCreate(
             ['id' => 8],
             [
@@ -329,7 +335,33 @@ class CatalogSeeder extends Seeder
                 'base_commission' => 0.00,
                 'is_active' => false,
                 'notification_emails' => ['info@psbusinesssolutions.com'],
-                'form_schema' => ['version' => 2, 'groups' => []]
+                'form_schema' => ['version' => 2, 'groups' => []],
+            ]
+        );
+
+        // --- 9. ANUALIDADES ---
+        // Production ID: 9
+        Offering::updateOrCreate(
+            ['id' => 9],
+            [
+                'name' => 'Anualidades/ planes de jubilacion',
+                'owner_employee_id' => $ownerEmployeeId,
+                'category_id' => $life->id,
+                'type' => 'service',
+                'description' => 'Anualidades/ planes de jubilacion - Varia depende del servicio.',
+                'commission_type' => 'variable',
+                'base_commission' => 0.00,
+                'is_active' => true,
+                'notification_emails' => ['info@psbusinesssolutions.com'],
+                'form_schema' => $withIdentity([
+                    [
+                        'id' => 'group_extra',
+                        'title' => 'Datos del Servicio',
+                        'fields' => [
+                            ['name' => 'client_state', 'label' => 'Estado', 'type' => 'text', 'required' => true],
+                        ],
+                    ],
+                ]),
             ]
         );
     }

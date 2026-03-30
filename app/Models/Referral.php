@@ -17,17 +17,14 @@ class Referral extends Model
         'associate_id',
         'offering_id',
         'status',
-        'deal_value',
-        'revenue_generated',
         'contract_id',
-        'payment_method',
-        'down_payment',
-        'agency_fee',
         'notes',
         'consent_confirmed',
         'metadata',
         'closed_at',
         'paid_at',
+        'reminder_date',
+        'sector_id',
     ];
 
     protected $appends = ['client_name', 'client_contact', 'client_email', 'client_phone', 'estimated_commission'];
@@ -35,20 +32,22 @@ class Referral extends Model
     protected function casts(): array
     {
         return [
-            'deal_value' => 'decimal:2',
-            'revenue_generated' => 'decimal:2',
-            'down_payment' => 'decimal:2',
-            'agency_fee' => 'decimal:2',
             'metadata' => 'array',
             'consent_confirmed' => 'boolean',
             'closed_at' => 'datetime',
             'paid_at' => 'datetime',
+            'reminder_date' => 'date',
         ];
     }
 
     public function associate(): BelongsTo
     {
         return $this->belongsTo(Associate::class);
+    }
+
+    public function sector(): BelongsTo
+    {
+        return $this->belongsTo(Sector::class);
     }
 
     public function offering(): BelongsTo
@@ -177,33 +176,36 @@ class Referral extends Model
 
     public function getEstimatedCommissionAttribute(): string
     {
-        // If closed, get the ACTUAL commission from the relationship
+        // If closed/paid, show the ACTUAL commission if calculated
         if ($this->status === 'Cerrado' || $this->status === 'Pagado') {
             $total = $this->commissions()->sum('amount');
             if ($total > 0) {
                 return '$'.number_format($total, 2);
             }
+
+            // If $0, show the type as a label instead of 0
+            $commission = $this->commissions()->first();
+            if ($commission) {
+                if ($commission->commission_type === 'percentage') {
+                    return 'Porcentaje';
+                }
+                if ($commission->commission_type === 'variable') {
+                    return 'Variable';
+                }
+            }
         }
 
-        // If not closed, calculate the ESTIMATE
+        // Pre-closure or fallback: show the rule from offering
         $offering = $this->offering;
-        if (! $offering) {
-            return ($this->revenue_generated > 0) ? '$'.number_format($this->revenue_generated, 2).' (Rev)' : '-';
-        }
-
-        if ($offering->base_commission > 0) {
-            if ($offering->commission_type === 'fixed') {
-                return '$'.number_format($offering->base_commission, 2);
+        if ($offering) {
+            if ($offering->commission_type->value === 'fixed' || $offering->commission_type === 'fixed') {
+                return '$'.number_format($offering->base_commission ?? 0, 2);
+            }
+            if ($offering->commission_type->value === 'percentage' || $offering->commission_type === 'percentage') {
+                return ($offering->base_commission ?? 0).'%';
             }
 
-            // If we have revenue_generated but NO commission record yet (e.g. pending calculation)
-            if ($this->revenue_generated > 0) {
-                $estimated = ($this->revenue_generated * $offering->base_commission) / 100;
-
-                return '$'.number_format($estimated, 2);
-            }
-
-            return $offering->base_commission.'% del valor';
+            return 'Variable';
         }
 
         return '-';

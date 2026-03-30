@@ -64,6 +64,7 @@ class SubmitReferralAction
                     notes: '[Ref. General] '.($data->notes ?? ''),
                     consent_confirmed: $data->consent_confirmed,
                     associate_id: $data->associate_id,
+                    sector_id: $data->sector_id,
                 );
 
                 $this->createReferralAction->execute($referralData);
@@ -91,6 +92,7 @@ class SubmitReferralAction
             notes: $data->notes,
             consent_confirmed: $data->consent_confirmed,
             associate_id: $data->associate_id,
+            sector_id: $data->sector_id,
         );
 
         $referral = $this->createReferralAction->execute($referralData);

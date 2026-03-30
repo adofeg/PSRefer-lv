@@ -20,7 +20,12 @@ const formatCurrency = (amount) => {
 };
 
 const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    if (!dateString) return '';
+    // Extract YYYY-MM-DD to ignore any timezone information from the backend that shifts the local date processing
+    const [year, month, day] = dateString.split('T')[0].split(' ')[0].split('-');
+    
+    // Create a local date at noon to completely avoid daylight saving or UTC offset bugs shifting to the previous day
+    return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('es-ES', {
         day: '2-digit',
         month: 'short'
     });
@@ -33,9 +38,6 @@ const formatDate = (dateString) => {
         <div class="flex justify-between items-start mb-2">
             <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                 {{ referral.offering?.name || 'General' }}
-            </span>
-            <span v-if="referral.revenue_generated" class="text-xs font-bold text-green-600">
-                {{ formatCurrency(referral.revenue_generated) }}
             </span>
         </div>
 
@@ -59,6 +61,12 @@ const formatDate = (dateString) => {
             <div class="flex items-center gap-1 text-xs text-slate-400">
                 <Calendar :size="12" />
                 {{ formatDate(referral.created_at) }}
+            </div>
+
+            <!-- Reminder Date -->
+            <div v-if="referral.reminder_date" class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-[10px] font-bold flex items-center gap-1">
+                <Calendar :size="10" />
+                Llamar: {{ formatDate(referral.reminder_date) }}
             </div>
             
             <div class="flex gap-2">

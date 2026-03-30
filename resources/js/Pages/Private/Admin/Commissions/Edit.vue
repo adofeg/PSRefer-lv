@@ -16,7 +16,7 @@ const form = useForm({
     associate_id: commission.associate_id ?? '',
     referral_id: commission.referral_id ?? null,
     amount: commission.amount ?? '',
-    commission_type: commission.commission_type ?? 'manual',
+    commission_type: commission.commission_type ?? 'variable',
     status: commission.status ?? 'pending',
     notes: commission.metadata?.notes || '',
     receipt_file: null,
@@ -25,11 +25,7 @@ const form = useForm({
 const commissionTypes = [
     { value: 'percentage', label: 'Porcentaje (Venta)' },
     { value: 'fixed', label: 'Monto Fijo' },
-    { value: 'monthly', label: 'Mensual / Recurrente' },
-    { value: 'override', label: 'Regla Especial (Override)' },
-    { value: 'manual', label: 'Entrada Manual' },
-    { value: 'bonus', label: 'Bono / Incentivo' },
-    { value: 'adjustment', label: 'Ajuste / Corrección' },
+    { value: 'variable', label: 'Variable (Manual)' },
 ];
 
 const submit = () => {
@@ -59,7 +55,7 @@ const destroy = () => {
                     <p class="text-slate-600">Modificar detalles de la comisión.</p>
                 </div>
                 <button 
-                    v-if="commission.status !== 'void'"
+                    v-if="commission.status !== 'void' && !commission.referral_id"
                     @click="destroy"
                     type="button"
                     class="text-red-600 hover:text-red-700 font-medium text-sm flex items-center gap-1"
@@ -71,11 +67,28 @@ const destroy = () => {
             <Card>
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Read-only Referral Info if exists -->
-                    <div v-if="commission.referral" class="bg-indigo-50 p-4 rounded-lg flex justify-between items-center border border-indigo-100">
-                        <div>
-                            <span class="text-xs font-bold text-indigo-500 uppercase">Vinculado al Referido</span>
-                            <div class="text-indigo-900 font-medium">{{ commission.referral.client_name }}</div>
-                            <div class="text-xs text-indigo-700">{{ commission.referral.offering?.name }}</div>
+                    <div v-if="commission.referral" class="bg-indigo-50 p-4 rounded-xl flex flex-col gap-3 border border-indigo-100 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Referido Vinculado</span>
+                                <div class="text-indigo-900 font-bold text-lg leading-tight">{{ commission.referral.client_name }}</div>
+                                <div class="text-xs text-indigo-700 font-medium">{{ commission.referral.offering?.name }}</div>
+                            </div>
+                            <div class="bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-indigo-200 text-right">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-0.5">Regla de Comisión</span>
+                                <div v-if="commission.referral.offering?.commission_type === 'fixed'" class="text-indigo-600 font-black">
+                                    ${{ commission.referral.offering?.base_commission }} (Fijo)
+                                </div>
+                                <div v-else-if="commission.referral.offering?.commission_type === 'percentage'" class="text-indigo-600 font-black">
+                                    {{ commission.referral.offering?.base_commission }}% (Porcentaje)
+                                </div>
+                                <div v-else class="text-indigo-600 font-black">
+                                    Variable / Manual
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="commission.referral.offering?.commission_type !== 'fixed'" class="text-[10px] text-indigo-400 font-medium italic">
+                            * El monto se creó en $0 porque debe calcularse basado en el valor final de la venta.
                         </div>
                     </div>
 
@@ -84,7 +97,9 @@ const destroy = () => {
                         <label class="block text-sm font-medium text-slate-700 mb-1">
                             Asociado Beneficiario <span class="text-red-500">*</span>
                         </label>
+                        <!-- Editable if Manual (no referral) -->
                         <select 
+                            v-if="!commission.referral_id"
                             v-model="form.associate_id" 
                             required
                             class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
@@ -93,6 +108,13 @@ const destroy = () => {
                                 {{ assoc.name }}
                             </option>
                         </select>
+                        <!-- Readonly if Automatic (has referral) -->
+                        <div v-else class="p-3 bg-slate-100/50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+                            <span v-if="commission.associate?.user">
+                                {{ commission.associate.user.name }} ({{ commission.associate.user.email }})
+                            </span>
+                            <span v-else class="text-slate-400 italic">Asociado desconocido</span>
+                        </div>
                         <div v-if="form.errors.associate_id" class="text-red-500 text-xs mt-1">{{ form.errors.associate_id }}</div>
                     </div>
 
@@ -122,7 +144,9 @@ const destroy = () => {
                             <label class="block text-sm font-medium text-slate-700 mb-1">
                                 Tipo de Comisión <span class="text-red-500">*</span>
                             </label>
+                            <!-- Editable if Manual -->
                             <select 
+                                v-if="!commission.referral_id"
                                 v-model="form.commission_type" 
                                 required
                                 class="w-full border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
@@ -131,6 +155,10 @@ const destroy = () => {
                                     {{ type.label }}
                                 </option>
                             </select>
+                            <!-- Readonly if Automatic -->
+                            <div v-else class="p-3 bg-slate-100/50 border border-slate-200 rounded-lg text-slate-700 font-medium uppercase text-xs tracking-wide">
+                                {{ commissionTypes.find(t => t.value === form.commission_type)?.label || 'Desconocido' }}
+                            </div>
                             <div v-if="form.errors.commission_type" class="text-red-500 text-xs mt-1">{{ form.errors.commission_type }}</div>
                         </div>
                     </div>
@@ -148,10 +176,6 @@ const destroy = () => {
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" v-model="form.status" value="paid" class="text-emerald-600 focus:ring-emerald-500">
                                 <span class="text-sm text-slate-700">Pagado</span>
-                            </label>
-                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" v-model="form.status" value="void" class="text-red-600 focus:ring-red-500">
-                                <span class="text-sm text-slate-700">Anulada</span>
                             </label>
                         </div>
                          <div v-if="form.errors.status" class="text-red-500 text-xs mt-1">{{ form.errors.status }}</div>

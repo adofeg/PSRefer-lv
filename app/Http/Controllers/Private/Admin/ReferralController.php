@@ -26,12 +26,28 @@ class ReferralController extends AdminController
 
     public function index(ReferralRequest $request, GetReferralsAction $action)
     {
-        $filters = $request->only(['search', 'status']);
+        $filters = $request->only(['search', 'status', 'offering_id', 'associate_id', 'sector_id']);
 
         return Inertia::render('Private/Admin/Referrals/Index', [
             'referrals' => $action->execute($request->user(), $filters),
             'filters' => $filters,
-            'statuses' => ReferralStatus::cases(),
+            'statuses' => collect(ReferralStatus::cases())->map(fn ($s) => [
+                'id' => $s->value,
+                'name' => $s->value,
+            ]),
+            'offerings' => \App\Models\Offering::active()->get(['id', 'name'])->map(fn ($o) => [
+                'id' => $o->id,
+                'name' => $o->name,
+            ]),
+            'associates' => \App\Models\Associate::with('user')->get()->map(fn ($a) => [
+                'id' => $a->id,
+                'name' => $a->user?->name ?? 'Sistema',
+                'email' => $a->user?->email,
+            ]),
+            'sectors' => \App\Models\Sector::all(['id', 'name'])->map(fn ($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+            ]),
         ]);
     }
 
@@ -52,6 +68,7 @@ class ReferralController extends AdminController
             'offering' => $offering ? OfferingData::fromModel($offering) : null,
             'offerings' => $offeringId ? [] : OfferingData::collect($offeringsAction->execute($request->user(), false, [], false)),
             'associates' => $request->user()->isAdmin() ? $getAssociatesAction->execute() : [],
+            'sectors' => \App\Models\Sector::all(['id', 'name']),
         ]);
     }
 
@@ -82,8 +99,13 @@ class ReferralController extends AdminController
 
     public function pipeline(ReferralRequest $request, GetReferralPipelineAction $action)
     {
+        $filters = $request->only(['category_id', 'sector_id']);
+
         return Inertia::render('Private/Admin/Referrals/Pipeline', [
-            'referrals' => ReferralPipelineData::collect($action->execute($request->user())),
+            'referrals' => ReferralPipelineData::collect($action->execute($request->user(), $filters)),
+            'categories' => \App\Models\Category::active()->get(['id', 'name']),
+            'sectors' => \App\Models\Sector::all(['id', 'name']),
+            'filters' => $filters,
         ]);
     }
 

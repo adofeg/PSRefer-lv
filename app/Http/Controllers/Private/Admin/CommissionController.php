@@ -23,7 +23,7 @@ class CommissionController extends AdminController
 
     public function index(CommissionRequest $request, GetAllCommissionsAction $action): Response
     {
-        $filters = $request->only(['search', 'status', 'associate_id']);
+        $filters = $request->only(['search', 'status', 'associate_id', 'date_from', 'date_to']);
 
         return Inertia::render('Private/Admin/Commissions/Index', [
             'commissions' => $action->execute($filters),
@@ -67,7 +67,10 @@ class CommissionController extends AdminController
 
     public function destroy(Commission $commission): RedirectResponse
     {
-        // Instead of hard delete, we void it.
+        if ($commission->referral_id) {
+            return redirect()->back()->with('error', 'No se puede anular una comisión vinculada a un referido cerrado.');
+        }
+
         $commission->update(['status' => 'void']);
 
         return redirect()->route('admin.commissions.index')->with('success', 'Comisión anulada correctamente.');

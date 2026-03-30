@@ -4,8 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use App\Data\Referrals\ReferralData;
 use App\Data\Referrals\ReferralStatusUpdateData;
-use App\Enums\ReferralStatus;
 use App\Enums\AssociateRole;
+use App\Enums\ReferralStatus;
 use App\Models\Referral;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,6 +33,9 @@ class ReferralRequest extends FormRequest
             return [
                 'search' => ['nullable', 'string', 'max:120'],
                 'status' => ['nullable', 'string', 'max:50'],
+                'offering_id' => ['nullable', 'integer', 'exists:offerings,id'],
+                'associate_id' => ['nullable', 'integer', 'exists:associates,id'],
+                'sector_id' => ['nullable', 'integer', 'exists:sectors,id'],
             ];
         }
 
@@ -48,14 +51,12 @@ class ReferralRequest extends FormRequest
             'metadata' => 'nullable|array',
             'notes' => 'nullable|string',
             'consent_confirmed' => 'boolean',
-            'client_name' => 'required|string|max:255',
-            'client_email' => 'required|email|max:255',
-            'client_phone' => 'required|string|max:50',
             'associate_id' => [
                 'nullable',
                 'integer',
                 'exists:associates,id',
             ],
+            'sector_id' => 'required|integer|exists:sectors,id',
         ];
 
         // Update context
@@ -67,28 +68,15 @@ class ReferralRequest extends FormRequest
 
             $rules = [
                 'status' => ['sometimes', Rule::enum(ReferralStatus::class)],
-                'deal_value' => 'nullable|numeric|min:0',
-                'revenue_generated' => 'nullable|numeric|min:0',
                 'contract_id' => 'nullable|string|max:255',
-                'payment_method' => 'nullable|string|max:255',
-                'down_payment' => 'nullable|numeric|min:0|lte:deal_value',
-                'agency_fee' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
-                // Client data usually editable too? If so, merge.
-                // But specifically for Referral Status Updates, often fields change.
-                // Let's keep it comprehensive.
+                'reminder_date' => 'nullable|date',
             ];
 
             $user = $this->user();
-            if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value
-)) {
+            if ($user && $user->hasRole(AssociateRole::ASSOCIATE->value)) {
                 $rules['status'] = ['prohibited'];
-                $rules['deal_value'] = ['prohibited'];
-                $rules['revenue_generated'] = ['prohibited'];
                 $rules['contract_id'] = ['prohibited'];
-                $rules['payment_method'] = ['prohibited'];
-                $rules['down_payment'] = ['prohibited'];
-                $rules['agency_fee'] = ['prohibited'];
             }
         }
 
@@ -104,9 +92,7 @@ class ReferralRequest extends FormRequest
             notes: $this->validated('notes'),
             consent_confirmed: (bool) $this->validated('consent_confirmed'),
             associate_id: $associateId,
-            client_name: $this->validated('client_name'),
-            client_email: $this->validated('client_email'),
-            client_phone: $this->validated('client_phone'),
+            sector_id: (int) $this->validated('sector_id'),
         );
     }
 
@@ -118,13 +104,9 @@ class ReferralRequest extends FormRequest
 
         return new ReferralStatusUpdateData(
             status: $status,
-            deal_value: $this->validated('deal_value'),
-            revenue_generated: $this->validated('revenue_generated'),
             contract_id: $this->validated('contract_id'),
-            payment_method: $this->validated('payment_method'),
-            down_payment: $this->validated('down_payment'),
-            agency_fee: $this->validated('agency_fee'),
-            notes: $this->validated('notes')
+            notes: $this->validated('notes'),
+            reminder_date: $this->validated('reminder_date')
         );
     }
 }

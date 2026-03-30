@@ -3,12 +3,11 @@
 namespace App\Actions\Commissions;
 
 use App\Models\Commission;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
 class GetAllCommissionsAction
 {
-    public function execute(array $filters = []): LengthAwarePaginator
+    public function execute(array $filters = []): array
     {
         $query = Commission::query()
             ->with(['associate.user', 'referral', 'referral.offering']);
@@ -36,8 +35,25 @@ class GetAllCommissionsAction
             $query->where('associate_id', $associateId);
         });
 
-        return $query->latest()
-            ->paginate(15)
-            ->withQueryString();
+        // Apply Date Range Filter
+        $query->when($filters['date_from'] ?? null, function (Builder $query, $from) {
+            $query->whereDate('created_at', '>=', $from);
+        });
+
+        $query->when($filters['date_to'] ?? null, function (Builder $query, $to) {
+            $query->whereDate('created_at', '<=', $to);
+        });
+
+        $allCommissions = $query->clone()->get();
+        $totalAmount = $allCommissions->sum('amount');
+        $paidAmount = $allCommissions->where('status', 'paid')->sum('amount');
+        $pendingAmount = $allCommissions->where('status', 'pending')->sum('amount');
+
+        return [
+            'data' => $query->latest()->paginate(15)->withQueryString(),
+            'total_amount_formatted' => '$'.number_format($totalAmount, 2),
+            'paid_amount_formatted' => '$'.number_format($paidAmount, 2),
+            'pending_amount_formatted' => '$'.number_format($pendingAmount, 2),
+        ];
     }
 }
