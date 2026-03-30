@@ -61,9 +61,9 @@ class CreateReferralAction
             Log::info('📧 Email Debug - Final recipients (with offering emails):', $recipients);
             Log::info('📧 Email Debug - Current mail config:', [
                 'mailer' => config('mail.default'),
+                'scheme' => config('mail.mailers.smtp.scheme'),
                 'host' => config('mail.mailers.smtp.host'),
                 'port' => config('mail.mailers.smtp.port'),
-                'encryption' => config('mail.mailers.smtp.encryption'),
                 'from' => config('mail.from'),
             ]);
 
