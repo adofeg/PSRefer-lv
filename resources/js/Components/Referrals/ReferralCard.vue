@@ -20,7 +20,12 @@ const formatCurrency = (amount) => {
 };
 
 const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    if (!dateString) return '';
+    // Extract YYYY-MM-DD to ignore any timezone information from the backend that shifts the local date processing
+    const [year, month, day] = dateString.split('T')[0].split(' ')[0].split('-');
+    
+    // Create a local date at noon to completely avoid daylight saving or UTC offset bugs shifting to the previous day
+    return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('es-ES', {
         day: '2-digit',
         month: 'short'
     });

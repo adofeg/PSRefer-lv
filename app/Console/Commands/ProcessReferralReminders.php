@@ -42,7 +42,7 @@ class ProcessReferralReminders extends Command
             }
 
             // Notify Admins
-            $admins = \App\Models\User::whereIn('role', ['admin', 'psadmin'])->get();
+            $admins = \App\Models\User::role(['admin', 'psadmin'])->get();
             foreach ($admins as $admin) {
                 $admin->notify(new \App\Notifications\ReferralReminderNotification($referral));
             }

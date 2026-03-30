@@ -3,6 +3,7 @@
 namespace App\Actions\Associate;
 
 use App\Enums\ReferralStatus;
+use App\Models\Commission;
 use App\Models\Referral;
 use App\Models\User;
 

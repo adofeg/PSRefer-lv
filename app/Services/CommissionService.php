@@ -22,35 +22,14 @@ class CommissionService
     public function calculateCommissions(Referral $referral, Offering $offering): array
     {
         $commissions = [];
-        $dealValue = $referral->deal_value ?? $referral->revenue_generated ?? 0;
+        // 1. Rule Engine (Dynamic Rules - Variable/Override rules could apply)
+        $amount = $this->ruleEngine->calculateCommission($referral);
+        // Note: The rule engine complex logic was simplified as deal_value was removed.
+        // If the rule engine found a specific match or override, we could use it here.
+        // Currently falling back to standard commission types below.
 
-        // Offering Config
-        $config = $offering->commission_config ?? [];
+        // 2. Base Commission by Type
 
-        // 1. Rule Engine (Dynamic Rules - includes Associate specific rules)
-        if ($dealValue > 0) {
-            $matchingRulePreview = $this->ruleEngine->previewCommissionRate($offering, $dealValue);
-
-            // Check if it's actually a rule match and not just a fallback in the engine
-            // In the engine, 'rule_matched' is null if it just returned the base rate.
-            // But we want to check if calculateCommission returns something based on a rule.
-            $amount = $this->ruleEngine->calculateCommission($referral);
-
-            // If the rule engine found a specific match (preview has a rule_matched index), we use it.
-            if ($matchingRulePreview['rule_matched'] !== null) {
-                $commissions[] = [
-                    'type' => 'percentage',
-                    'amount' => $amount,
-                    'percentage' => $matchingRulePreview['rate'],
-                    'recurrence_type' => 'one_time',
-                    'rule_label' => $matchingRulePreview['label'] ?? null,
-                ];
-
-                return $commissions;
-            }
-        }
-
-        // 3. Base Commission by Type (Fallback if no rules match)
         if ($offering->commission_type === \App\Enums\CommissionType::Fixed) {
             $amount = $offering->base_commission;
 
@@ -66,9 +45,9 @@ class CommissionService
             }
         } elseif ($offering->commission_type === \App\Enums\CommissionType::Percentage) {
             $percentage = $offering->base_commission;
-            // Always create a commission record for percentage, even if dealValue is 0,
+            // Always create a commission record for percentage, even if amount is 0,
             // so Admin can edit it later in the financial panel.
-            $amount = ($dealValue > 0 && $percentage > 0) ? ($dealValue * $percentage) / 100 : 0;
+            $amount = 0; // The base referral no longer has a deal_value
 
             $commissions[] = [
                 'type' => 'percentage',
