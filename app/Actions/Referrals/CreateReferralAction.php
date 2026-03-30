@@ -50,14 +50,28 @@ class CreateReferralAction
 
         // Notify Admins and specific offering emails
         try {
-            $recipients = User::role(EmployeeRole::ADMIN->values())->pluck('email')->toArray();
+            $recipients = User::role(EmployeeRole::values())->pluck('email')->toArray();
+
+            Log::info('📧 Email Debug - Admin recipients from DB:', $recipients);
 
             if (! empty($offering->notification_emails)) {
                 $recipients = array_unique(array_merge($recipients, $offering->notification_emails));
             }
 
+            Log::info('📧 Email Debug - Final recipients (with offering emails):', $recipients);
+            Log::info('📧 Email Debug - Current mail config:', [
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'from' => config('mail.from'),
+            ]);
+
             if (! empty($recipients)) {
                 Mail::to($recipients)->send(new NewReferralAlertMail($referral, $user ?? auth()->user()));
+                Log::info('📧 Email SENT successfully to: '.implode(', ', $recipients));
+            } else {
+                Log::warning('📧 Email NOT sent - no recipients found!');
             }
         } catch (\Exception $e) {
             Log::error('Failed to send new referral alert: '.$e->getMessage());
